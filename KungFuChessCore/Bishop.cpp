@@ -17,10 +17,10 @@ bool Bishop::isValidMove(
     int fromCol,
     int toRow,
     int toCol,
-    const Board&) const
+    const Board& board) const
 {
     int dr = abs(toRow - fromRow);
     int dc = abs(toCol - fromCol);
 
-    return dr == dc && dr > 0;
+    return dr == dc && dr > 0 && board.isPathClear(fromRow, fromCol, toRow, toCol);
 }

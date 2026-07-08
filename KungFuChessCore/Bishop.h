@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Board.h"
 #include "Piece.h"
 #include "PieceTypes.h"
 

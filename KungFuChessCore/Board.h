@@ -25,6 +25,8 @@ public:
     int getCols() const;
     string getError() const;
 
+    bool isInside(int row, int col) const;
+
     bool isEmpty(int row, int col) const;
 
     PieceType getPieceType(int row, int col) const;
@@ -34,12 +36,12 @@ public:
     void movePiece(int fromRow, int fromCol,
         int toRow, int toCol);
 
-    void setEmpty(int row, int col);
-
-
-
-
-    string getTile(int r, int c) const;
-    void setTile(int r, int c, const string& token);
+    //void setEmpty(int row, int col);
+    
+    bool isPathClear(int fromRow,
+        int fromCol,
+        int toRow,
+        int toCol) const;
 };
+
 

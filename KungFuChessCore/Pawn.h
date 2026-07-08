@@ -1,12 +1,12 @@
 #pragma once
-#include "Board.h"
+
 #include "Piece.h"
 #include "PieceTypes.h"
 
-class Rook : public Piece
+class Pawn : public Piece
 {
 public:
-    Rook(PieceColor color);
+    Pawn(PieceColor color);
 
     PieceType getType() const override;
 

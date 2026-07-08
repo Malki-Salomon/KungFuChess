@@ -32,4 +32,29 @@ TEST_SUITE("Knight")
 
         CHECK_FALSE(knight.isValidMove(3, 3, 3, 3, board));
     }
+
+#include "doctest.h"
+#include "Knight.h"
+#include "Board.h"
+
+
+    TEST_SUITE("Knight")
+    {
+        TEST_CASE("Knight jumps over blockers")
+        {
+            Board board;
+
+            board.parse({
+                ". . .",
+                ". wN .",
+                ". . ."
+                });
+
+            Knight knight(PieceColor::White);
+
+            CHECK(
+                knight.isValidMove(1, 1, 0, 3, board)
+            );
+        }
+    }
 }

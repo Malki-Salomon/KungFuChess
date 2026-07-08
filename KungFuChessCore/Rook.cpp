@@ -17,7 +17,8 @@ bool Rook::isValidMove(
     int fromCol,
     int toRow,
     int toCol,
-    const Board&) const
+    const Board& board) const
 {
-    return (fromRow != toRow && fromCol == toCol) || (fromRow == toRow && fromCol != toCol);
+    return ((fromRow != toRow && fromCol == toCol) || (fromRow == toRow && fromCol != toCol))
+            && board.isPathClear(fromRow, fromCol, toRow, toCol);
 }

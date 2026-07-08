@@ -7,6 +7,7 @@
 #include "Rook.h"
 #include <iostream>
 #include <memory>
+#include <Pawn.h>
 using namespace std;
 
 Game::Game() {
@@ -42,7 +43,7 @@ void Game::executeClick(int x, int y)
 
     bool clickedEmpty = board.isEmpty(r, c);
 
-    // אין כלי מסומן - בוחרים כלי
+    // No tool selected - select tool
     if (!hasSelection)
     {
         if (!board.isEmpty(r, c))
@@ -60,7 +61,7 @@ void Game::executeClick(int x, int y)
     PieceColor selectedColor =
         board.getPieceColor(selectedRow, selectedCol);
 
-    // לחיצה על כלי מאותו צבע - מחליפים בחירה
+    // Clicking on a tool of the same color - replaces selection
     if (!board.isEmpty(r, c) &&
         board.getPieceColor(r, c) ==
         board.getPieceColor(selectedRow, selectedCol))
@@ -94,12 +95,16 @@ void Game::executeClick(int x, int y)
         piece = std::make_unique<Knight>(selectedColor);
         break;
 
+    case PieceType::Pawn:
+        piece = std::make_unique<Pawn>(selectedColor);
+        break;
+
     default:
         hasSelection = false;
         return;
     }
 
-    // בדיקת חוקיות המהלך
+    // Checking the legality of the move
     if (!piece->isValidMove(selectedRow,
         selectedCol,
         r,
@@ -109,7 +114,7 @@ void Game::executeClick(int x, int y)
         return;
     }
 
-    // ביצוע המהלך
+    // Making the move
     board.movePiece(selectedRow,
         selectedCol,
         r,

@@ -97,8 +97,18 @@ int Board::getRows() const { return rows; }
 int Board::getCols() const { return cols; }
 string Board::getError() const { return errorMessage; }
 
+bool Board::isInside(int row, int col) const
+{
+    return row >= 0 &&
+        row < rows &&
+        col >= 0 &&
+        col < cols;
+}
+
 bool Board::isEmpty(int row, int col) const
 {
+    if (!isInside(row, col))
+        return false;
     return cells[row][col] == ".";
 }
 
@@ -142,10 +152,10 @@ PieceType Board::getPieceType(int row, int col) const
     }
 }
 
-void Board::setEmpty(int row, int col)
-{
-    cells[row][col] = ".";
-}
+//void Board::setEmpty(int row, int col)
+//{
+//    cells[row][col] = ".";
+//}
 
 void Board::movePiece(int fromRow,
     int fromCol,
@@ -156,10 +166,35 @@ void Board::movePiece(int fromRow,
     cells[fromRow][fromCol] = ".";
 }
 
-string Board::getTile(int r, int c) const {
-    return cells[r][c];
-}
+bool Board::isPathClear(int fromRow,
+    int fromCol,
+    int toRow,
+    int toCol) const
+{
+    int dr = 0;
+    int dc = 0;
 
-void Board::setTile(int r, int c, const std::string& token) {
-    cells[r][c] = token;
+    if (toRow > fromRow)
+        dr = 1;
+    else if (toRow < fromRow)
+        dr = -1;
+
+    if (toCol > fromCol)
+        dc = 1;
+    else if (toCol < fromCol)
+        dc = -1;
+
+    int r = fromRow + dr;
+    int c = fromCol + dc;
+
+    while (r != toRow || c != toCol)
+    {
+        if (!isEmpty(r, c))
+            return false;
+
+        r += dr;
+        c += dc;
+    }
+
+    return true;
 }

@@ -67,4 +67,40 @@ TEST_SUITE("Game")
 
         CHECK(game.isBoardValid());
     }
+
+    TEST_CASE("Capture enemy piece")
+    {
+        Game game;
+
+        game.setupBoard({
+            "wR bP .",
+            ". . .",
+            ". . ."
+            });
+
+
+        game.executeClick(50, 50);
+        game.executeClick(150, 50);
+
+
+        CHECK(game.isBoardValid());
+    }
+
+    TEST_CASE("Cannot capture own piece")
+    {
+        Game game;
+
+        game.setupBoard({
+            "wR wP .",
+            ". . .",
+            ". . ."
+            });
+
+
+        game.executeClick(50, 50);
+        game.executeClick(150, 50);
+
+
+        CHECK(game.isBoardValid());
+    }
 }
