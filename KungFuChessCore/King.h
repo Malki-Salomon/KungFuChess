@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Piece.h"
+#include "PieceTypes.h"
 
 class King : public Piece
 {
 public:
-    King(char color);
+    King(PieceColor color);
 
-    char getType() const override;
+    PieceType getType() const override;
 
     bool isValidMove(
         int fromRow,

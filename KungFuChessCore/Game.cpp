@@ -40,12 +40,12 @@ void Game::executeClick(int x, int y)
         c < 0 || c >= board.getCols())
         return;
 
-    std::string clickedToken = board.getTile(r, c);
+    bool clickedEmpty = board.isEmpty(r, c);
 
     // אין כלי מסומן - בוחרים כלי
     if (!hasSelection)
     {
-        if (clickedToken != ".")
+        if (!board.isEmpty(r, c))
         {
             hasSelection = true;
             selectedRow = r;
@@ -54,11 +54,16 @@ void Game::executeClick(int x, int y)
         return;
     }
 
-    std::string selectedToken = board.getTile(selectedRow, selectedCol);
+    PieceType selectedType =
+        board.getPieceType(selectedRow, selectedCol);
+
+    PieceColor selectedColor =
+        board.getPieceColor(selectedRow, selectedCol);
 
     // לחיצה על כלי מאותו צבע - מחליפים בחירה
-    if (clickedToken != "." &&
-        clickedToken[0] == selectedToken[0])
+    if (!board.isEmpty(r, c) &&
+        board.getPieceColor(r, c) ==
+        board.getPieceColor(selectedRow, selectedCol))
     {
         selectedRow = r;
         selectedCol = c;
@@ -67,26 +72,26 @@ void Game::executeClick(int x, int y)
 
     std::unique_ptr<Piece> piece;
 
-    switch (selectedToken[1])
+    switch (selectedType)
     {
-    case 'K':
-        piece = std::make_unique<King>(selectedToken[0]);
+    case PieceType::King:
+        piece = std::make_unique<King>(selectedColor);
         break;
 
-    case 'Q':
-        piece = std::make_unique<Queen>(selectedToken[0]);
+    case PieceType::Queen:
+        piece = std::make_unique<Queen>(selectedColor);
         break;
 
-    case 'R':
-        piece = std::make_unique<Rook>(selectedToken[0]);
+    case PieceType::Rook:
+        piece = std::make_unique<Rook>(selectedColor);
         break;
 
-    case 'B':
-        piece = std::make_unique<Bishop>(selectedToken[0]);
+    case PieceType::Bishop:
+        piece = std::make_unique<Bishop>(selectedColor);
         break;
 
-    case 'N':
-        piece = std::make_unique<Knight>(selectedToken[0]);
+    case PieceType::Knight:
+        piece = std::make_unique<Knight>(selectedColor);
         break;
 
     default:
@@ -105,8 +110,10 @@ void Game::executeClick(int x, int y)
     }
 
     // ביצוע המהלך
-    board.setTile(r, c, selectedToken);
-    board.setTile(selectedRow, selectedCol, ".");
+    board.movePiece(selectedRow,
+        selectedCol,
+        r,
+        c);
 
     hasSelection = false;
 }

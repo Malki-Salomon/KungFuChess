@@ -127,17 +127,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BishopTests.cpp" />
     <ClCompile Include="BoardTest.cpp" />
+    <ClCompile Include="GameTests.cpp" />
+    <ClCompile Include="KingTests.cpp" />
+    <ClCompile Include="KnightTests.cpp" />
     <ClCompile Include="KungFuChessTest.cpp" />
+    <ClCompile Include="PieceTests.cpp" />
+    <ClCompile Include="QueenTests.cpp" />
+    <ClCompile Include="RookTests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BishopTests.h" />
     <ClInclude Include="BoardTest.h" />
     <ClInclude Include="doctest.h" />
+    <ClInclude Include="GameTests.h" />
+    <ClInclude Include="KingTests.h" />
+    <ClInclude Include="KnightTests.h" />
+    <ClInclude Include="PieceTests.h" />
+    <ClInclude Include="QueenTests.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="RookTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
       <Project>{9a233c1f-6476-4998-a4e3-4d27d5eda164}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="KungFuChessTest.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,14 +2,14 @@
 #include "Knight.h"
 #include <cmath>
 
-Knight::Knight(char color)
+Knight::Knight(PieceColor color)
     : Piece(color)
 {
 }
 
-char Knight::getType() const
+PieceType Knight::getType() const
 {
-    return 'N';
+    return PieceType::Knight;
 }
 
 bool Knight::isValidMove(

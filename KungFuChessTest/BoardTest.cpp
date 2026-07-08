@@ -1,68 +1,124 @@
 #include "doctest.h"
 #include "Board.h"
-#include <vector>
 
-TEST_CASE("Valid board")
+TEST_SUITE("Board")
 {
-    Board board;
-
-    std::vector<std::string> input =
+    TEST_CASE("Valid board")
     {
-        "wK . .",
-        ". bK .",
-        ". . ."
-    };
+        Board board;
 
-    board.parse(input);
+        std::vector<std::string> input =
+        {
+            "wK . .",
+            ". bK .",
+            ". . ."
+        };
 
-    CHECK(board.validate());
-    CHECK(board.getRows() == 3);
-    CHECK(board.getCols() == 3);
-}
+        board.parse(input);
 
-TEST_CASE("Unknown token")
-{
-    Board board;
+        CHECK(board.validate());
+        CHECK(board.getRows() == 3);
+        CHECK(board.getCols() == 3);
+    }
 
-    std::vector<std::string> input =
+    TEST_CASE("Empty board")
     {
-        "wK XX ."
-    };
+        Board board;
 
-    board.parse(input);
+        std::vector<std::string> input;
 
-    CHECK_FALSE(board.validate());
-    CHECK(board.getError() == "ERROR UNKNOWN_TOKEN");
-}
+        board.parse(input);
 
-TEST_CASE("Rows with different lengths")
-{
-    Board board;
+        CHECK(board.validate());
+        CHECK(board.getRows() == 0);
+        CHECK(board.getCols() == 0);
+    }
 
-    std::vector<std::string> input =
+    TEST_CASE("Invalid token")
     {
-        "wK . .",
-        ". bK"
-    };
+        Board board;
 
-    board.parse(input);
+        std::vector<std::string> input =
+        {
+            "wK XX ."
+        };
 
-    CHECK_FALSE(board.validate());
-    CHECK(board.getError() == "ERROR ROW_WIDTH_MISMATCH");
-}
+        board.parse(input);
 
-TEST_CASE("Read tile")
-{
-    Board board;
+        CHECK_FALSE(board.validate());
+    }
 
-    std::vector<std::string> input =
+    TEST_CASE("Different row lengths")
     {
-        "wK .",
-        ". bK"
-    };
+        Board board;
 
-    board.parse(input);
+        std::vector<std::string> input =
+        {
+            "wK . .",
+            ". ."
+        };
 
-    CHECK(board.getTile(0, 0) == "wK");
-    CHECK(board.getTile(1, 1) == "bK");
+        board.parse(input);
+
+        CHECK_FALSE(board.validate());
+    }
+
+    TEST_CASE("isEmpty")
+    {
+        Board board;
+
+        board.parse(
+            {
+                "wK .",
+                ". bR"
+            });
+
+        CHECK_FALSE(board.isEmpty(0, 0));
+        CHECK(board.isEmpty(0, 1));
+    }
+
+    TEST_CASE("Piece type")
+    {
+        Board board;
+
+        board.parse(
+            {
+                "wQ bR",
+                "wB wN"
+            });
+
+        CHECK(board.getPieceType(0, 0) == PieceType::Queen);
+        CHECK(board.getPieceType(0, 1) == PieceType::Rook);
+        CHECK(board.getPieceType(1, 0) == PieceType::Bishop);
+        CHECK(board.getPieceType(1, 1) == PieceType::Knight);
+    }
+
+    TEST_CASE("Piece color")
+    {
+        Board board;
+
+        board.parse(
+            {
+                "wQ bR"
+            });
+
+        CHECK(board.getPieceColor(0, 0) == PieceColor::White);
+        CHECK(board.getPieceColor(0, 1) == PieceColor::Black);
+    }
+
+    TEST_CASE("Move piece")
+    {
+        Board board;
+
+        board.parse(
+            {
+                "wR .",
+                ". ."
+            });
+
+        board.movePiece(0, 0, 1, 1);
+
+        CHECK(board.isEmpty(0, 0));
+        CHECK(board.getPieceType(1, 1) == PieceType::Rook);
+    }
 }

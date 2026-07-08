@@ -1,19 +1,20 @@
 #pragma once
+#include "PieceTypes.h"
 
 class Board;
 
 class Piece
 {
 protected:
-    char color; // 'w' ае 'b'
+    PieceColor color;
 
 public:
-    Piece(char color);
+    Piece(PieceColor color);
     virtual ~Piece() = default;
 
-    char getColor() const;
+    PieceColor getColor() const;
 
-    virtual char getType() const = 0;
+    virtual PieceType getType() const = 0;
 
     virtual bool isValidMove(
         int fromRow,

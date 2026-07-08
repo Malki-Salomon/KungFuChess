@@ -2,14 +2,14 @@
 #include "Bishop.h"
 #include <cmath>
 
-Bishop::Bishop(char color)
+Bishop::Bishop(PieceColor color)
     : Piece(color)
 {
 }
 
-char Bishop::getType() const
+PieceType Bishop::getType() const
 {
-    return 'B';
+    return PieceType::Bishop;
 }
 
 bool Bishop::isValidMove(

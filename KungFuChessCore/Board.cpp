@@ -97,6 +97,65 @@ int Board::getRows() const { return rows; }
 int Board::getCols() const { return cols; }
 string Board::getError() const { return errorMessage; }
 
+bool Board::isEmpty(int row, int col) const
+{
+    return cells[row][col] == ".";
+}
+
+PieceColor Board::getPieceColor(int row, int col) const
+{
+    if (isEmpty(row, col))
+        return PieceColor::None;
+
+    return cells[row][col][0] == 'w'
+        ? PieceColor::White
+        : PieceColor::Black;
+}
+
+PieceType Board::getPieceType(int row, int col) const
+{
+    if (isEmpty(row, col))
+        return PieceType::Empty;
+
+    switch (cells[row][col][1])
+    {
+    case 'K':
+        return PieceType::King;
+
+    case 'Q':
+        return PieceType::Queen;
+
+    case 'R':
+        return PieceType::Rook;
+
+    case 'B':
+        return PieceType::Bishop;
+
+    case 'N':
+        return PieceType::Knight;
+
+    case 'P':
+        return PieceType::Pawn;
+
+    default:
+        return PieceType::Empty;
+    }
+}
+
+void Board::setEmpty(int row, int col)
+{
+    cells[row][col] = ".";
+}
+
+void Board::movePiece(int fromRow,
+    int fromCol,
+    int toRow,
+    int toCol)
+{
+    cells[toRow][toCol] = cells[fromRow][fromCol];
+    cells[fromRow][fromCol] = ".";
+}
+
 string Board::getTile(int r, int c) const {
     return cells[r][c];
 }

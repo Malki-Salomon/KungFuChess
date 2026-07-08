@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "Piece.h"
 
-Piece::Piece(char color)
+Piece::Piece(PieceColor color)
     : color(color)
 {
 }
 
-char Piece::getColor() const
+PieceColor Piece::getColor() const
 {
     return color;
 }

@@ -2,14 +2,14 @@
 #include "King.h"
 #include <cmath>
 
-King::King(char color)
+King::King(PieceColor color)
     : Piece(color)
 {
 }
 
-char King::getType() const
+PieceType King::getType() const
 {
-    return 'K';
+    return PieceType::King;
 }
 
 bool King::isValidMove(
