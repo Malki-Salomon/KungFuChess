@@ -1,106 +1,44 @@
 #include "doctest.h"
 #include "Game.h"
 
-TEST_SUITE("Game")
+TEST_SUITE("Game Simulations")
 {
-    TEST_CASE("Valid board")
+    TEST_CASE("Standard simulation match format")
     {
         Game game;
 
-        game.setupBoard({
-            "wK . .",
-            ". bK .",
-            ". . ."
-            });
-
-        CHECK(game.isBoardValid());
-    }
-
-    TEST_CASE("Invalid board")
-    {
-        Game game;
-
-        game.setupBoard({
-            "wK XX ."
-            });
-
-        CHECK_FALSE(game.isBoardValid());
-    }
-
-    TEST_CASE("Legal king move")
-    {
-        Game game;
-
-        game.setupBoard({
-            "wK . .",
+        game.runSimulation({
+            "Board:",
+            "wR . .",
             ". . .",
-            ". . ."
+            "bR . .",
+            "Commands:",
+            "click 50 50",
+            "click 250 50",
+            "click 50 250",
+            "click 250 250",
+            "wait 2000",
+            "print board"
             });
 
-        game.executeClick(50, 50);
-        game.executeClick(150, 50);
-
-        CHECK(game.isBoardValid());
+        CHECK(game.getBoard().isEmpty(Position(0, 0)));
+        CHECK(game.getBoard().getPieceType(Position(0, 2)) == PieceType::Rook);
     }
 
-    TEST_CASE("Illegal king move")
+    TEST_CASE("Another simulation test case")
     {
         Game game;
 
-        game.setupBoard({
+        game.runSimulation({
+            "Board:",
             "wK . .",
             ". . .",
-            ". . ."
+            "Commands:",
+            "click 50 50",
+            "click 150 50",
+            "wait 1000"
             });
 
-        game.executeClick(50, 50);
-        game.executeClick(250, 250);
-
-        CHECK(game.isBoardValid());
-    }
-
-    TEST_CASE("Wait")
-    {
-        Game game;
-
-        game.executeWait(1000);
-
-        CHECK(game.isBoardValid());
-    }
-
-    TEST_CASE("Capture enemy piece")
-    {
-        Game game;
-
-        game.setupBoard({
-            "wR bP .",
-            ". . .",
-            ". . ."
-            });
-
-
-        game.executeClick(50, 50);
-        game.executeClick(150, 50);
-
-
-        CHECK(game.isBoardValid());
-    }
-
-    TEST_CASE("Cannot capture own piece")
-    {
-        Game game;
-
-        game.setupBoard({
-            "wR wP .",
-            ". . .",
-            ". . ."
-            });
-
-
-        game.executeClick(50, 50);
-        game.executeClick(150, 50);
-
-
-        CHECK(game.isBoardValid());
+        CHECK(game.getBoard().getPieceType(Position(0, 1)) == PieceType::King);
     }
 }

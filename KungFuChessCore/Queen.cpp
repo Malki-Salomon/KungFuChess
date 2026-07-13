@@ -13,15 +13,12 @@ PieceType Queen::getType() const
 }
 
 bool Queen::isValidMove(
-    int fromRow,
-    int fromCol,
-    int toRow,
-    int toCol,
+	Position from,
+	Position to,
     const Board& board) const
 {
-    int dr = abs(toRow - fromRow);
-    int dc = abs(toCol - fromCol);
+    int dr = abs(to.getRow() - from.getRow());
+    int dc = abs(to.getCol() - from.getCol());
 
-    return ((dr == dc && dr > 0) || (dr == 0 && dc > 0) || (dc == 0 && dr > 0))
-            && board.isPathClear(fromRow, fromCol, toRow, toCol);
+    return ((dr == dc && dr > 0) || (dr == 0 && dc > 0) || (dc == 0 && dr > 0));
 }

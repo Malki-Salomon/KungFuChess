@@ -1,5 +1,6 @@
 #pragma once
 #include "PieceTypes.h"
+#include "Position.h"
 
 class Board;
 
@@ -7,6 +8,8 @@ class Piece
 {
 protected:
     PieceColor color;
+	PieceType type;
+
 
 public:
     Piece(PieceColor color);
@@ -17,10 +20,8 @@ public:
     virtual PieceType getType() const = 0;
 
     virtual bool isValidMove(
-        int fromRow,
-        int fromCol,
-        int toRow,
-        int toCol,
+		Position from,
+        Position to,
         const Board& board) const = 0;
 };
 

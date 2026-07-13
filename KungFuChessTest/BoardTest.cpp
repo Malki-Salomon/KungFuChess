@@ -1,124 +1,86 @@
 #include "doctest.h"
 #include "Board.h"
+#include "TextBoardConvert.h"
+#include "Position.h"
 
 TEST_SUITE("Board")
 {
-    TEST_CASE("Valid board")
+    TEST_CASE("isInside")
     {
         Board board;
 
-        std::vector<std::string> input =
-        {
+        TextBoardConvert converter({
             "wK . .",
-            ". bK .",
             ". . ."
-        };
+        });
 
-        board.parse(input);
+        CHECK(converter.Convert(board));
 
-        CHECK(board.validate());
-        CHECK(board.getRows() == 3);
-        CHECK(board.getCols() == 3);
-    }
+        CHECK(board.isInside(Position(0, 0)));
+        CHECK(board.isInside(Position(1, 2)));
 
-    TEST_CASE("Empty board")
-    {
-        Board board;
-
-        std::vector<std::string> input;
-
-        board.parse(input);
-
-        CHECK(board.validate());
-        CHECK(board.getRows() == 0);
-        CHECK(board.getCols() == 0);
-    }
-
-    TEST_CASE("Invalid token")
-    {
-        Board board;
-
-        std::vector<std::string> input =
-        {
-            "wK XX ."
-        };
-
-        board.parse(input);
-
-        CHECK_FALSE(board.validate());
-    }
-
-    TEST_CASE("Different row lengths")
-    {
-        Board board;
-
-        std::vector<std::string> input =
-        {
-            "wK . .",
-            ". ."
-        };
-
-        board.parse(input);
-
-        CHECK_FALSE(board.validate());
+        CHECK_FALSE(board.isInside(Position(-1, 0)));
+        CHECK_FALSE(board.isInside(Position(2, 0)));
+        CHECK_FALSE(board.isInside(Position(0, 3)));
     }
 
     TEST_CASE("isEmpty")
     {
         Board board;
 
-        board.parse(
-            {
-                "wK .",
-                ". bR"
-            });
+        TextBoardConvert converter({
+            "wK . ."
+        });
 
-        CHECK_FALSE(board.isEmpty(0, 0));
-        CHECK(board.isEmpty(0, 1));
-    }
+        CHECK(converter.Convert(board));
 
-    TEST_CASE("Piece type")
-    {
-        Board board;
-
-        board.parse(
-            {
-                "wQ bR",
-                "wB wN"
-            });
-
-        CHECK(board.getPieceType(0, 0) == PieceType::Queen);
-        CHECK(board.getPieceType(0, 1) == PieceType::Rook);
-        CHECK(board.getPieceType(1, 0) == PieceType::Bishop);
-        CHECK(board.getPieceType(1, 1) == PieceType::Knight);
+        CHECK_FALSE(board.isEmpty(Position(0, 0)));
+        CHECK(board.isEmpty(Position(0, 1)));
+        CHECK(board.isEmpty(Position(0, 2)));
     }
 
     TEST_CASE("Piece color")
     {
         Board board;
 
-        board.parse(
-            {
-                "wQ bR"
-            });
+        TextBoardConvert converter({
+            "wK bQ ."
+        });
 
-        CHECK(board.getPieceColor(0, 0) == PieceColor::White);
-        CHECK(board.getPieceColor(0, 1) == PieceColor::Black);
+        CHECK(converter.Convert(board));
+
+        CHECK(board.getPieceColor(Position(0, 0)) == PieceColor::White);
+        CHECK(board.getPieceColor(Position(0, 1)) == PieceColor::Black);
+    }
+
+    TEST_CASE("Piece type")
+    {
+        Board board;
+
+        TextBoardConvert converter({
+            "wK bR ."
+        });
+
+        CHECK(converter.Convert(board));
+
+        CHECK(board.getPieceType(Position(0, 0)) == PieceType::King);
+        CHECK(board.getPieceType(Position(0, 1)) == PieceType::Rook);
     }
 
     TEST_CASE("Move piece")
     {
         Board board;
 
-        board.parse(
-            {
-                "wR .",
-                ". ."
-            });
+        TextBoardConvert converter({
+            "wR . ."
+        });
 
-        board.movePiece(0, 0, 1, 1);
+        CHECK(converter.Convert(board));
 
-        CHECK(board.isEmpty(0, 0));
-        CHECK(board.getPieceType(1, 1) == PieceType::Rook);
+        board.movePiece(0, 0, 0, 2);
+
+        CHECK(board.isEmpty(Position(0, 0)));
+        CHECK(board.getPieceType(Position(0, 2)) == PieceType::Rook);
+        CHECK(board.getPieceColor(Position(0, 2)) == PieceColor::White);
     }
 }

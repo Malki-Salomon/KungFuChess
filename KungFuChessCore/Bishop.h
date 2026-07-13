@@ -1,5 +1,4 @@
 #pragma once
-#include "Board.h"
 #include "Piece.h"
 #include "PieceTypes.h"
 
@@ -11,10 +10,8 @@ public:
     PieceType getType() const override;
 
     bool isValidMove(
-        int fromRow,
-        int fromCol,
-        int toRow,
-        int toCol,
+        Position from,
+        Position to,
         const Board& board) const override;
 };
 

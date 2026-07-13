@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="BishopTests.cpp" />
     <ClCompile Include="BoardTest.cpp" />
+    <ClCompile Include="CommandFactoryTest.cpp" />
     <ClCompile Include="GameTests.cpp" />
     <ClCompile Include="KingTests.cpp" />
     <ClCompile Include="KnightTests.cpp" />
@@ -136,10 +137,13 @@
     <ClCompile Include="PieceTests.cpp" />
     <ClCompile Include="QueenTests.cpp" />
     <ClCompile Include="RookTests.cpp" />
+    <ClCompile Include="RuleEngineTest.cpp" />
+    <ClCompile Include="TextBoardConvertTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BishopTests.h" />
     <ClInclude Include="BoardTest.h" />
+    <ClInclude Include="CommandFactoryTest.h" />
     <ClInclude Include="doctest.h" />
     <ClInclude Include="GameTests.h" />
     <ClInclude Include="KingTests.h" />
@@ -148,6 +152,8 @@
     <ClInclude Include="QueenTests.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RookTests.h" />
+    <ClInclude Include="RuleEngineTest.h" />
+    <ClInclude Include="TextBoardConvertTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">

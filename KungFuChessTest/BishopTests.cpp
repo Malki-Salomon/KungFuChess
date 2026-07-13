@@ -1,6 +1,8 @@
 #include "doctest.h"
 #include "Bishop.h"
 #include "Board.h"
+#include "TextBoardConvert.h"
+#include "Position.h" 
 
 TEST_SUITE("Bishop")
 {
@@ -8,26 +10,28 @@ TEST_SUITE("Bishop")
     {
         Board board;
 
-        board.parse({
-            ". . . . . .",
-            ". . . . . .",
-            ". . . . . .",
-            ". . . . . .",
-            ". . . . . .",
-            ". . . . . ."
+        TextBoardConvert convert({
+             ". . . . . .",
+             ". . . . . .",
+             ". . . . . .",
+             ". . . . . .",
+             ". . . . . .",
+             ". . . . . ."
             });
+
+        convert.Convert(board);
 
         Bishop bishop(PieceColor::White);
 
-        CHECK(bishop.isValidMove(2, 2, 5, 5, board));
-        CHECK(bishop.isValidMove(5, 5, 2, 2, board));
+        CHECK(bishop.isValidMove(Position(2, 2), Position(5, 5), board));
+        CHECK(bishop.isValidMove(Position(5, 5), Position(2, 2), board));
     }
 
     TEST_CASE("Blocked diagonal")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . .",
             ". . . . . .",
             ". . wB . . .",
@@ -36,10 +40,12 @@ TEST_SUITE("Bishop")
             ". . . . . ."
             });
 
+        convert.Convert(board);
+
         Bishop bishop(PieceColor::White);
 
-        CHECK_FALSE(
-            bishop.isValidMove(2, 2, 4, 4, board)
+        CHECK(
+            bishop.isValidMove(Position(2, 2), Position(4, 4), board)
         );
     }
 
@@ -47,7 +53,7 @@ TEST_SUITE("Bishop")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . .",
             ". . . . . .",
             ". . . . . .",
@@ -55,11 +61,12 @@ TEST_SUITE("Bishop")
             ". . . . . .",
             ". . . . . ."
             });
+        convert.Convert(board);
 
         Bishop bishop(PieceColor::White);
 
         CHECK_FALSE(
-            bishop.isValidMove(2, 2, 2, 5, board)
+            bishop.isValidMove(Position(2, 2), Position(2, 5), board)
         );
     }
 
@@ -67,7 +74,7 @@ TEST_SUITE("Bishop")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . .",
             ". . . . . .",
             ". . . . . .",
@@ -75,11 +82,12 @@ TEST_SUITE("Bishop")
             ". . . . . .",
             ". . . . . ."
             });
+        convert.Convert(board);
 
         Bishop bishop(PieceColor::White);
 
         CHECK_FALSE(
-            bishop.isValidMove(2, 2, 5, 2, board)
+            bishop.isValidMove(Position(2, 2), Position(5, 2), board)
         );
     }
 
@@ -87,7 +95,7 @@ TEST_SUITE("Bishop")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . .",
             ". . . . . .",
             ". . . . . .",
@@ -95,11 +103,12 @@ TEST_SUITE("Bishop")
             ". . . . . .",
             ". . . . . ."
             });
+        convert.Convert(board);
 
         Bishop bishop(PieceColor::White);
 
         CHECK_FALSE(
-            bishop.isValidMove(2, 2, 2, 2, board)
+            bishop.isValidMove(Position(2, 2), Position(2, 2), board)
         );
     }
 }

@@ -1,81 +1,45 @@
 #include "pch.h"
+#include "Bishop.h"
 #include "Board.h"
+#include "King.h"
+#include "Knight.h"
+#include "Pawn.h"
+#include "PieceTypes.h"
+#include "Queen.h"
+#include "Rook.h"
 #include <iostream>
 #include <sstream>
 using namespace std;
 
 Board::Board()
 {
-    rows = 0;
-    cols = 0;
-    errorMessage = "";
+    /*errorMessage = "";*/
 }
 
-bool Board::isValidToken(const string& token) const
-{
-    if (token == ".") return true;
-    if (token.size() != 2) return false;
-
-    char color = token[0];
-    char piece = token[1];
-
-    if (color != 'w' && color != 'b') return false;
-    if (piece != 'K' && piece != 'Q' && piece != 'R' && piece != 'B' && piece != 'N' && piece != 'P') return false;
-
-    return true;
-}
-
-void Board::parse(const vector<string>& input)
+void Board::clear()
 {
     cells.clear();
-    errorMessage = "";
-    rows = 0;
-    cols = -1;
 
-    for (const auto& line : input)
-    {
-        vector<string> rowTokens;
-        stringstream ss(line);
-        string token;
-
-        while (ss >> token)
-        {
-            rowTokens.push_back(token);
-        }
-
-        if (rowTokens.empty()) continue;
-
-        for (const auto& t : rowTokens)
-        {
-            if (!isValidToken(t))
-            {
-                if (errorMessage.empty()) {
-                    errorMessage = "ERROR UNKNOWN_TOKEN";
-                }
-            }
-        }
-
-        if (cols == -1)
-        {
-            cols = rowTokens.size();
-        }
-        else if ((int)rowTokens.size() != cols)
-        {
-            if (errorMessage.empty()) {
-                errorMessage = "ERROR ROW_WIDTH_MISMATCH";
-            }
-        }
-
-        cells.push_back(rowTokens);
-    }
-
-    rows = cells.size();
-    if (rows == 0) cols = 0;
+    //errorMessage.clear();
 }
 
-bool Board::validate() const
+void Board::setSize(int row, int col)
 {
-    return errorMessage.empty();
+    cells.resize(row);
+    for (auto& r : cells)
+    {
+        r.resize(col);
+    }
+}
+
+void Board::setPiece(int row, int col, std::unique_ptr<Piece> piece)
+{
+    cells[row][col] = std::move(piece);
+}
+
+unique_ptr<Piece>& Board::getPiece(int row, int col)  
+{  
+    return cells[row][col];  
 }
 
 void Board::print() const
@@ -93,108 +57,127 @@ void Board::print() const
     }
 }
 
-int Board::getRows() const { return rows; }
-int Board::getCols() const { return cols; }
-string Board::getError() const { return errorMessage; }
-
-bool Board::isInside(int row, int col) const
+bool Board::isInside(Position pos) const
 {
-    return row >= 0 &&
-        row < rows &&
-        col >= 0 &&
-        col < cols;
+    return pos.getRow() >= 0 &&
+        pos.getRow() < cells.size() &&
+        pos.getCol() >= 0 &&
+        pos.getCol() < cells[0].size();
 }
 
-bool Board::isEmpty(int row, int col) const
+bool Board::isEmpty(Position pos) const
 {
-    if (!isInside(row, col))
+    if (!isInside(pos))
         return false;
-    return cells[row][col] == ".";
+    return cells[pos.getRow()][pos.getCol()]== nullptr;
 }
 
-PieceColor Board::getPieceColor(int row, int col) const
+PieceColor Board::getPieceColor(Position pos) const
 {
-    if (isEmpty(row, col))
-        return PieceColor::None;
-
-    return cells[row][col][0] == 'w'
-        ? PieceColor::White
-        : PieceColor::Black;
+    return cells[pos.getRow()][pos.getCol()]->getColor();
 }
 
-PieceType Board::getPieceType(int row, int col) const
+PieceType Board::getPieceType(Position pos) const
 {
-    if (isEmpty(row, col))
-        return PieceType::Empty;
-
-    switch (cells[row][col][1])
-    {
-    case 'K':
-        return PieceType::King;
-
-    case 'Q':
-        return PieceType::Queen;
-
-    case 'R':
-        return PieceType::Rook;
-
-    case 'B':
-        return PieceType::Bishop;
-
-    case 'N':
-        return PieceType::Knight;
-
-    case 'P':
-        return PieceType::Pawn;
-
-    default:
-        return PieceType::Empty;
-    }
+	return cells[pos.getRow()][pos.getCol()]->getType();
 }
+
+void Board::movePiece(int fromRow, int fromCol, int toRow,  int toCol)
+{
+	setPiece(toRow, toCol, std::move(cells[fromRow][fromCol]));
+	setPiece(fromRow, fromCol, nullptr);
+}
+
+//bool Board::validate() const
+//{
+//    return errorMessage.empty();
+//}
+//
+//void Board::setError(const string& error)
+//{
+//    errorMessage = error;
+//}
+//
+//string Board::getError() const { return errorMessage; }
+
+//bool Board::isValidToken(const string& token) const
+//{
+//    if (token == ".") return true;
+//    if (token.size() != 2) return false;
+//
+//    char color = token[0];
+//    char piece = token[1];
+//
+//    if (color != 'w' && color != 'b') return false;
+//    if (piece != 'K' && piece != 'Q' && piece != 'R' && piece != 'B' && piece != 'N' && piece != 'P') return false;
+//
+//    return true;
+//}
+
+//void Board::parse(const vector<string>& input)
+//{
+//    cells.clear();
+//    errorMessage = "";
+//    rows = 0;
+//    cols = -1;
+//
+//    for (const auto& line : input)
+//    {
+//        vector<string> rowTokens;
+//        stringstream ss(line);
+//        string token;
+//
+//        while (ss >> token)
+//        {
+//            rowTokens.push_back(token);
+//        }
+//
+//        if (rowTokens.empty()) continue;
+//
+//        for (const auto& t : rowTokens)
+//        {
+//            if (!isValidToken(t))
+//            {
+//                if (errorMessage.empty()) {
+//                    errorMessage = "ERROR UNKNOWN_TOKEN";
+//                }
+//            }
+//        }
+//
+//        if (cols == -1)
+//        {
+//            cols = rowTokens.size();
+//        }
+//        else if ((int)rowTokens.size() != cols)
+//        {
+//            if (errorMessage.empty()) {
+//                errorMessage = "ERROR ROW_WIDTH_MISMATCH";
+//            }
+//        }
+//
+//        cells.push_back(rowTokens);
+//    }
+//
+//    rows = cells.size();
+//    if (rows == 0) cols = 0;
+//}
+
+//void Board::initialize(
+//    const vector<vector<Piece*>>& newCells,
+//    const string& error)
+//{
+//    cells = newCells;
+//    errorMessage = error;
+//
+//    rows = cells.size();
+//
+//    if (rows == 0)
+//        cols = 0;
+//    else
+//        cols = cells[0].size();
+//}
 
 //void Board::setEmpty(int row, int col)
 //{
 //    cells[row][col] = ".";
 //}
-
-void Board::movePiece(int fromRow,
-    int fromCol,
-    int toRow,
-    int toCol)
-{
-    cells[toRow][toCol] = cells[fromRow][fromCol];
-    cells[fromRow][fromCol] = ".";
-}
-
-bool Board::isPathClear(int fromRow,
-    int fromCol,
-    int toRow,
-    int toCol) const
-{
-    int dr = 0;
-    int dc = 0;
-
-    if (toRow > fromRow)
-        dr = 1;
-    else if (toRow < fromRow)
-        dr = -1;
-
-    if (toCol > fromCol)
-        dc = 1;
-    else if (toCol < fromCol)
-        dc = -1;
-
-    int r = fromRow + dr;
-    int c = fromCol + dc;
-
-    while (r != toRow || c != toCol)
-    {
-        if (!isEmpty(r, c))
-            return false;
-
-        r += dr;
-        c += dc;
-    }
-
-    return true;
-}

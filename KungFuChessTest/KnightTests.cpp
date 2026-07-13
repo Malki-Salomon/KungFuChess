@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "Knight.h"
 #include "Board.h"
-
+#include "Position.h" 
 TEST_SUITE("Knight")
 {
     TEST_CASE("Legal moves")
@@ -9,10 +9,10 @@ TEST_SUITE("Knight")
         Board board;
         Knight knight(PieceColor::White);
 
-        CHECK(knight.isValidMove(3, 3, 5, 4, board));
-        CHECK(knight.isValidMove(3, 3, 5, 2, board));
-        CHECK(knight.isValidMove(3, 3, 1, 4, board));
-        CHECK(knight.isValidMove(3, 3, 1, 2, board));
+        CHECK(knight.isValidMove(Position(3, 3), Position(5, 4), board));
+        CHECK(knight.isValidMove(Position(3, 3), Position(5, 2), board));
+        CHECK(knight.isValidMove(Position(3, 3), Position(1, 4), board));
+        CHECK(knight.isValidMove(Position(3, 3), Position(1, 2), board));
     }
 
     TEST_CASE("Illegal moves")
@@ -20,9 +20,9 @@ TEST_SUITE("Knight")
         Board board;
         Knight knight(PieceColor::White);
 
-        CHECK_FALSE(knight.isValidMove(3, 3, 4, 4, board));
-        CHECK_FALSE(knight.isValidMove(3, 3, 3, 5, board));
-        CHECK_FALSE(knight.isValidMove(3, 3, 5, 5, board));
+        CHECK_FALSE(knight.isValidMove(Position(3, 3), Position(4, 4), board));
+        CHECK_FALSE(knight.isValidMove(Position(3, 3), Position(3, 5), board));
+        CHECK_FALSE(knight.isValidMove(Position(3, 3), Position(5, 5), board));
     }
 
     TEST_CASE("Same square")
@@ -30,31 +30,6 @@ TEST_SUITE("Knight")
         Board board;
         Knight knight(PieceColor::White);
 
-        CHECK_FALSE(knight.isValidMove(3, 3, 3, 3, board));
-    }
-
-#include "doctest.h"
-#include "Knight.h"
-#include "Board.h"
-
-
-    TEST_SUITE("Knight")
-    {
-        TEST_CASE("Knight jumps over blockers")
-        {
-            Board board;
-
-            board.parse({
-                ". . .",
-                ". wN .",
-                ". . ."
-                });
-
-            Knight knight(PieceColor::White);
-
-            CHECK(
-                knight.isValidMove(1, 1, 0, 3, board)
-            );
-        }
+        CHECK_FALSE(knight.isValidMove(Position(3, 3), Position(3, 3), board));
     }
 }

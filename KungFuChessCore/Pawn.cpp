@@ -14,14 +14,12 @@ PieceType Pawn::getType() const
 }
 
 bool Pawn::isValidMove(
-    int fromRow,
-    int fromCol,
-    int toRow,
-    int toCol,
+	Position from,
+	Position to,
     const Board& board) const
 {
-    int dr = toRow - fromRow;
-    int dc = toCol - fromCol;
+    int dr = to.getRow() - from.getRow();
+    int dc = to.getCol() - from.getCol();
 
     // -------------------------
     // White pawn
@@ -31,7 +29,7 @@ bool Pawn::isValidMove(
         // Move forward
         if (dc == 0 &&
             dr == -1 &&
-            board.isEmpty(toRow, toCol))
+            board.isEmpty(to))
         {
             return true;
         }
@@ -39,8 +37,8 @@ bool Pawn::isValidMove(
         // Capture diagonally
         if (abs(dc) == 1 &&
             dr == -1 &&
-            !board.isEmpty(toRow, toCol) &&
-            board.getPieceColor(toRow, toCol) == PieceColor::Black)
+            !board.isEmpty(to) &&
+            board.getPieceColor(to) == PieceColor::Black)
         {
             return true;
         }
@@ -54,7 +52,7 @@ bool Pawn::isValidMove(
         // Move forward
         if (dc == 0 &&
             dr == 1 &&
-            board.isEmpty(toRow, toCol))
+            board.isEmpty(to))
         {
             return true;
         }
@@ -62,12 +60,11 @@ bool Pawn::isValidMove(
         // Capture diagonally
         if (abs(dc) == 1 &&
             dr == 1 &&
-            !board.isEmpty(toRow, toCol) &&
-            board.getPieceColor(toRow, toCol) == PieceColor::White)
+            !board.isEmpty(to) &&
+            board.getPieceColor(to) == PieceColor::White)
         {
             return true;
         }
     }
-
     return false;
 }

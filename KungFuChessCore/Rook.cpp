@@ -13,12 +13,10 @@ PieceType Rook::getType() const
 }
 
 bool Rook::isValidMove(
-    int fromRow,
-    int fromCol,
-    int toRow,
-    int toCol,
+	Position from,
+	Position to,
     const Board& board) const
 {
-    return ((fromRow != toRow && fromCol == toCol) || (fromRow == toRow && fromCol != toCol))
-            && board.isPathClear(fromRow, fromCol, toRow, toCol);
+    return ((from.getRow() != to.getRow() && from.getCol() == to.getCol()) || 
+        (from.getRow() == to.getRow() && from.getCol() != to.getCol()));
 }

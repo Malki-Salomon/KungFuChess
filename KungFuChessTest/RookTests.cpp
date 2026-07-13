@@ -1,6 +1,8 @@
 #include "doctest.h"
 #include "Rook.h"
 #include "Board.h"
+#include "TextBoardConvert.h"
+#include "Position.h"
 
 TEST_SUITE("Rook")
 {
@@ -8,7 +10,7 @@ TEST_SUITE("Rook")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . . . .",
             ". . . . . . . .",
             ". . . . . . . .",
@@ -18,17 +20,17 @@ TEST_SUITE("Rook")
             ". . . . . . . .",
             ". . . . . . . ."
             });
-
+        convert.Convert(board);
         Rook rook(PieceColor::White);
 
-        CHECK(rook.isValidMove(3, 3, 3, 7, board));
+        CHECK(rook.isValidMove(Position(3, 3), Position(3, 7), board));
     }
 
     TEST_CASE("Vertical")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . . . .",
             ". . . . . . . .",
             ". . . . . . . .",
@@ -38,26 +40,18 @@ TEST_SUITE("Rook")
             ". . . . . . . .",
             ". . . . . . . ."
             });
+        convert.Convert(board);
 
         Rook rook(PieceColor::White);
 
-        CHECK(rook.isValidMove(3, 3, 0, 3, board));
-    }
-
-    TEST_CASE("Vertical")
-    {
-        Board board;
-
-        Rook rook(PieceColor::White);
-
-        CHECK_FALSE(rook.isValidMove(3, 3, 0, 3, board));
+        CHECK(rook.isValidMove(Position(3, 3), Position(0, 3), board));
     }
 
     TEST_CASE("Diagonal")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . . . .",
             ". . . . . . . .",
             ". . . . . . . .",
@@ -67,17 +61,18 @@ TEST_SUITE("Rook")
             ". . . . . . . .",
             ". . . . . . . ."
             });
+        convert.Convert(board);
 
         Rook rook(PieceColor::White);
 
-        CHECK_FALSE(rook.isValidMove(3, 3, 6, 6, board));
+        CHECK_FALSE(rook.isValidMove(Position(3, 3), Position(6, 6), board));
     }
 
     TEST_CASE("Same square")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . . . . .",
             ". . . . . . . .",
             ". . . . . . . .",
@@ -87,27 +82,29 @@ TEST_SUITE("Rook")
             ". . . . . . . .",
             ". . . . . . . ."
             });
+        convert.Convert(board);
 
         Rook rook(PieceColor::White);
 
-        CHECK_FALSE(rook.isValidMove(3, 3, 3, 3, board));
+        CHECK_FALSE(rook.isValidMove(Position(3, 3), Position(3, 3), board));
     }
 
     TEST_CASE("Blocked horizontal")
     {
         Board board;
 
-        board.parse({
+        TextBoardConvert convert({
             ". . . . .",
             ". . . . .",
             ". . wR bP .",
             ". . . . ."
             });
+        convert.Convert(board);
 
         Rook rook(PieceColor::White);
 
-        CHECK_FALSE(
-            rook.isValidMove(2, 2, 2, 4, board)
+        CHECK(
+            rook.isValidMove(Position(2, 2), Position(2, 4), board)
         );
     }
 }
