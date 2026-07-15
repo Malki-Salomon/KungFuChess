@@ -48,6 +48,9 @@ bool RuleEngine::isLegalMove(Board &board, Position from, Position to)
     if (board.isEmpty(from))
         return false;
 
+    if(board.getPiece(from)->getStatus() == PieceStatus::airborne)
+		return false;
+
     PieceType selectedType =
         board.getPieceType(from);
 
@@ -61,7 +64,7 @@ bool RuleEngine::isLegalMove(Board &board, Position from, Position to)
         return false;
     }
 
-    std::unique_ptr<Piece> piece;
+    /*std::unique_ptr<Piece> piece;
 
     switch (selectedType)
     {
@@ -88,15 +91,51 @@ bool RuleEngine::isLegalMove(Board &board, Position from, Position to)
     case PieceType::Pawn:
         piece = std::make_unique<Pawn>(selectedColor);
         break;
-    }
+    }*/
 
-    if ((selectedType == PieceType::Rook || selectedType == PieceType::Bishop)
+    if ((selectedType == PieceType::Rook || selectedType == PieceType::Bishop
+        || selectedType == PieceType::Pawn)
         && !isPathClear(board, from, to))
         return false;
 
-    return piece->isValidMove(
+    return board.getPiece(from)->isValidMove(from, to, board);
+    /*return piece->isValidMove(
 		from,
 		to,
-        board);
+        board);*/
+}
+
+//GameStatus RuleEngine::evaluate(const Board& board)
+//{
+//    bool whiteKingExists = false;
+//    bool blackKingExists = false;
+//
+//    for (int r = 0; r < board.getRows(); ++r) {
+//        for (int c = 0; c < board.getCols(); ++c) {
+//            if (!board.isEmpty(Position(r, c))) {
+//                PieceType type = board.getPieceType(Position(r, c));
+//
+//                if (type == PieceType::King) {
+//                    if (board.getPieceColor(Position(r, c)) == PieceColor::White)
+//                        whiteKingExists = true;
+//                    else
+//                        blackKingExists = true;
+//                }
+//            }
+//        }
+//    }
+//
+//    if (!whiteKingExists) return GameStatus::BlackWins;
+//    if (!blackKingExists) return GameStatus::WhiteWins;
+//
+//    return GameStatus::Playing;
+//}
+
+bool RuleEngine::canPromote(const Board& board, Position pos) {
+    Piece* p = board.getPiece(pos);
+    if (!p || p->getType() != PieceType::Pawn) return false;
+
+    int lastRow = (p->getColor() == PieceColor::White) ? 0 : board.getRows() - 1;
+    return pos.getRow() == lastRow;
 }
 

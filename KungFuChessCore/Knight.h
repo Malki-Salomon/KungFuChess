@@ -7,9 +7,11 @@
 class Knight : public Piece
 {
 public:
-    Knight(PieceColor color);
+    Knight(PieceColor color, Position place, PieceType type);
 
     PieceType getType() const override;
+
+    std::string getName() const override;
 
     bool isValidMove(
         Position from,

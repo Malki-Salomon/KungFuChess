@@ -2,14 +2,19 @@
 #include "Queen.h"
 #include <cmath>
 
-Queen::Queen(PieceColor color)
-    : Piece(color)
+Queen::Queen(PieceColor color, Position place, PieceType type)
+    : Piece(color, place, type)
 {
 }
 
 PieceType Queen::getType() const
 {
     return PieceType::Queen;
+}
+
+std::string Queen::getName() const
+{
+    return this->getColor() == PieceColor::White ? "wQ" : "bQ";
 }
 
 bool Queen::isValidMove(

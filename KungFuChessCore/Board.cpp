@@ -9,18 +9,31 @@
 #include "Rook.h"
 #include <iostream>
 #include <sstream>
+#include "PieceFactory.h"
 using namespace std;
 
 Board::Board()
 {
-    /*errorMessage = "";*/
+    errorMessage = "";
+}
+
+int Board::getRows() const
+{
+    return cells.size();
+}
+
+int Board::getCols() const
+{
+    if (cells.empty())
+        return 0;
+    return cells[0].size();
 }
 
 void Board::clear()
 {
     cells.clear();
 
-    //errorMessage.clear();
+    errorMessage.clear();
 }
 
 void Board::setSize(int row, int col)
@@ -32,23 +45,32 @@ void Board::setSize(int row, int col)
     }
 }
 
-void Board::setPiece(int row, int col, std::unique_ptr<Piece> piece)
+void Board::setPiece(Position place, std::unique_ptr<Piece> piece)
 {
-    cells[row][col] = std::move(piece);
+    cells[place.getRow()][place.getCol()] = std::move(piece);
 }
 
-unique_ptr<Piece>& Board::getPiece(int row, int col)  
+Piece* Board::getPiece(Position place) const  
 {  
-    return cells[row][col];  
+    return cells[place.getRow()][place.getCol()].get();
 }
 
 void Board::print() const
 {
+    if (!errorMessage.empty()) { // הוסף את הבדיקה הזו
+        //cout << errorMessage << endl;
+        return;
+    }
     for (size_t i = 0; i < cells.size(); ++i)
     {
         for (size_t j = 0; j < cells[i].size(); ++j)
         {
-            cout << cells[i][j];
+            if (cells[i][j] != nullptr) {
+                cout << cells[i][j]->getName();
+            }
+            else {
+                cout << ".";
+            }
             if (j < cells[i].size() - 1) {
                 cout << " ";
             }
@@ -82,10 +104,24 @@ PieceType Board::getPieceType(Position pos) const
 	return cells[pos.getRow()][pos.getCol()]->getType();
 }
 
-void Board::movePiece(int fromRow, int fromCol, int toRow,  int toCol)
+void Board::movePiece(Position from, Position to)
 {
-	setPiece(toRow, toCol, std::move(cells[fromRow][fromCol]));
-	setPiece(fromRow, fromCol, nullptr);
+	setPiece(to, std::move(cells[from.getRow()][from.getCol()]));
+}
+
+void Board::removePiece(Position pos)
+{
+    setPiece(pos, nullptr);
+}
+
+bool Board::isPieceAt(int row, int col, PieceType type) const
+{
+	return cells[row][col] != nullptr && cells[row][col]->getType() == type;
+}
+
+void Board::promotePiece(Position pos, PieceType newType) {
+    PieceColor color = getPieceColor(pos);
+    cells[pos.getRow()][pos.getCol()] = PieceFactory::create(newType, color, pos);
 }
 
 //bool Board::validate() const
@@ -93,12 +129,12 @@ void Board::movePiece(int fromRow, int fromCol, int toRow,  int toCol)
 //    return errorMessage.empty();
 //}
 //
-//void Board::setError(const string& error)
-//{
-//    errorMessage = error;
-//}
-//
-//string Board::getError() const { return errorMessage; }
+void Board::setError(const string& error)
+{
+    errorMessage = error;
+}
+
+string Board::getError() const { return errorMessage; }
 
 //bool Board::isValidToken(const string& token) const
 //{

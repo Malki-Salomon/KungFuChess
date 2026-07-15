@@ -17,3 +17,11 @@ enum class PieceColor
     Black,
     None
 };
+
+enum class PieceStatus
+{
+    idle,
+    moving,
+    captured,
+    airborne
+};

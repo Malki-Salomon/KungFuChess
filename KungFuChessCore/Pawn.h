@@ -6,9 +6,11 @@
 class Pawn : public Piece
 {
 public:
-    Pawn(PieceColor color);
+    Pawn(PieceColor color, Position place, PieceType type);
 
     PieceType getType() const override;
+
+    std::string getName() const override;
 
     bool isValidMove(
         Position from,

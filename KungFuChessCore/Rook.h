@@ -6,9 +6,11 @@
 class Rook : public Piece
 {
 public:
-    Rook(PieceColor color);
+    Rook(PieceColor color, Position place, PieceType type);
 
     PieceType getType() const override;
+
+    std::string getName() const override;
 
     bool isValidMove(
         Position from,

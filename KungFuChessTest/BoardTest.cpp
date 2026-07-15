@@ -77,7 +77,7 @@ TEST_SUITE("Board")
 
         CHECK(converter.Convert(board));
 
-        board.movePiece(0, 0, 0, 2);
+        board.movePiece(Position(0, 0), Position(0, 2));
 
         CHECK(board.isEmpty(Position(0, 0)));
         CHECK(board.getPieceType(Position(0, 2)) == PieceType::Rook);

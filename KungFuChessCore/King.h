@@ -6,9 +6,11 @@
 class King : public Piece
 {
 public:
-    King(PieceColor color);
+    King(PieceColor color, Position place, PieceType type);
 
     PieceType getType() const override;
+
+    std::string getName() const override;
 
     bool isValidMove(
         Position from,

@@ -15,7 +15,7 @@ class Board
 
 private:
     vector<vector<unique_ptr<Piece>>> cells;
-    //string errorMessage;
+    string errorMessage;
 
     //bool isValidToken(const string& token) const;
 
@@ -27,21 +27,26 @@ public:
     Board();
     void clear();
 	void setSize(int rows, int cols);
-    void setPiece(int row, int col, std::unique_ptr<Piece> piece);
-	unique_ptr<Piece>& getPiece(int row, int col);
+    void setPiece(Position place, std::unique_ptr<Piece> piece);
+	Piece* getPiece(Position place) const;
     void print() const;
     bool isInside(Position pos) const;
     bool isEmpty(Position pos) const;
     PieceColor getPieceColor(Position pos) const;
     PieceType getPieceType(Position pos) const;
-    void movePiece(int fromRow, int fromCol, int toRow, int toCol);
+    void movePiece(Position from, Position to);
+    void removePiece(Position pos);
+    bool isPieceAt(int row, int col, PieceType type) const;
     
+	int getRows() const;
+	int getCols() const;
 
-    /*bool validate() const;
+    void promotePiece(Position pos, PieceType newType);
+    //bool validate() const;
 
 
 	void setError(const string& error);
-    string getError() const;*/
+    string getError() const;
 
 
 

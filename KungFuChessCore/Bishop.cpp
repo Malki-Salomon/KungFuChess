@@ -2,14 +2,19 @@
 #include "Bishop.h"
 #include <cmath>
 
-Bishop::Bishop(PieceColor color)
-    : Piece(color)
+Bishop::Bishop(PieceColor color, Position place, PieceType type)
+    : Piece(color, place, type)
 {
 }
 
 PieceType Bishop::getType() const
 {
     return PieceType::Bishop;
+}
+
+std::string Bishop::getName() const
+{
+	return this->getColor() == PieceColor::White ? "wB" : "bB";
 }
 
 bool Bishop::isValidMove(

@@ -3,7 +3,7 @@
 #include "Board.h"
 
 #include <sstream>
-#include <PieceFactory.h>
+#include "PieceFactory.h"
 
 using namespace std;
 
@@ -48,7 +48,7 @@ bool TextBoardConvert::Convert(Board& board)
     board.clear();
 
     if (lines.empty())
-        return false;
+        return true;
 
     int num_col = 0;
     {
@@ -58,77 +58,59 @@ bool TextBoardConvert::Convert(Board& board)
             num_col++;
     }
 
-	board.setSize(lines.size(), num_col);
+    board.setSize(lines.size(), num_col);
 
     int row = 0;
-
     for (const auto& line : lines)
     {
         stringstream ss(line);
-
         string token;
-
         int col = 0;
+
+        // בדיקה מקדימה למספר העמודות בשורה הנוכחית
+        int current_row_cols = 0;
+        stringstream count_ss(line);
+        string temp;
+        while (count_ss >> temp) current_row_cols++;
+
+        if (current_row_cols != num_col)
+        {
+            board.setError("ERROR ROW_WIDTH_MISMATCH");
+            return false;
+        }
 
         while (ss >> token)
         {
-            if (col >= num_col)
-            {
-                return false;
-            }
-
+            // בדיקת Unknown Token
             if (!isValidToken(token))
             {
+                board.setError("ERROR UNKNOWN_TOKEN");
                 return false;
             }
 
             if (token == ".")
             {
-                board.setPiece(row, col, nullptr);
+                board.setPiece(Position(row, col), nullptr);
             }
             else
             {
-                PieceColor color =
-                    token[0] == 'w'
-                    ? PieceColor::White
-                    : PieceColor::Black;
-
+                PieceColor color = (token[0] == 'w') ? PieceColor::White : PieceColor::Black;
                 PieceType type;
 
                 switch (token[1])
                 {
-                case 'K':
-                    type = PieceType::King;
-                    break;
-
-                case 'Q':
-                    type = PieceType::Queen;
-                    break;
-
-                case 'R':
-                    type = PieceType::Rook;
-                    break;
-
-                case 'B':
-                    type = PieceType::Bishop;
-                    break;
-
-                case 'N':
-                    type = PieceType::Knight;
-                    break;
-
-                case 'P':
-                    type = PieceType::Pawn;
-                    break;
-
+                case 'K': type = PieceType::King; break;
+                case 'Q': type = PieceType::Queen; break;
+                case 'R': type = PieceType::Rook; break;
+                case 'B': type = PieceType::Bishop; break;
+                case 'N': type = PieceType::Knight; break;
+                case 'P': type = PieceType::Pawn; break;
                 default:
+                    board.setError("ERROR UNKNOWN_TOKEN");
                     return false;
                 }
 
-                board.setPiece(
-                    row,
-                    col,
-                    PieceFactory::create(type, color));
+                board.setPiece(Position(row, col), PieceFactory::create(type, color, Position(row, col)));
             }
             col++;
         }

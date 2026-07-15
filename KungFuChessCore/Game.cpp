@@ -11,22 +11,35 @@
 #include <memory>
 #include "RuleEngine.h"
 #include "StringCommandConvert.h"
+#include "Position.h"
 
 using namespace std;
 
 Game::Game() {
     gameClockMs = 0;
     hasSelection = false;
-    selectedRow = -1;
-    selectedCol = -1;
+	selectedPiece = Position(-1, -1);
     moveInProgress = false;
     remainingMoveTime = 0;
+	gameStatus = GameStatus::Playing;
+
+    gameClockMsJ = 0;
+    hasSelectionJ = false;
+    selectedPieceJ = Position(-1, -1);
+    jumpInProgress = false;
+    remainingJumpTime = 0;
+}
+
+bool Game::isGameActive() const 
+{ 
+    return gameStatus == GameStatus::Playing; 
 }
 
 void Game::setupBoard(const vector<string>& boardLines) {
     /*board.parse(boardLines);*/
     TextBoardConvert converter(boardLines);
-    converter.Convert(board);
+    if (!converter.Convert(board))
+        cout << board.getError() << endl;
 }
 
 //bool Game::isBoardValid() const {
@@ -37,120 +50,7 @@ void Game::setupBoard(const vector<string>& boardLines) {
 //    return board.getError();
 //}
 
-//void Game::executeClick(int x, int y)
-//{
-//    if (moveInProgress)
-//        return;
-//
-//    if (x < 0 || y < 0)
-//        return;
-//
-//    int c = x / 100;
-//    int r = y / 100;
-//
-//    if (r < 0 || r >= board.getRows() ||
-//        c < 0 || c >= board.getCols())
-//        return;
-//
-//    bool clickedEmpty = board.isEmpty(r, c);
-//
-//    // No tool selected - select tool
-//    if (!hasSelection)
-//    {
-//        if (!board.isEmpty(r, c))
-//        {
-//            hasSelection = true;
-//            selectedRow = r;
-//            selectedCol = c;
-//        }
-//        return;
-//    }
-//
-//    PieceType selectedType =
-//        board.getPieceType(selectedRow, selectedCol);
-//
-//    PieceColor selectedColor =
-//        board.getPieceColor(selectedRow, selectedCol);
-//
-//    // Clicking on a tool of the same color - replaces selection
-//    if (!board.isEmpty(r, c) &&
-//        board.getPieceColor(r, c) ==
-//        board.getPieceColor(selectedRow, selectedCol))
-//    {
-//        selectedRow = r;
-//        selectedCol = c;
-//        return;
-//    }
-//
-//    std::unique_ptr<Piece> piece;
-//
-//    switch (selectedType)
-//    {
-//    case PieceType::King:
-//        piece = std::make_unique<King>(selectedColor);
-//        break;
-//
-//    case PieceType::Queen:
-//        piece = std::make_unique<Queen>(selectedColor);
-//        break;
-//
-//    case PieceType::Rook:
-//        piece = std::make_unique<Rook>(selectedColor);
-//        break;
-//
-//    case PieceType::Bishop:
-//        piece = std::make_unique<Bishop>(selectedColor);
-//        break;
-//
-//    case PieceType::Knight:
-//        piece = std::make_unique<Knight>(selectedColor);
-//        break;
-//
-//    case PieceType::Pawn:
-//        piece = std::make_unique<Pawn>(selectedColor);
-//        break;
-//
-//    default:
-//        hasSelection = false;
-//        return;
-//    }
-//
-//    // Checking the legality of the move
-//    /*if (!piece->isValidMove(selectedRow,
-//        selectedCol,
-//        r,
-//        c,
-//        board))
-//    {
-//        return;
-//    }*/
-//    bool valid = piece->isValidMove(
-//        selectedRow,
-//        selectedCol,
-//        r,
-//        c,
-//        board);
-//
-//    if (!valid)
-//    {
-//        return;
-//    }
-//
-//    moveInProgress = true;
-//
-//    moveFromRow = selectedRow;
-//    moveFromCol = selectedCol;
-//
-//    moveToRow = r;
-//    moveToCol = c;
-//
-//    remainingMoveTime =
-//        std::max(abs(moveToRow - moveFromRow),
-//            abs(moveToCol - moveFromCol)) * 1000;
-//
-//
-//    hasSelection = false;
-//}
+
 
 void Game::runSimulation(const std::vector<std::string>& inputLines) {
     std::vector<std::string> boardLines;
@@ -164,7 +64,7 @@ void Game::runSimulation(const std::vector<std::string>& inputLines) {
             parsingCommands = true;
             continue;
         }
-        if (line == "Board:") {
+        if (line == " Board:") {
             continue;
         }
 
@@ -176,28 +76,46 @@ void Game::runSimulation(const std::vector<std::string>& inputLines) {
         }
     }
 
+   /* std::cout << "DEBUG: Loaded board lines count: " << boardLines.size() << std::endl;
+    for (const auto& line : boardLines) {
+        std::cout << "DEBUG: Board line: [" << line << "]" << std::endl;
+    }*/
+
     // 1. טעינת הלוח
     if (!boardLines.empty()) {
         setupBoard(boardLines);
     }
 
-    // 2. הרצת הפקודות בעזרת התשתית הקיימת שלך!
-    StringCommandConvert commandConverter(commandLines);
-    auto commands = commandConverter.Convert();
+  
+    StringCommandConvert converter(commandLines);
+    std::vector<Command> commands = converter.Convert();
 
     for (const auto& cmd : commands) {
-        if (cmd) {
-            cmd->execute(*this);
+        switch (cmd.type) {
+        case CommandType::Click:
+            this->executeClick(cmd.x, cmd.y);
+            break;
+        case CommandType::Jump:
+            this->executeJump(cmd.x, cmd.y);
+			break;
+        case CommandType::Wait:
+            this->executeWait(cmd.ms);
+            break;
+        case CommandType::Print:
+            this->printBoard();
+            break;
         }
     }
 }
 
 void Game::executeClick(int x, int y)
 {
-    if (moveInProgress)
+    if (gameStatus == GameStatus::BlackWins || 
+        gameStatus == GameStatus::WhiteWins || 
+        moveInProgress)
         return;
 
-    if (x < 0 || y < 0)
+    if (x <  0 || y <  0)
         return;
 
     int c = x / 100;
@@ -209,11 +127,13 @@ void Game::executeClick(int x, int y)
     // אין כלי מסומן - בוחרים כלי
     if (!hasSelection)
     {
-        if (!board.isEmpty(Position(r, c)))
+		Position place = Position(r, c);
+        if (!board.isEmpty(place) && 
+            board.getPiece(place)->getStatus() == PieceStatus::idle)
         {
             hasSelection = true;
-            selectedRow = r;
-            selectedCol = c;
+            selectedPiece.setRow(r);
+            selectedPiece.setCol(c);
         }
         return;
     }
@@ -221,15 +141,15 @@ void Game::executeClick(int x, int y)
     // לחיצה על כלי מאותו צבע - מחליפים בחירה
     if (!board.isEmpty(Position(r, c)) &&
         board.getPieceColor(Position(r, c)) ==
-        board.getPieceColor(Position(selectedRow, selectedCol)))
+        board.getPieceColor(Position(selectedPiece.getRow(), selectedPiece.getCol())))
     {
-        selectedRow = r;
-        selectedCol = c;
+        selectedPiece.setRow(r);
+        selectedPiece.setCol(c);
         return;
     }
 
     // בדיקת חוקיות
-    if (!RuleEngine::isLegalMove(board, Position(selectedRow, selectedCol), Position(r, c)))
+    if (!RuleEngine::isLegalMove(board, selectedPiece, Position(r, c)))
     {
         return;
     }
@@ -237,17 +157,26 @@ void Game::executeClick(int x, int y)
     // התחלת המהלך
     moveInProgress = true;
 
-    moveFromRow = selectedRow;
-    moveFromCol = selectedCol;
+	board.getPiece(selectedPiece)->setStatus(PieceStatus::moving);
 
-    moveToRow = r;
-    moveToCol = c;
+	from = selectedPiece;
+
+    to.setRow(r);
+    to.setCol(c);
 
     remainingMoveTime =
-        std::max(abs(moveToRow - moveFromRow),
-            abs(moveToCol - moveFromCol)) * 1000;
+        std::max(abs(to.getRow() - from.getRow()),
+            abs(to.getCol() - from.getCol())) * 1000;
 
     hasSelection = false;
+}
+
+void Game::gameOver(Board& board, Position place)
+{
+    if (board.getPiece(place) && board.getPieceType(place) == PieceType::King)
+    {
+		board.getPieceColor(place) == PieceColor::White ? gameStatus = GameStatus::BlackWins : gameStatus = GameStatus::WhiteWins;
+    }
 }
 
 void Game::executeWait(long long ms)
@@ -257,20 +186,47 @@ void Game::executeWait(long long ms)
 
     gameClockMs += ms;
 
-    if (!moveInProgress)
-        return;
+    if (moveInProgress)
+    { 
+        remainingMoveTime -= ms;
 
-    remainingMoveTime -= ms;
+        if (remainingMoveTime <= 0)
+        {
+            if (board.getPiece(to) && 
+                board.getPiece(to)->getStatus() != PieceStatus::airborne
+                || board.getPiece(to) == nullptr)
+            {
+                gameOver(board, to);
+                board.movePiece(
+                    from,
+                    to);
 
-    if (remainingMoveTime <= 0)
+                if (RuleEngine::canPromote(board, to))
+                {
+                    board.promotePiece(to, PieceType::Queen);
+                }
+
+                board.getPiece(to)->setStatus(PieceStatus::idle);
+            }
+    
+		    board.removePiece(from);
+            moveInProgress = false;
+        }
+    }
+
+    if (jumpInProgress)
     {
-        board.movePiece(
-            moveFromRow,
-            moveFromCol,
-            moveToRow,
-            moveToCol);
-
-        moveInProgress = false;
+        remainingJumpTime -= ms;
+        if (remainingJumpTime <= 0)
+        {
+            // בסיום 1000ms הקפיצה מסתיימת והכלי חוזר ל-idle
+            Piece* p = board.getPiece(from); // from מכיל את המיקום של הכלי הקופץ
+            if (p && p->getStatus() == PieceStatus::airborne)
+            {
+                p->setStatus(PieceStatus::idle);
+            }
+            jumpInProgress = false;
+        }
     }
 }
 
@@ -278,6 +234,21 @@ void Game::printBoard() const {
     board.print();
 }
 
+
+void Game::executeJump(int x, int y) {
+    int c = x / 100;
+    int r = y / 100;
+    Piece* p = board.getPiece(Position(r, c));
+
+    // בדיקה: האם הכלי קיים, לא נע, ולא נאכל?
+    if (p && p->getStatus() == PieceStatus::idle) {
+		jumpInProgress = true;
+        p->setStatus(PieceStatus::airborne);
+        remainingJumpTime = 1000;
+        from.setRow(r); // נשמור את המיקום לצורך ניקוי בסוף
+        from.setCol(c);
+    }
+}
 const Board& Game::getBoard() const
 {
     return board;

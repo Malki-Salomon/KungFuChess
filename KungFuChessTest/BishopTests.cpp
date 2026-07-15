@@ -21,7 +21,7 @@ TEST_SUITE("Bishop")
 
         convert.Convert(board);
 
-        Bishop bishop(PieceColor::White);
+        Bishop bishop(PieceColor::White, Position(2,2), PieceType::Bishop);
 
         CHECK(bishop.isValidMove(Position(2, 2), Position(5, 5), board));
         CHECK(bishop.isValidMove(Position(5, 5), Position(2, 2), board));
@@ -42,7 +42,7 @@ TEST_SUITE("Bishop")
 
         convert.Convert(board);
 
-        Bishop bishop(PieceColor::White);
+        Bishop bishop(PieceColor::White, Position(2, 2), PieceType::Bishop);
 
         CHECK(
             bishop.isValidMove(Position(2, 2), Position(4, 4), board)
@@ -63,7 +63,7 @@ TEST_SUITE("Bishop")
             });
         convert.Convert(board);
 
-        Bishop bishop(PieceColor::White);
+        Bishop bishop(PieceColor::White, Position(2, 2), PieceType::Bishop);
 
         CHECK_FALSE(
             bishop.isValidMove(Position(2, 2), Position(2, 5), board)
@@ -84,7 +84,7 @@ TEST_SUITE("Bishop")
             });
         convert.Convert(board);
 
-        Bishop bishop(PieceColor::White);
+        Bishop bishop(PieceColor::White, Position(2, 2), PieceType::Bishop);
 
         CHECK_FALSE(
             bishop.isValidMove(Position(2, 2), Position(5, 2), board)
@@ -105,7 +105,7 @@ TEST_SUITE("Bishop")
             });
         convert.Convert(board);
 
-        Bishop bishop(PieceColor::White);
+        Bishop bishop(PieceColor::White, Position(2, 2), PieceType::Bishop);
 
         CHECK_FALSE(
             bishop.isValidMove(Position(2, 2), Position(2, 2), board)

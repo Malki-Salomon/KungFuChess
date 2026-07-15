@@ -21,7 +21,7 @@ TEST_SUITE("Rook")
             ". . . . . . . ."
             });
         convert.Convert(board);
-        Rook rook(PieceColor::White);
+        Rook rook(PieceColor::White, Position(3, 3), PieceType::Rook);
 
         CHECK(rook.isValidMove(Position(3, 3), Position(3, 7), board));
     }
@@ -42,7 +42,7 @@ TEST_SUITE("Rook")
             });
         convert.Convert(board);
 
-        Rook rook(PieceColor::White);
+        Rook rook(PieceColor::White, Position(3, 3), PieceType::Rook);
 
         CHECK(rook.isValidMove(Position(3, 3), Position(0, 3), board));
     }
@@ -63,7 +63,7 @@ TEST_SUITE("Rook")
             });
         convert.Convert(board);
 
-        Rook rook(PieceColor::White);
+        Rook rook(PieceColor::White, Position(3, 3), PieceType::Rook);
 
         CHECK_FALSE(rook.isValidMove(Position(3, 3), Position(6, 6), board));
     }
@@ -84,7 +84,7 @@ TEST_SUITE("Rook")
             });
         convert.Convert(board);
 
-        Rook rook(PieceColor::White);
+        Rook rook(PieceColor::White, Position(3, 3), PieceType::Rook);
 
         CHECK_FALSE(rook.isValidMove(Position(3, 3), Position(3, 3), board));
     }
@@ -101,7 +101,7 @@ TEST_SUITE("Rook")
             });
         convert.Convert(board);
 
-        Rook rook(PieceColor::White);
+        Rook rook(PieceColor::White, Position(2, 2), PieceType::Rook);
 
         CHECK(
             rook.isValidMove(Position(2, 2), Position(2, 4), board)

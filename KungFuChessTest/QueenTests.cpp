@@ -20,7 +20,7 @@ TEST_SUITE("Queen")
             });
         convert.Convert(board);
 
-        Queen queen(PieceColor::White);
+        Queen queen(PieceColor::White, Position(2, 2), PieceType::Queen);
 
         CHECK(queen.isValidMove(Position(2, 2), Position(2, 6), board));
     }
@@ -40,7 +40,7 @@ TEST_SUITE("Queen")
             });
         convert.Convert(board);
 
-        Queen queen(PieceColor::White);
+        Queen queen(PieceColor::White, Position(2, 2), PieceType::Queen);
 
         CHECK(queen.isValidMove(Position(2, 2), Position(6, 2), board));
     }
@@ -60,7 +60,7 @@ TEST_SUITE("Queen")
             });
         convert.Convert(board);
 
-        Queen queen(PieceColor::White);
+        Queen queen(PieceColor::White, Position(2, 2), PieceType::Queen);
 
         CHECK(queen.isValidMove(Position(2, 2), Position(6, 6), board));
     }
@@ -80,7 +80,7 @@ TEST_SUITE("Queen")
             });
         convert.Convert(board);
 
-        Queen queen(PieceColor::White);
+        Queen queen(PieceColor::White, Position(2, 2), PieceType::Queen);
 
         CHECK_FALSE(queen.isValidMove(Position(2, 2), Position(4, 5), board));
     }
@@ -96,7 +96,7 @@ TEST_SUITE("Queen")
             });
         convert.Convert(board);
 
-        Queen queen(PieceColor::White);
+        Queen queen(PieceColor::White, Position(1, 1), PieceType::Queen);
 
         CHECK(
             queen.isValidMove(Position(1, 1), Position(1, 3), board)

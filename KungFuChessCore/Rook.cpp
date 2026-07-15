@@ -2,14 +2,19 @@
 #include "Rook.h"
 #include <cmath>
 
-Rook::Rook(PieceColor color)
-    : Piece(color)
+Rook::Rook(PieceColor color, Position place, PieceType type)
+    : Piece(color, place, type)
 {
 }
 
 PieceType Rook::getType() const
 {
     return PieceType::Rook;
+}
+
+std::string Rook::getName() const
+{
+    return this->getColor() == PieceColor::White ? "wR" : "bR";
 }
 
 bool Rook::isValidMove(
