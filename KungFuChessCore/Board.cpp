@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include "PieceFactory.h"
+#include "IBoardPrinter.h"
 using namespace std;
 
 Board::Board()
@@ -55,28 +56,13 @@ Piece* Board::getPiece(Position place) const
     return cells[place.getRow()][place.getCol()].get();
 }
 
-void Board::print() const
+void Board::print(IBoardPrinter& printer) const
 {
     if (!errorMessage.empty()) { // הוסף את הבדיקה הזו
         //cout << errorMessage << endl;
         return;
     }
-    for (size_t i = 0; i < cells.size(); ++i)
-    {
-        for (size_t j = 0; j < cells[i].size(); ++j)
-        {
-            if (cells[i][j] != nullptr) {
-                cout << cells[i][j]->getName();
-            }
-            else {
-                cout << ".";
-            }
-            if (j < cells[i].size() - 1) {
-                cout << " ";
-            }
-        }
-        cout << endl;
-    }
+	printer.Convert(*this);
 }
 
 bool Board::isInside(Position pos) const

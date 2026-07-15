@@ -7,7 +7,7 @@
 #include <string>
 using namespace std;
 
-class TextBoardConvert;
+class IBoardPrinter;
 
 class Board
 {
@@ -29,7 +29,7 @@ public:
 	void setSize(int rows, int cols);
     void setPiece(Position place, std::unique_ptr<Piece> piece);
 	Piece* getPiece(Position place) const;
-    void print() const;
+    void print(IBoardPrinter& printer) const;
     bool isInside(Position pos) const;
     bool isEmpty(Position pos) const;
     PieceColor getPieceColor(Position pos) const;

@@ -1,5 +1,6 @@
 #include "doctest.h"
 #include "Game.h"
+#include "Board.h"
 #include <vector>
 #include <string>
 

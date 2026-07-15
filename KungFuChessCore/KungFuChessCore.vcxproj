@@ -149,6 +149,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameStatus.h" />
     <ClInclude Include="IBoardConvert.h" />
+    <ClInclude Include="IBoardPrinter.h" />
     <ClInclude Include="ICommandConvert.h" />
     <ClInclude Include="King.h" />
     <ClInclude Include="Knight.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="RuleEngine.h" />
     <ClInclude Include="StringCommandConvert.h" />
     <ClInclude Include="TextBoardConvert.h" />
+    <ClInclude Include="TextualBoardPrinting.h" />
     <ClInclude Include="WaitCommand.h" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +178,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameStatus.cpp" />
     <ClCompile Include="IBoardConvert.cpp" />
+    <ClCompile Include="IBoardPrinter.cpp" />
     <ClCompile Include="ICommandConvert.cpp" />
     <ClCompile Include="King.cpp" />
     <ClCompile Include="Knight.cpp" />
@@ -197,6 +200,7 @@
     <ClCompile Include="RuleEngine.cpp" />
     <ClCompile Include="StringCommandConvert.cpp" />
     <ClCompile Include="TextBoardConvert.cpp" />
+    <ClCompile Include="TextualBoardPrinting.cpp" />
     <ClCompile Include="WaitCommand.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

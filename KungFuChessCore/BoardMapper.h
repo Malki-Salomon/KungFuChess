@@ -3,6 +3,6 @@
 #define PIXEL 100
 namespace BoardMapper
 {
-	static Position pixelToCell(int x, int y);
+	Position pixelToCell(int x, int y);
 };
 

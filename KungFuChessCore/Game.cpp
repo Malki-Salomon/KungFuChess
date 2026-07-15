@@ -1,17 +1,23 @@
 #include "pch.h"
-#include "Bishop.h"
+#include "Board.h"
+
 #include "Game.h"
+#include "Bishop.h"
+
 #include "King.h"
 #include "Knight.h"
 #include "Pawn.h"
 #include "Queen.h"
 #include "Rook.h"
 #include "TextBoardConvert.h"
+#include "TextualBoardPrinting.h"
+#include "IBoardPrinter.h"
 #include <iostream>
 #include <memory>
 #include "RuleEngine.h"
 #include "StringCommandConvert.h"
 #include "Position.h"
+#include "BoardMapper.h"
 
 using namespace std;
 
@@ -35,9 +41,8 @@ bool Game::isGameActive() const
     return gameStatus == GameStatus::Playing; 
 }
 
-void Game::setupBoard(const vector<string>& boardLines) {
+void Game::setupBoard(IBoardConvert& converter) {
     /*board.parse(boardLines);*/
-    TextBoardConvert converter(boardLines);
     if (!converter.Convert(board))
         cout << board.getError() << endl;
 }
@@ -83,7 +88,8 @@ void Game::runSimulation(const std::vector<std::string>& inputLines) {
 
     // 1. טעינת הלוח
     if (!boardLines.empty()) {
-        setupBoard(boardLines);
+		TextBoardConvert converter(boardLines);
+        setupBoard(converter);
     }
 
   
@@ -102,7 +108,8 @@ void Game::runSimulation(const std::vector<std::string>& inputLines) {
             this->executeWait(cmd.ms);
             break;
         case CommandType::Print:
-            this->printBoard();
+            TextualBoardPrinting printer;
+            this->printBoard(printer);
             break;
         }
     }
@@ -115,41 +122,34 @@ void Game::executeClick(int x, int y)
         moveInProgress)
         return;
 
-    if (x <  0 || y <  0)
-        return;
+    Position place = BoardMapper::pixelToCell(x, y);
 
-    int c = x / 100;
-    int r = y / 100;
-
-    if (!board.isInside(Position(r, c)))
+    if (!board.isInside(place))
         return;
 
     // אין כלי מסומן - בוחרים כלי
     if (!hasSelection)
     {
-		Position place = Position(r, c);
         if (!board.isEmpty(place) && 
             board.getPiece(place)->getStatus() == PieceStatus::idle)
         {
             hasSelection = true;
-            selectedPiece.setRow(r);
-            selectedPiece.setCol(c);
+            selectedPiece = place;
         }
         return;
     }
 
     // לחיצה על כלי מאותו צבע - מחליפים בחירה
-    if (!board.isEmpty(Position(r, c)) &&
-        board.getPieceColor(Position(r, c)) ==
+    if (!board.isEmpty(place) &&
+        board.getPieceColor(place) ==
         board.getPieceColor(Position(selectedPiece.getRow(), selectedPiece.getCol())))
     {
-        selectedPiece.setRow(r);
-        selectedPiece.setCol(c);
+        selectedPiece = place;
         return;
     }
 
     // בדיקת חוקיות
-    if (!RuleEngine::isLegalMove(board, selectedPiece, Position(r, c)))
+    if (!RuleEngine::isLegalMove(board, selectedPiece, place))
     {
         return;
     }
@@ -161,8 +161,7 @@ void Game::executeClick(int x, int y)
 
 	from = selectedPiece;
 
-    to.setRow(r);
-    to.setCol(c);
+	to = place;
 
     remainingMoveTime =
         std::max(abs(to.getRow() - from.getRow()),
@@ -230,23 +229,21 @@ void Game::executeWait(long long ms)
     }
 }
 
-void Game::printBoard() const {
-    board.print();
+void Game::printBoard(IBoardPrinter& printer) const {
+    board.print(printer);
 }
 
 
 void Game::executeJump(int x, int y) {
-    int c = x / 100;
-    int r = y / 100;
-    Piece* p = board.getPiece(Position(r, c));
+	Position place = BoardMapper::pixelToCell(x, y);
+    Piece* p = board.getPiece(place);
 
     // בדיקה: האם הכלי קיים, לא נע, ולא נאכל?
     if (p && p->getStatus() == PieceStatus::idle) {
 		jumpInProgress = true;
         p->setStatus(PieceStatus::airborne);
         remainingJumpTime = 1000;
-        from.setRow(r); // נשמור את המיקום לצורך ניקוי בסוף
-        from.setCol(c);
+		from = place;
     }
 }
 const Board& Game::getBoard() const

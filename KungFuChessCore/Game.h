@@ -1,8 +1,13 @@
 #pragma once
 #include "Board.h"
 #include "GameStatus.h"
+#include "IBoardConvert.h"
+#include "Position.h"
 #include <string>
 #include <vector>
+
+class Board;
+class IBoardPrinter;
 
 class Game {
 private:
@@ -27,14 +32,14 @@ private:
 public:
     Game();
 
-    void setupBoard(const std::vector<std::string>& boardLines);
+    void setupBoard(IBoardConvert& converter);
     bool isGameActive() const;
-    bool isBoardValid() const;
-    std::string getBoardError() const;
+        /*bool isBoardValid() const;
+        std::string getBoardError() const;*/
     void runSimulation(const std::vector<std::string>& inputLines);
     void executeClick(int x, int y);
     void executeWait(long long ms);
-    void printBoard() const;
+    void printBoard(IBoardPrinter& printer) const;
     void executeJump(int x, int y);
 
 
