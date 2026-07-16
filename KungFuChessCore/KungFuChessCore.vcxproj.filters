@@ -99,6 +99,15 @@
     <ClInclude Include="TextualBoardPrinting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RealTimeArbiter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KungFuChessCore.cpp">
@@ -183,6 +192,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextualBoardPrinting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RealTimeArbiter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

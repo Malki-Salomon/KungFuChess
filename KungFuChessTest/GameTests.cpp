@@ -1,12 +1,11 @@
 #include "doctest.h"
-#include "Game.h"
+#include "App.h"
 #include "Board.h"
 #include <vector>
 #include <string>
 
 TEST_CASE("Testing Board initialization - No Error Expected") {
-    Game game;
-
+    App app;
     // הקלט התקין כפי שציינת
     std::vector<std::string> inputLines = {
         " Board:",
@@ -18,10 +17,10 @@ TEST_CASE("Testing Board initialization - No Error Expected") {
     };
 
     // הרצת הסימולציה
-    game.runSimulation(inputLines);
+    app.parseLoad(inputLines);
 
     // גישה ללוח לבדיקה
-    const Board& board = game.getBoard();
+    const Board& board = app.getGame().getBoard();
 
     // 1. וודא שאין הודעת שגיאה בלוח
     CHECK(board.getError().empty());

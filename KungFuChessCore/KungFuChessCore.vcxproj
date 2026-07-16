@@ -139,12 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App.h" />
     <ClInclude Include="Bishop.h" />
     <ClInclude Include="Board.h" />
     <ClInclude Include="BoardMapper.h" />
     <ClInclude Include="ClickCommand.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandFactory.h" />
+    <ClInclude Include="Controller.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameStatus.h" />
@@ -161,6 +163,7 @@
     <ClInclude Include="Position.h" />
     <ClInclude Include="PrintBoardCommand.h" />
     <ClInclude Include="Queen.h" />
+    <ClInclude Include="RealTimeArbiter.h" />
     <ClInclude Include="Rook.h" />
     <ClInclude Include="RuleEngine.h" />
     <ClInclude Include="StringCommandConvert.h" />
@@ -169,12 +172,14 @@
     <ClInclude Include="WaitCommand.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="Bishop.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="BoardMapper.cpp" />
     <ClCompile Include="ClickCommand.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="CommandFactory.cpp" />
+    <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameStatus.cpp" />
     <ClCompile Include="IBoardConvert.cpp" />
@@ -196,6 +201,7 @@
     <ClCompile Include="Position.cpp" />
     <ClCompile Include="PrintBoardCommand.cpp" />
     <ClCompile Include="Queen.cpp" />
+    <ClCompile Include="RealTimeArbiter.cpp" />
     <ClCompile Include="Rook.cpp" />
     <ClCompile Include="RuleEngine.cpp" />
     <ClCompile Include="StringCommandConvert.cpp" />

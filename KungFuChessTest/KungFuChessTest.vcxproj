@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AppTest.cpp" />
     <ClCompile Include="BishopTests.cpp" />
     <ClCompile Include="BoardTest.cpp" />
     <ClCompile Include="CommandFactoryTest.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="TextBoardConvertTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AppTest.h" />
     <ClInclude Include="BishopTests.h" />
     <ClInclude Include="BoardTest.h" />
     <ClInclude Include="CommandFactoryTest.h" />
