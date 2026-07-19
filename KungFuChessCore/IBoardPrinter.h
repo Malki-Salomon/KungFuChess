@@ -2,12 +2,12 @@
 #include <vector>
 #include <string>
 
-class Board;
+class GameSnapshot;
 
 class IBoardPrinter
 {
 public:
     virtual ~IBoardPrinter() = default;
 
-    virtual void Convert(const Board& board) = 0;
+    virtual void Convert(const GameSnapshot& snapshot) = 0;
 };

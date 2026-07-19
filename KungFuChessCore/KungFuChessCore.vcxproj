@@ -149,6 +149,7 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameSnapshot.h" />
     <ClInclude Include="GameStatus.h" />
     <ClInclude Include="IBoardConvert.h" />
     <ClInclude Include="IBoardPrinter.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Piece.h" />
     <ClInclude Include="PieceFactory.h" />
+    <ClInclude Include="PieceRegistry.h" />
     <ClInclude Include="PieceTypes.h" />
     <ClInclude Include="Position.h" />
     <ClInclude Include="PrintBoardCommand.h" />
@@ -166,6 +168,7 @@
     <ClInclude Include="RealTimeArbiter.h" />
     <ClInclude Include="Rook.h" />
     <ClInclude Include="RuleEngine.h" />
+    <ClInclude Include="Snapshot.h" />
     <ClInclude Include="StringCommandConvert.h" />
     <ClInclude Include="TextBoardConvert.h" />
     <ClInclude Include="TextualBoardPrinting.h" />
@@ -181,6 +184,7 @@
     <ClCompile Include="CommandFactory.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameSnapshot.cpp" />
     <ClCompile Include="GameStatus.cpp" />
     <ClCompile Include="IBoardConvert.cpp" />
     <ClCompile Include="IBoardPrinter.cpp" />
@@ -197,6 +201,7 @@
     </ClCompile>
     <ClCompile Include="Piece.cpp" />
     <ClCompile Include="PieceFactory.cpp" />
+    <ClCompile Include="PieceRegistry.cpp" />
     <ClCompile Include="PieceTypes.cpp" />
     <ClCompile Include="Position.cpp" />
     <ClCompile Include="PrintBoardCommand.cpp" />
@@ -204,6 +209,7 @@
     <ClCompile Include="RealTimeArbiter.cpp" />
     <ClCompile Include="Rook.cpp" />
     <ClCompile Include="RuleEngine.cpp" />
+    <ClCompile Include="Snapshot.cpp" />
     <ClCompile Include="StringCommandConvert.cpp" />
     <ClCompile Include="TextBoardConvert.cpp" />
     <ClCompile Include="TextualBoardPrinting.cpp" />

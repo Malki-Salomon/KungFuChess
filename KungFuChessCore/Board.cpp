@@ -11,6 +11,7 @@
 #include <sstream>
 #include "PieceFactory.h"
 #include "IBoardPrinter.h"
+#include "Snapshot.h"
 using namespace std;
 
 Board::Board()
@@ -62,7 +63,7 @@ void Board::print(IBoardPrinter& printer) const
         //cout << errorMessage << endl;
         return;
     }
-	printer.Convert(*this);
+	printer.Convert(Snapshot::build(*this));
 }
 
 bool Board::isInside(Position pos) const

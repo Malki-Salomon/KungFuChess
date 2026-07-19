@@ -3,6 +3,6 @@
 class TextualBoardPrinting : public IBoardPrinter
 {
 public:
-	void Convert(const Board& board) override;
+	void Convert(const GameSnapshot& snapshot) override;
 };
 

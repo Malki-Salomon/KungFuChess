@@ -1,24 +1,33 @@
 #include "pch.h"
 #include "TextualBoardPrinting.h"
-#include "Board.h"
+#include "GameSnapshot.h"
 #include <iostream>
+#include "PieceRegistry.h"
 
-void TextualBoardPrinting::Convert(const Board& board)
+void TextualBoardPrinting::Convert(const GameSnapshot& snapshot)
 {
-    for (size_t i = 0; i < board.getRows(); ++i)
+    for (const auto& row : snapshot.cells)
     {
-        for (size_t j = 0; j < board.getCols(); ++j)
+        for (const auto& cell : row)
         {
-            if (!board.isEmpty(Position(i, j))) {
-                cout << board.getPiece(Position(i, j))->getName();
+            if (cell.type != PieceType::Empty) {
+                // קבלת המידע מה-Registry
+                const auto& meta = PieceRegistry::getMetadata(cell.type);
+
+                // בחירת הסמל לפי צבע הכלי מה-Snapshot
+                if (cell.color == PieceColor::White) {
+                    std::cout << meta.whiteSymbol; // בהנחה שזה השדה wP
+                }
+                else {
+                    std::cout << meta.blackSymbol; // בהנחה שזה השדה bP
+                }
             }
             else {
-                cout << ".";
+                std::cout << ".";
             }
-            if (j < board.getCols() - 1) {
-                cout << " ";
-            }
+
+            std::cout << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }
