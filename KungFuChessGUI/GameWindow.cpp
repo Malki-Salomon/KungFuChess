@@ -1,16 +1,13 @@
-#include "GuiBoardPrinting.h"
-#include "Game.h"
+#include "GameWindow.h"
 #include "GameSnapshot.h"
-#include "SnapshotBoardConvert.h"
-#include <stdexcept>
 
-GuiBoardPrinting::GuiBoardPrinting()
+GameWindow::GameWindow()
     : boardRenderer(textureManager, layout, R"(.\pictures\board_classic.png)")
     , pieceRenderer(textureManager, layout)
 {
 }
 
-void GuiBoardPrinting::Convert(const GameSnapshot& snapshot)
+void GameWindow::update(const GameSnapshot& snapshot)
 {
     int rows = static_cast<int>(snapshot.cells.size());
     int cols = rows > 0 ? static_cast<int>(snapshot.cells[0].size()) : 0;
@@ -19,9 +16,13 @@ void GuiBoardPrinting::Convert(const GameSnapshot& snapshot)
     layout.setCols(cols);
 
     cv::Rect boardRect = layout.getBoardRect();
-    boardImg.create(boardRect.width, boardRect.height);
-    boardRenderer.draw(boardImg);
-    pieceRenderer.draw(boardImg, snapshot);
 
-	boardImg.show();
+    static bool windowInitialized = false;
+    const std::string windowName = "GameWindow";
+    imgWindow.create(boardRect.width, boardRect.height);
+
+    boardRenderer.draw(imgWindow);
+    pieceRenderer.draw(imgWindow, snapshot);
+
+    imgWindow.show();
 }

@@ -3,7 +3,8 @@
 #include "img.hpp"
 #include "App.h"
 #include "GameSnapshot.h"
-#include "GuiBoardPrinting.h"
+#include "GameWindow.h"
+#include "PrinterAdapter.h"
 #include <iostream>
 #include <vector>
 
@@ -34,7 +35,8 @@ int main()
 {
     try {
         App app;
-		GuiBoardPrinting printer;
+        GameWindow gameWindow;
+        PrinterAdapter printer(gameWindow);
         app.setOutputDevice(&printer);
         app.parseLoad(buildStartingBoardText());
         app.run();

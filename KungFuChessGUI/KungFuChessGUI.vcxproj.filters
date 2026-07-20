@@ -21,7 +21,10 @@
     <ClCompile Include="img.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GuiBoardPrinting.cpp">
+    <ClCompile Include="GameWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PrinterAdapter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
@@ -41,7 +44,13 @@
     <ClInclude Include="img.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GuiBoardPrinting.h">
+    <ClInclude Include="GameObserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PrinterAdapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
