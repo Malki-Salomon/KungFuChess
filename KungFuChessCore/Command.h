@@ -5,7 +5,7 @@ enum class CommandType { Click, Wait, Print, Jump };
 struct Command {
     CommandType type;
     int x = 0, y = 0;      
-    long long ms = 0;    
+    long long ms = 0;   
 
     static Command CreateClick(int x, int y) { return { CommandType::Click, x, y, 0 }; }
     static Command CreateJump(int x, int y) { return { CommandType::Jump, x, y, 0 }; }

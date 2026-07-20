@@ -2,6 +2,7 @@
 #include "StringCommandConvert.h"
 
 #include <sstream>
+#include "IBoardPrinter.h"
 
 std::vector<Command> StringCommandConvert::Convert() {
     std::vector<Command> result;

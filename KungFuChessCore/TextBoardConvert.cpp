@@ -67,7 +67,6 @@ bool TextBoardConvert::Convert(Board& board)
         string token;
         int col = 0;
 
-        // בדיקה מקדימה למספר העמודות בשורה הנוכחית
         int current_row_cols = 0;
         stringstream count_ss(line);
         string temp;
@@ -81,7 +80,6 @@ bool TextBoardConvert::Convert(Board& board)
 
         while (ss >> token)
         {
-            // בדיקת Unknown Token
             if (!isValidToken(token))
             {
                 board.setError("ERROR UNKNOWN_TOKEN");

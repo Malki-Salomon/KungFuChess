@@ -2,6 +2,7 @@
 #include "App.h"
 #include "TextBoardConvert.h"
 #include "StringCommandConvert.h"
+#include "IBoardPrinter.h"
 #include "Command.h"
 #include <iostream>
 
@@ -22,10 +23,28 @@ void App::parseLoad(const std::vector<std::string>& inputLines) {
     TextBoardConvert boardConverter(boardLines);
     game.setupBoard(boardConverter);
 
+    processNewCommands(commandLines);
+}
+
+void App::processNewCommands(const std::vector<std::string>& commandLines) {
     StringCommandConvert cmdConverter(commandLines);
     std::vector<Command> commands = cmdConverter.Convert();
 
-    game.run(commands);
+    for (const auto& cmd : commands) {
+        game.addCommand(cmd);
+    }
+}
+
+void App::setOutputDevice(IBoardPrinter* printer) {
+    game.setPrinter(printer);
+}
+
+void App::run() 
+{
+    while (game.isGameActive())
+    {
+		game.processNextCommand();
+    }
 }
 
 Game& App::getGame() {

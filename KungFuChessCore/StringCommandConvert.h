@@ -6,7 +6,7 @@ class StringCommandConvert {
     std::vector<std::string> input;
 public:
     StringCommandConvert(const std::vector<std::string>& input) : input(input) {}
-    std::vector<Command> Convert(); // מחזיר ערכים ולא פוינטרים
+    std::vector<Command> Convert(); 
 };
 
 //#pragma once

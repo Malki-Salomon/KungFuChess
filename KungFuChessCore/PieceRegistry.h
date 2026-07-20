@@ -13,6 +13,5 @@ struct PieceMetadata {
 
 class PieceRegistry {
 public:
-    // פונקציה סטטית להחזרת נתוני הכלי
     static const PieceMetadata& getMetadata(PieceType type);
 };

@@ -83,6 +83,7 @@ TEST_CASE("Testing King one-step valid move") {
     };
 
     app.parseLoad(inputLines);
+	app.run();
 
     // בדיקת הלוח לאחר המהלך
     const Board& board = app.getGame().getBoard();

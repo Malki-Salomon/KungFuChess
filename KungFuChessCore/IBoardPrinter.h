@@ -1,8 +1,7 @@
 #pragma once
+#include "GameSnapshot.h"
 #include <vector>
 #include <string>
-
-class GameSnapshot;
 
 class IBoardPrinter
 {

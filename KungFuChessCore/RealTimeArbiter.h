@@ -1,26 +1,26 @@
 #pragma once
-#include <vector>
-#include <memory>
 #include "Position.h"
+#include <memory>
+#include <vector>
 
 class Board;
 class RuleEngine;
 class Game;
 
-struct ActiveAction {
+struct ActiveAction
+{
     Position from;
     Position to;
     long long remainingTime;
 };
 
-class RealTimeArbiter {
-private:
-    std::vector<ActiveAction> activeActions;
-
+class RealTimeArbiter
+{
 public:
     void addAction(Position from, Position to, long long duration);
-
     void tick(long long ms, Board& board, RuleEngine& rules, Game& game);
-
     bool hasActiveActions() const { return !activeActions.empty(); }
+
+private:
+    std::vector<ActiveAction> activeActions;
 };

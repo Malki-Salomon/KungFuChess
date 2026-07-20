@@ -169,6 +169,7 @@
     <ClInclude Include="Rook.h" />
     <ClInclude Include="RuleEngine.h" />
     <ClInclude Include="Snapshot.h" />
+    <ClInclude Include="SnapshotBoardConvert.h" />
     <ClInclude Include="StringCommandConvert.h" />
     <ClInclude Include="TextBoardConvert.h" />
     <ClInclude Include="TextualBoardPrinting.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="Rook.cpp" />
     <ClCompile Include="RuleEngine.cpp" />
     <ClCompile Include="Snapshot.cpp" />
+    <ClCompile Include="SnapshotBoardConvert.cpp" />
     <ClCompile Include="StringCommandConvert.cpp" />
     <ClCompile Include="TextBoardConvert.cpp" />
     <ClCompile Include="TextualBoardPrinting.cpp" />

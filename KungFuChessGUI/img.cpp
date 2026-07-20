@@ -42,17 +42,8 @@ void Img::draw_on(Img& other_img, int x, int y) {
         throw std::runtime_error("Both images must be loaded before drawing.");
     }
 
-    // Handle different channel counts
     cv::Mat source_img = img;
     cv::Mat target_img = other_img.img;
-    
-    if (source_img.channels() != target_img.channels()) {
-        if (source_img.channels() == 3 && target_img.channels() == 4) {
-            cv::cvtColor(source_img, source_img, cv::COLOR_BGR2BGRA);
-        } else if (source_img.channels() == 4 && target_img.channels() == 3) {
-            cv::cvtColor(source_img, source_img, cv::COLOR_BGRA2BGR);
-        }
-    }
 
     int h = source_img.rows;
     int w = source_img.cols;
@@ -66,17 +57,50 @@ void Img::draw_on(Img& other_img, int x, int y) {
     cv::Mat roi = target_img(cv::Rect(x, y, w, h));
 
     if (source_img.channels() == 4) {
-        // Handle alpha blending for BGRA images
-        std::vector<cv::Mat> channels;
-        cv::split(source_img, channels);
-        cv::Mat alpha = channels[3] / 255.0;
-        
+        // Alpha-blend per pixel using the source's alpha channel, keeping the target's own channel count.
+        std::vector<cv::Mat> srcChannels;
+        cv::split(source_img, srcChannels);
+
+        cv::Mat alpha;
+        srcChannels[3].convertTo(alpha, CV_32FC1, 1.0 / 255.0);
+
+        cv::Mat roiBgr;
+        bool roiHasAlpha = roi.channels() == 4;
+        if (roiHasAlpha) {
+            cv::cvtColor(roi, roiBgr, cv::COLOR_BGRA2BGR);
+        } else {
+            roiBgr = roi;
+        }
+
+        std::vector<cv::Mat> roiChannels;
+        cv::split(roiBgr, roiChannels);
+
+        std::vector<cv::Mat> blended(3);
         for (int c = 0; c < 3; ++c) {
-            roi.col(c) = (1.0 - alpha) * roi.col(c) + alpha * channels[c];
+            cv::Mat srcF, roiF;
+            srcChannels[c].convertTo(srcF, CV_32FC1);
+            roiChannels[c].convertTo(roiF, CV_32FC1);
+            cv::Mat mixed = srcF.mul(alpha) + roiF.mul(1.0f - alpha);
+            mixed.convertTo(blended[c], roiChannels[c].type());
+        }
+
+        cv::Mat blendedBgr;
+        cv::merge(blended, blendedBgr);
+
+        if (roiHasAlpha) {
+            cv::cvtColor(blendedBgr, roi, cv::COLOR_BGR2BGRA);
+        } else {
+            blendedBgr.copyTo(roi);
         }
     } else {
-        // Direct copy for BGR images
-        source_img.copyTo(roi);
+        // No alpha channel: direct copy, converting channel count to match the target.
+        cv::Mat converted = source_img;
+        if (source_img.channels() == 3 && roi.channels() == 4) {
+            cv::cvtColor(source_img, converted, cv::COLOR_BGR2BGRA);
+        } else if (source_img.channels() == 1 && roi.channels() == 3) {
+            cv::cvtColor(source_img, converted, cv::COLOR_GRAY2BGR);
+        }
+        converted.copyTo(roi);
     }
 }
 

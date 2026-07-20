@@ -11,15 +11,13 @@ void TextualBoardPrinting::Convert(const GameSnapshot& snapshot)
         for (const auto& cell : row)
         {
             if (cell.type != PieceType::Empty) {
-                // קבלת המידע מה-Registry
                 const auto& meta = PieceRegistry::getMetadata(cell.type);
 
-                // בחירת הסמל לפי צבע הכלי מה-Snapshot
                 if (cell.color == PieceColor::White) {
-                    std::cout << meta.whiteSymbol; // בהנחה שזה השדה wP
+                    std::cout << meta.whiteSymbol; 
                 }
                 else {
-                    std::cout << meta.blackSymbol; // בהנחה שזה השדה bP
+                    std::cout << meta.blackSymbol; 
                 }
             }
             else {

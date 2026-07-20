@@ -1,22 +1,44 @@
-﻿// KungFuChessGUI.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// KungFuChessGUI.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include "img.hpp"
+#include "App.h"
+#include "GameSnapshot.h"
+#include "GuiBoardPrinting.h"
 #include <iostream>
-#include <vector>     
-#include <string>
+#include <vector>
+
+namespace
+{
+    // Standard chess starting position, in the same text notation used by the
+    // Core/Test board format: "<w|b><K|Q|R|B|N|P>" or "." for an empty square.
+    // Row 0 is White's back rank, row 7 is Black's.
+    std::vector<std::string> buildStartingBoardText()
+    {
+        return {
+            " Board:",
+            "wR wN wB wQ wK wB wN wR",
+            "wP wP wP wP wP wP wP wP",
+            ". . . . . . . .",
+            ". . . . . . . .",
+            ". . . . . . . .",
+            ". . . . . . . .",
+            "bP bP bP bP bP bP bP bP",
+            "bR bN bB bQ bK bB bN bR",
+            "Commands:",
+            "print board"
+        };
+    }
+}
 
 int main()
 {
     try {
-        std::cout << "Testing Img class..." << std::endl;
+        App app;
+		GuiBoardPrinting printer;
+        app.setOutputDevice(&printer);
+        app.parseLoad(buildStartingBoardText());
+        app.run();
 
-        Img img;
-        //img.read(R"(C:\Users\user1\Documents\מלכי\kamateck\KungFuChess\KungFuChessGUI\pictures\board_classic.png)", { 640, 480 }, true);
-        img.read(R"(.\pictures\board_classic.png)", { 640, 480 }, true);
-        img.put_text("Hello, Img!", 150, 360, 1.0, { 0,0,0 });
-        img.show();
-
-        std::cout << "Img class test completed successfully!" << std::endl;
         return 0;
     }
     catch (const std::exception& e) {
@@ -27,11 +49,3 @@ int main()
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

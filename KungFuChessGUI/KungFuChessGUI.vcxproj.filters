@@ -21,9 +21,15 @@
     <ClCompile Include="img.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GuiBoardPrinting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="img.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiBoardPrinting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
