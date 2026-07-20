@@ -37,6 +37,11 @@ Img& Img::read(const std::string& path,
     return *this;
 }
 
+Img& Img::create(int width, int height, int type) {
+    img = cv::Mat::zeros(height, width, type);
+    return *this;
+}
+
 void Img::draw_on(Img& other_img, int x, int y) {
     if (img.empty() || other_img.img.empty()) {
         throw std::runtime_error("Both images must be loaded before drawing.");

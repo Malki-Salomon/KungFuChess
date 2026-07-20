@@ -22,7 +22,19 @@ public:
               const std::pair<int, int>& size = {},
               bool keep_aspect = false,
               int interpolation = cv::INTER_AREA);
-    
+
+    /**
+     * Allocate a blank canvas of the given size, discarding any existing image.
+     * Used to create a drawing surface that other images can be composited onto
+     * via draw_on, without loading anything from disk.
+     *
+     * @param width Canvas width in pixels
+     * @param height Canvas height in pixels
+     * @param type OpenCV Mat type (default: CV_8UC3)
+     * @return Reference to this object for method chaining
+     */
+    Img& create(int width, int height, int type = CV_8UC3);
+
     /**
      * Draw this image onto another image at position (x, y)
      * 

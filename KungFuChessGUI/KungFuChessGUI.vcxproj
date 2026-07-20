@@ -133,10 +133,18 @@
     <ClCompile Include="img.cpp" />
     <ClCompile Include="KungFuChessGUI.cpp" />
     <ClCompile Include="GuiBoardPrinting.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="Layout.cpp" />
+    <ClCompile Include="BoardRenderer.cpp" />
+    <ClCompile Include="PieceRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="img.hpp" />
     <ClInclude Include="GuiBoardPrinting.h" />
+    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="Layout.h" />
+    <ClInclude Include="BoardRenderer.h" />
+    <ClInclude Include="PieceRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
