@@ -5,6 +5,7 @@
 #include "IBoardPrinter.h"
 #include "Command.h"
 #include <iostream>
+#include <sstream>
 
 void App::parseLoad(const std::vector<std::string>& inputLines) {
     std::vector<std::string> boardLines;
@@ -33,6 +34,10 @@ void App::processNewCommands(const std::vector<std::string>& commandLines) {
     for (const auto& cmd : commands) {
         game.addCommand(cmd);
     }
+}
+
+void App::dispatchCommand(const std::string& cmd) {
+    processNewCommands({ cmd });
 }
 
 void App::setOutputDevice(IBoardPrinter* printer) {

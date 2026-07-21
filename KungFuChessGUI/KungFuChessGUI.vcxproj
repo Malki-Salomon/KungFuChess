@@ -141,7 +141,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="img.hpp" />
-    <ClInclude Include="GameObserver.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="PrinterAdapter.h" />
     <ClInclude Include="TextureManager.h" />

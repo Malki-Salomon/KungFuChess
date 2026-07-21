@@ -1,8 +1,9 @@
 #include "GameWindow.h"
 #include "GameSnapshot.h"
 
-GameWindow::GameWindow()
-    : boardRenderer(textureManager, layout, R"(.\pictures\board_classic.png)")
+GameWindow::GameWindow(IGameController& gameController)
+    : gameController(gameController)
+    , boardRenderer(textureManager, layout, R"(.\pictures\board_classic.png)")
     , pieceRenderer(textureManager, layout)
 {
 }
@@ -18,7 +19,7 @@ void GameWindow::update(const GameSnapshot& snapshot)
     cv::Rect boardRect = layout.getBoardRect();
 
     static bool windowInitialized = false;
-    const std::string windowName = "GameWindow";
+    //const std::string windowName = "GameWindow";
     imgWindow.create(boardRect.width, boardRect.height);
 
     boardRenderer.draw(imgWindow);

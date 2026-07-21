@@ -78,6 +78,12 @@
     <ClInclude Include="ICommandConvert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IGameController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="StringCommandConvert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -213,6 +219,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="App.cpp">

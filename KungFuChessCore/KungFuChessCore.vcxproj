@@ -149,11 +149,13 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObserver.h" />
     <ClInclude Include="GameSnapshot.h" />
     <ClInclude Include="GameStatus.h" />
     <ClInclude Include="IBoardConvert.h" />
     <ClInclude Include="IBoardPrinter.h" />
     <ClInclude Include="ICommandConvert.h" />
+    <ClInclude Include="IGameController.h" />
     <ClInclude Include="King.h" />
     <ClInclude Include="Knight.h" />
     <ClInclude Include="Pawn.h" />
@@ -184,6 +186,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="CommandFactory.cpp" />
     <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="CoreFactory.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameSnapshot.cpp" />
     <ClCompile Include="GameStatus.cpp" />

@@ -1,12 +1,12 @@
 // KungFuChessGUI.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include "img.hpp"
-#include "App.h"
+#include "IGameController.h"
 #include "GameSnapshot.h"
 #include "GameWindow.h"
 #include "PrinterAdapter.h"
 #include <iostream>
-#include <vector>
+#include <string>
 
 namespace
 {
@@ -15,7 +15,8 @@ namespace
     // Row 0 is White's back rank, row 7 is Black's.
     std::vector<std::string> buildStartingBoardText()
     {
-        return {
+        return
+        { 
             " Board:",
             "wR wN wB wQ wK wB wN wR",
             "wP wP wP wP wP wP wP wP",
@@ -26,7 +27,7 @@ namespace
             "bP bP bP bP bP bP bP bP",
             "bR bN bB bQ bK bB bN bR",
             "Commands:",
-            "print board"
+            "print board" 
         };
     }
 }
@@ -34,12 +35,12 @@ namespace
 int main()
 {
     try {
-        App app;
-        GameWindow gameWindow;
+        auto app = CoreFactory::createGameController();
+        GameWindow gameWindow(*app);
         PrinterAdapter printer(gameWindow);
-        app.setOutputDevice(&printer);
-        app.parseLoad(buildStartingBoardText());
-        app.run();
+        app->setOutputDevice(&printer);
+        app->parseLoad(buildStartingBoardText());
+        app->run();
 
         return 0;
     }
