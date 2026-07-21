@@ -5,7 +5,12 @@
 
 
 Img::Img() {
-    // Constructor - img is automatically initialized as empty
+    // Constructor - img is automatically initialized as empty, windowName stays unset
+}
+
+Img::Img(std::string windowName)
+    : windowName(std::move(windowName)) {
+    // img is automatically initialized as empty
 }
 
 Img& Img::read(const std::string& path,
@@ -124,8 +129,9 @@ void Img::show() {
     if (img.empty()) {
         throw std::runtime_error("Image not loaded.");
     }
-    
-    cv::imshow("Image", img);
-    cv::waitKey(0);
-    cv::destroyAllWindows();
+    if (windowName.empty()) {
+        throw std::runtime_error("Img has no window name; construct it with Img(windowName) before calling show().");
+    }
+
+    cv::imshow(windowName, img);
 } 

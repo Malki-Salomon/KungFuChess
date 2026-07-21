@@ -7,8 +7,19 @@
 
 class Img {
 public:
+    // Default-constructs a "headless" image: a plain offscreen pixel buffer
+    // with no window identity. Used for cached textures and composited
+    // canvases that are drawn onto another Img rather than shown directly
+    // (see TextureManager, BoardRenderer, PieceRenderer). show() is not
+    // valid on an image constructed this way.
     Img();
-    
+
+    // Constructs an image bound to a specific display window. windowName
+    // must be unique per concurrently-running session (e.g. a session ID)
+    // so that multiple sessions' OpenCV windows - and the mouse callbacks
+    // registered on them - don't collide.
+    explicit Img(std::string windowName);
+
     /**
      * Load image from path and optionally resize.
      * 
@@ -59,20 +70,32 @@ public:
                   int thickness = 1);
     
     /**
-     * Display the image in a window
+     * Display the image in this instance's window (the name passed to the
+     * Img(windowName) constructor). Non-blocking: does not wait for a key
+     * press and does not destroy the window, so it is safe to call once per
+     * game-loop tick from a persistent window (needed for a mouse callback
+     * registered on that window to keep working across frames).
+     *
+     * Throws if this Img was default-constructed (no window name set).
      */
     void show();
-    
+
     /**
      * Get the underlying OpenCV Mat
      */
     const cv::Mat& get_mat() const { return img; }
-    
+
     /**
      * Check if image is loaded
      */
     bool is_loaded() const { return !img.empty(); }
 
+    /**
+     * The window name this instance shows into, if any.
+     */
+    const std::string& getWindowName() const { return windowName; }
+
 private:
     cv::Mat img;
-}; 
+    std::string windowName;
+};

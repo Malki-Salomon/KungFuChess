@@ -7,6 +7,8 @@
 #include "PrinterAdapter.h"
 #include <iostream>
 #include <string>
+#include "InputHandler.h"
+#include "GameLoop.h"
 
 namespace
 {
@@ -36,11 +38,21 @@ int main()
 {
     try {
         auto app = CoreFactory::createGameController();
-        GameWindow gameWindow(*app);
+
+        // Uniquely identifies this session's display window. In a
+        // multi-session server this would be the session/game ID handed to
+        // each per-connection setup instead of a fixed literal, so that
+        // concurrent sessions never collide on the same OpenCV window name.
+        const std::string windowName = "GameWindow_Session1";
+
+        GameWindow gameWindow(*app, windowName);
+        InputHandler inputHandler(*app, gameWindow.getLayout(), gameWindow.getWindowName());
         PrinterAdapter printer(gameWindow);
         app->setOutputDevice(&printer);
         app->parseLoad(buildStartingBoardText());
-        app->run();
+
+        GameLoop gameLoop(*app, gameWindow);
+        gameLoop.run();
 
         return 0;
     }

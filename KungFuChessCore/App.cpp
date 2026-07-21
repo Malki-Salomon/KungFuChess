@@ -46,7 +46,7 @@ void App::setOutputDevice(IBoardPrinter* printer) {
 
 void App::run() 
 {
-    while (game.isGameActive())
+    if(game.isGameActive())
     {
 		game.processNextCommand();
     }

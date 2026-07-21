@@ -130,7 +130,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameLoop.cpp" />
     <ClCompile Include="img.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="KungFuChessGUI.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="PrinterAdapter.cpp" />
@@ -140,8 +142,10 @@
     <ClCompile Include="PieceRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameLoop.h" />
     <ClInclude Include="img.hpp" />
     <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="PrinterAdapter.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="Layout.h" />

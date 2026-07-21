@@ -52,8 +52,8 @@ void Controller::executeClick(int x, int y, Game& game, RealTimeArbiter& arbiter
 
 void Controller::executeJump(int x, int y, Game& game, RealTimeArbiter& arbiter)
 {
-    Position place = BoardMapper::pixelToCell(x, y);
-    Piece* p = board.getPiece(place);
+    Position place = BoardMapper::pixelToCell(y, x);
+    Piece* p = game.getBoard().getPiece(place);
 
     if (p && p->getStatus() == PieceStatus::idle) {
         arbiter.addAction(game.getSelectedPiece(), place, 1000);
