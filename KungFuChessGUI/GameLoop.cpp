@@ -21,11 +21,16 @@ void GameLoop::run()
 
         if (deltaTimeMs > 0)
         {
- 
+
 			gameController.dispatchCommand("wait " + std::to_string(deltaTimeMs));
 
         }
         gameController.run();
+
+        // Advances animation playback every loop iteration, independent of
+        // Core's own notify-on-change cadence, so idle/looping sprite clips
+        // stay smooth even on frames where Core reports nothing changed.
+        gameWindow.tick(deltaTimeMs);
 
         int key = cv::waitKey(FRAME_DELAY_MS);
         if (key == STOP) {

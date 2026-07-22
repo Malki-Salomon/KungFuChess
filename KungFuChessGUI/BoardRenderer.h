@@ -15,6 +15,14 @@ public:
 
     void draw(Img& canvas) const;
 
+    // The board's cached background texture, sized to the current board
+    // rect (the same cached Img draw() uses). Exposed so other renderers
+    // (BoardAnimationController) can repaint a small patch of "just the
+    // board" to erase a piece sprite drawn on top of it earlier, without
+    // needing to know the texture path themselves or redraw the whole
+    // canvas.
+    const Img& getTexture() const;
+
 private:
     TextureManager& textureManager;
     const Layout& layout;

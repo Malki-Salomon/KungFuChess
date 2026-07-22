@@ -10,7 +10,7 @@ public:
     // Default-constructs a "headless" image: a plain offscreen pixel buffer
     // with no window identity. Used for cached textures and composited
     // canvases that are drawn onto another Img rather than shown directly
-    // (see TextureManager, BoardRenderer, PieceRenderer). show() is not
+    // (see TextureManager, BoardRenderer, BoardAnimationController). show() is not
     // valid on an image constructed this way.
     Img();
 
@@ -79,6 +79,16 @@ public:
      * Throws if this Img was default-constructed (no window name set).
      */
     void show();
+
+    /**
+     * Returns a new Img holding a copy of the sub-rectangle
+     * (x, y, width, height) of this image, clamped to its bounds. Used to
+     * grab a cell-sized patch of a larger cached texture (e.g. the board
+     * background) so it can be drawn back via draw_on to "erase" whatever
+     * was previously painted on top of it, without redrawing the whole
+     * canvas.
+     */
+    Img crop(int x, int y, int width, int height) const;
 
     /**
      * Get the underlying OpenCV Mat

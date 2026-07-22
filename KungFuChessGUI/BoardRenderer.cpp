@@ -17,3 +17,9 @@ void BoardRenderer::draw(Img& canvas) const
     Img boardTexture = textureManager.getTexture(texturePath, { boardRect.width, boardRect.height });
     boardTexture.draw_on(canvas, boardRect.x, boardRect.y);
 }
+
+const Img& BoardRenderer::getTexture() const
+{
+    cv::Rect boardRect = layout.getBoardRect();
+    return textureManager.getTexture(texturePath, { boardRect.width, boardRect.height });
+}

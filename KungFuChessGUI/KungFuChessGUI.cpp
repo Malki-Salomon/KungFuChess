@@ -46,7 +46,7 @@ int main()
         const std::string windowName = "GameWindow_Session1";
 
         GameWindow gameWindow(*app, windowName);
-        InputHandler inputHandler(*app, gameWindow.getLayout(), gameWindow.getWindowName());
+        InputHandler inputHandler(*app, gameWindow.getLayout(), gameWindow.getWindowName(), gameWindow.getMoveIntentHint());
         PrinterAdapter printer(gameWindow);
         app->setOutputDevice(&printer);
         app->parseLoad(buildStartingBoardText());

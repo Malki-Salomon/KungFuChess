@@ -36,7 +36,19 @@
     <ClCompile Include="BoardRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PieceRenderer.cpp">
+    <ClCompile Include="BoardAnimationController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteAnimationClipLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteAnimationCatalog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteAnimationStateMachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PieceAssetPaths.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InputHandler.cpp">
@@ -65,7 +77,25 @@
     <ClInclude Include="BoardRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PieceRenderer.h">
+    <ClInclude Include="BoardAnimationController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteAnimationTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteAnimationClipLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteAnimationCatalog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteAnimationStateMachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PieceAssetPaths.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMoveIntentHint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InputHandler.h">

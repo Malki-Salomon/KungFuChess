@@ -1,8 +1,9 @@
 #include "InputHandler.h"
 #include <opencv2/highgui.hpp> // cv::namedWindow, cv::setMouseCallback
 
-InputHandler::InputHandler(IGameController& gameController, const Layout& layout, const std::string& windowName)
-    : gameController(gameController), layout(layout)
+InputHandler::InputHandler(IGameController& gameController, const Layout& layout, const std::string& windowName,
+                            IMoveIntentHint& moveIntentHint)
+    : gameController(gameController), layout(layout), moveIntentHint(moveIntentHint)
 {
     attachToWindow(windowName);
 }
@@ -40,6 +41,7 @@ void InputHandler::handleMouseClick(int pixelX, int pixelY, bool isDoubleClick)
     {*/
         std::string command;
         if (isDoubleClick) {
+            moveIntentHint.hintNextMoveIsJump();
             command = "jump " + std::to_string(pixelX) + " " + std::to_string(pixelY);
         }
         else {

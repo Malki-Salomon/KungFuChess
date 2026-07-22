@@ -114,6 +114,19 @@ void Img::draw_on(Img& other_img, int x, int y) {
     }
 }
 
+Img Img::crop(int x, int y, int width, int height) const {
+    if (img.empty()) {
+        throw std::runtime_error("Image not loaded.");
+    }
+
+    cv::Rect rect(x, y, width, height);
+    rect &= cv::Rect(0, 0, img.cols, img.rows); // clamp to bounds
+
+    Img result;
+    result.img = img(rect).clone();
+    return result;
+}
+
 void Img::put_text(const std::string& txt, int x, int y, double font_size,
                    const cv::Scalar& color, int thickness) {
     if (img.empty()) {

@@ -2,6 +2,7 @@
 #include <string>
 #include "IGameController.h"
 #include "Layout.h"
+#include "IMoveIntentHint.h"
 
 // Owns all mouse input for the game: registers itself as the display
 // window's mouse-event sink and translates raw clicks into board
@@ -13,7 +14,11 @@ class InputHandler
 public:
     // windowName must match the window the game is rendered into (see
     // Img::kWindowName); the handler attaches itself to it immediately.
-    InputHandler(IGameController& gameController, const Layout& layout, const std::string& windowName);
+    // moveIntentHint lets a dispatched jump be flagged to the animation
+    // system (see IMoveIntentHint) - purely a GUI-to-GUI hint, Core is
+    // never involved.
+    InputHandler(IGameController& gameController, const Layout& layout, const std::string& windowName,
+                 IMoveIntentHint& moveIntentHint);
 
     void handleMouseClick(int pixelX, int pixelY, bool isDoubleClick);
 
@@ -29,4 +34,5 @@ private:
 
     IGameController& gameController;
     const Layout& layout;
+    IMoveIntentHint& moveIntentHint;
 };
