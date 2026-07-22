@@ -18,7 +18,7 @@ class RealTimeArbiter
 {
 public:
     void addAction(Position from, Position to, long long duration);
-    void tick(long long ms, Board& board, RuleEngine& rules, Game& game);
+    bool tick(long long ms, Board& board, RuleEngine& rules, Game& game);
     bool hasActiveActions() const { return !activeActions.empty(); }
 
 private:

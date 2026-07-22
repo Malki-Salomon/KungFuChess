@@ -30,22 +30,22 @@ void InputHandler::onMouseEvent(int event, int x, int y, int /*flags*/, void* us
 
 void InputHandler::handleMouseClick(int pixelX, int pixelY, bool isDoubleClick)
 {
-    auto offset = layout.getBoardOffset();
+   /* auto offset = layout.getBoardOffset();
     int cellSize = layout.getCellSize();
 
     int col = (pixelX - offset.x) / cellSize;
     int row = (pixelY - offset.y) / cellSize;
 
     if (col >= 0 && col < layout.getCols() && row >= 0 && row < layout.getRows())
-    {
+    {*/
         std::string command;
         if (isDoubleClick) {
-            command = "jump " + std::to_string(col) + " " + std::to_string(row);
+            command = "jump " + std::to_string(pixelX) + " " + std::to_string(pixelY);
         }
         else {
-            command = "click " + std::to_string(col) + " " + std::to_string(row);
+            command = "click " + std::to_string(pixelX) + " " + std::to_string(pixelY);
         }
 
         gameController.dispatchCommand(command);
-    }
+    //}
 }

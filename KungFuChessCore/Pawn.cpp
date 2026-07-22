@@ -21,8 +21,8 @@ std::string Pawn::getName() const
 bool Pawn::isValidMove(Position from, Position to, const Board& board) const {
     int dr = to.getRow() - from.getRow();
     int dc = to.getCol() - from.getCol();
-    int direction = (getColor() == PieceColor::White) ? -1 : 1;
-    int startRow = (getColor() == PieceColor::White) ? board.getRows() - 2 : 1;
+    int direction = (board.getPieceColor(from) == PieceColor::White) ? -1 : 1;
+    int startRow = (board.getPieceColor(from) == PieceColor::White) ? board.getRows() - 2 : 1;
 
     if (dc == 0 && dr == direction && board.isEmpty(to)) return true;
 

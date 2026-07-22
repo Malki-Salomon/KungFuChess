@@ -49,7 +49,9 @@ void Game::processNextCommand()
     case CommandType::Wait:
     {
         RuleEngine ruleEngine;
-        this->arbiter.tick(cmd.ms, this->board, ruleEngine, *this);
+        bool someChange = this->arbiter.tick(cmd.ms, this->board, ruleEngine, *this);
+		if (someChange)
+			board.print(*this->printer);
         break;
     }
     case CommandType::Print:

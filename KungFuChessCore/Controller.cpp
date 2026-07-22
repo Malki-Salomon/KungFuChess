@@ -14,7 +14,7 @@ void Controller::executeClick(int x, int y, Game& game, RealTimeArbiter& arbiter
     if (!game.getBoard().isInside(place))
         return;
 
-    // àéï ëìé îñåîï - áåçøéí ëìé
+    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     if (!game.gethasSelection())
     {
         if (!game.getBoard().isEmpty(place) &&
@@ -56,7 +56,7 @@ void Controller::executeJump(int x, int y, Game& game, RealTimeArbiter& arbiter)
     Piece* p = game.getBoard().getPiece(place);
 
     if (p && p->getStatus() == PieceStatus::idle) {
-        arbiter.addAction(game.getSelectedPiece(), place, 1000);
+        arbiter.addAction(place, place, 1000);
         p->setStatus(PieceStatus::airborne);
     }
 }

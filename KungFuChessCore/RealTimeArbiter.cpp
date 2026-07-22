@@ -3,6 +3,7 @@
 #include "Board.h"
 #include "Game.h"
 #include "RuleEngine.h"
+#include <iostream>
 
 void RealTimeArbiter::addAction(Position from, Position to, long long duration)
 {
@@ -14,8 +15,9 @@ void RealTimeArbiter::addAction(Position from, Position to, long long duration)
     activeActions.push_back(newAction);
 }
 
-void RealTimeArbiter::tick(long long ms, Board& board, RuleEngine& rules, Game& game)
+bool RealTimeArbiter::tick(long long ms, Board& board, RuleEngine& rules, Game& game)
 {
+	bool anyActionCompleted = false;
     for (auto it = activeActions.begin(); it != activeActions.end(); )
     {
         it->remainingTime -= ms;
@@ -47,6 +49,7 @@ void RealTimeArbiter::tick(long long ms, Board& board, RuleEngine& rules, Game& 
                 {
                     board.movePiece(it->from, it->to);
                     board.removePiece(it->from);
+					board.getPiece(it->to)->setStatus(PieceStatus::idle);
                 }
             }
             else
@@ -57,10 +60,12 @@ void RealTimeArbiter::tick(long long ms, Board& board, RuleEngine& rules, Game& 
                 }
             }
             it = activeActions.erase(it); 
+			anyActionCompleted = true;
         }
         else
         {
             ++it;
         }
     }
+	return anyActionCompleted;
 }

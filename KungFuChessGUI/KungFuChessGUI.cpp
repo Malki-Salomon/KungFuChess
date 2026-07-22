@@ -2,7 +2,7 @@
 //
 #include "img.hpp"
 #include "IGameController.h"
-#include "GameSnapshot.h"
+//#include "GameSnapshot.h"
 #include "GameWindow.h"
 #include "PrinterAdapter.h"
 #include <iostream>
@@ -20,14 +20,14 @@ namespace
         return
         { 
             " Board:",
-            "wR wN wB wQ wK wB wN wR",
-            "wP wP wP wP wP wP wP wP",
-            ". . . . . . . .",
-            ". . . . . . . .",
-            ". . . . . . . .",
-            ". . . . . . . .",
-            "bP bP bP bP bP bP bP bP",
             "bR bN bB bQ bK bB bN bR",
+            "bP bP bP bP bP bP bP bP",
+            ". . . . . . . .",
+            ". . . . . . . .",
+            ". . . . . . . .",
+            ". . . . . . . .",
+            "wP wP wP wP wP wP wP wP",
+            "wR wN wB wQ wK wB wN wR",
             "Commands:",
             "print board" 
         };
