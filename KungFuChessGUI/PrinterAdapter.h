@@ -1,18 +1,20 @@
 #pragma once
 #include "IBoardPrinter.h"
 
-class GameObserver;
+class EventBus;
 
-// Adapts the Core's IBoardPrinter output-device interface to the GUI's
-// Observer pattern, so App can keep calling Convert() without knowing
-// anything about GameWindow or GameObserver.
+// Adapts the Core's IBoardPrinter output-device interface to the EventBus:
+// publishes a GameStateChangedEvent for each snapshot Board::print() hands
+// it, so any number of subscribers (GameWindow today; a future WebSocket
+// relay, logger, etc.) can react without App or Game knowing any of them
+// exist. Replaces the old GameObserver-forwarding version of this class.
 class PrinterAdapter : public IBoardPrinter
 {
 public:
-    explicit PrinterAdapter(GameObserver& observer);
+    explicit PrinterAdapter(EventBus& eventBus);
 
     void Convert(const GameSnapshot& snapshot) override;
 
 private:
-    GameObserver& observer;
+    EventBus& eventBus;
 };

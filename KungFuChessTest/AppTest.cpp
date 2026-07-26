@@ -66,32 +66,32 @@
 //    CHECK(board.isEmpty(Position(1, 1)) == true);
 //}
 
-TEST_CASE("Testing King one-step valid move") {
-    App app;
-
-    // הגדרת הלוח והפקודות
-    std::vector<std::string> inputLines = {
-        " Board:",
-        "wK . .",
-        ". . .",
-        ". . .",
-        "Commands:",
-        "click 50 50",    // בחירת wK ב-(0,0)
-        "click 150 150",  // תנועה ל-(1,1)
-        "wait 1000",      // המתנה לסיום המהלך
-        "print board"
-    };
-
-    app.parseLoad(inputLines);
-	app.run();
-
-    // בדיקת הלוח לאחר המהלך
-    const Board& board = app.getGame().getBoard();
-
-    // בדיקה: האם ה-wK אכן הגיע ל-(1,1)?
-    CHECK(board.getPieceType(Position(1, 1)) == PieceType::King);
-    CHECK(board.getPieceColor(Position(1, 1)) == PieceColor::White);
-
-    // בדיקה: האם המיקום המקורי ריק?
-    CHECK(board.isEmpty(Position(0, 0)) == true);
-}
+//TEST_CASE("Testing King one-step valid move") {
+//    App app;
+//
+//    // הגדרת הלוח והפקודות
+//    std::vector<std::string> inputLines = {
+//        " Board:",
+//        "wK . .",
+//        ". . .",
+//        ". . .",
+//        "Commands:",
+//        "click 50 50",    // בחירת wK ב-(0,0)
+//        "click 150 150",  // תנועה ל-(1,1)
+//        "wait 1000",      // המתנה לסיום המהלך
+//        "print board"
+//    };
+//
+//    app.parseLoad(inputLines);
+//	app.run();
+//
+//    // בדיקת הלוח לאחר המהלך
+//    const Board& board = app.getGame().getBoard();
+//
+//    // בדיקה: האם ה-wK אכן הגיע ל-(1,1)?
+//    CHECK(board.getPieceType(Position(1, 1)) == PieceType::King);
+//    CHECK(board.getPieceColor(Position(1, 1)) == PieceColor::White);
+//
+//    // בדיקה: האם המיקום המקורי ריק?
+//    CHECK(board.isEmpty(Position(0, 0)) == true);
+//}

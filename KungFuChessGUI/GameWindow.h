@@ -1,17 +1,17 @@
 #pragma once
 #include <string>
-#include "GameObserver.h"
 #include "IGameController.h"
 #include "img.hpp"
 #include "Layout.h"
 #include "TextureManager.h"
 #include "BoardRenderer.h"
 #include "BoardAnimationController.h"
+#include "Events/EventBus.h"
 
-// Observer that owns on-screen rendering of a GameSnapshot. Holds the
-// Layout/TextureManager state the renderers depend on and drives
-// clear -> board -> pieces -> display each time a new snapshot arrives, or
-// each time the GUI loop ticks (see tick()).
+// Owns on-screen rendering of a GameSnapshot. Holds the Layout/TextureManager
+// state the renderers depend on and drives clear -> board -> pieces ->
+// display each time a new snapshot arrives (via its EventBus subscription),
+// or each time the GUI loop ticks (see tick()).
 // Commands (e.g. from user input) are sent back to the Core through the
 // injected IGameController, keeping the GUI decoupled from App.
 //
@@ -21,14 +21,28 @@
 // (a session ID works well) so their OpenCV windows don't collide - see
 // Img's windowName constructor. InputHandler must be given this same
 // string so its mouse callback binds to this exact window.
-class GameWindow : public GameObserver
+class GameWindow
 {
 public:
-    GameWindow(IGameController& gameController, std::string windowName);
+    // Subscribes to GameStateChangedEvent on eventBus immediately, so this
+    // instance starts reacting to state changes as soon as it exists - no
+    // separate wiring step (like the old setObserver()/PrinterAdapter(this)
+    // pairing) is needed at the call site.
+    GameWindow(IGameController& gameController, std::string windowName, EventBus& eventBus);
+
+    // Unsubscribes from eventBus so a destroyed GameWindow can never be
+    // called back into - without this, publish() would still hold (and
+    // eventually invoke) a callback capturing a dangling `this`.
+    ~GameWindow();
+
+    GameWindow(const GameWindow&) = delete;
+    GameWindow& operator=(const GameWindow&) = delete;
 
     // Reconciles the animated pieces against the new snapshot (see
-    // BoardAnimationController) and repaints.
-    void update(const GameSnapshot& snapshot) override;
+    // BoardAnimationController) and repaints. No longer a virtual override -
+    // called directly from the EventBus subscription lambda instead of
+    // through a GameObserver base class.
+    void update(const GameSnapshot& snapshot);
 
     // Advances animation playback by deltaMs and repaints using whatever
     // pieces are currently tracked - no snapshot needed. Call every GUI
@@ -60,4 +74,7 @@ private:
     BoardAnimationController pieceRenderer;
     Img imgWindow;
     bool canvasReady = false;
+
+    EventBus& eventBus;
+    SubscriptionId subscriptionId;
 };

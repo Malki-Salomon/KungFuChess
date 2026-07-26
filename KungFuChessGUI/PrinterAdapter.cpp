@@ -1,12 +1,13 @@
 #include "PrinterAdapter.h"
-#include "GameObserver.h"
+#include "Events/EventBus.h"
+#include "Events/GameStateChangedEvent.h"
 
-PrinterAdapter::PrinterAdapter(GameObserver& observer)
-    : observer(observer)
+PrinterAdapter::PrinterAdapter(EventBus& eventBus)
+    : eventBus(eventBus)
 {
 }
 
 void PrinterAdapter::Convert(const GameSnapshot& snapshot)
 {
-    observer.update(snapshot);
+    eventBus.publish(GameStateChangedEvent(snapshot));
 }

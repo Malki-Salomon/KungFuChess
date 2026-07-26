@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{bedb2da3-6d62-4f43-92b5-58b50f764643}</ProjectGuid>
-    <RootNamespace>KungFuChessTest</RootNamespace>
+    <ProjectGuid>{9aa5d63b-0bc6-46ca-8987-c2b68ae25b21}</ProjectGuid>
+    <RootNamespace>KungFuChessServer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -76,7 +76,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,7 +90,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,7 +102,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +116,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,50 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AppTest.cpp" />
-    <ClCompile Include="BishopTests.cpp" />
-    <ClCompile Include="BoardTest.cpp" />
-    <ClCompile Include="CommandFactoryTest.cpp" />
-    <ClCompile Include="EventBusTests.cpp" />
-    <ClCompile Include="GameTests.cpp" />
-    <ClCompile Include="KingTests.cpp" />
-    <ClCompile Include="KnightTests.cpp" />
-    <ClCompile Include="KungFuChessTest.cpp" />
-    <ClCompile Include="PieceTests.cpp" />
-    <ClCompile Include="PrinterAdapterTests.cpp" />
-    <ClCompile Include="QueenTests.cpp" />
-    <ClCompile Include="RookTests.cpp" />
-    <ClCompile Include="RuleEngineTest.cpp" />
-    <ClCompile Include="TextBoardConvertTest.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AppTest.h" />
-    <ClInclude Include="BishopTests.h" />
-    <ClInclude Include="BoardTest.h" />
-    <ClInclude Include="CommandFactoryTest.h" />
-    <ClInclude Include="doctest.h" />
-    <ClInclude Include="EventBusTests.h" />
-    <ClInclude Include="GameTests.h" />
-    <ClInclude Include="KingTests.h" />
-    <ClInclude Include="KnightTests.h" />
-    <ClInclude Include="PieceTests.h" />
-    <ClInclude Include="PrinterAdapterTests.h" />
-    <ClInclude Include="QueenTests.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="RookTests.h" />
-    <ClInclude Include="RuleEngineTest.h" />
-    <ClInclude Include="TextBoardConvertTest.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
-      <Project>{9a233c1f-6476-4998-a4e3-4d27d5eda164}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\KungFuChessGUI\KungFuChessGUI.vcxproj">
-      <Project>{cacbc78e-311e-41d0-a086-e66e3cda139b}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="KungFuChessTest.rc" />
+    <ClCompile Include="KungFuChessServer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,13 +1,25 @@
 #include "GameWindow.h"
 #include "GameSnapshot.h"
+#include "Events/GameStateChangedEvent.h"
 
-GameWindow::GameWindow(IGameController& gameController, std::string windowName)
+GameWindow::GameWindow(IGameController& gameController, std::string windowName, EventBus& eventBus)
     : gameController(gameController)
     , windowName(windowName)
     , boardRenderer(textureManager, layout, R"(.\pictures\board_classic.png)")
     , pieceRenderer(textureManager, layout)
     , imgWindow(windowName)
+    , eventBus(eventBus)
 {
+    subscriptionId = eventBus.subscribe<GameStateChangedEvent>(
+        [this](const GameStateChangedEvent& event)
+        {
+            update(event.getSnapshot());
+        });
+}
+
+GameWindow::~GameWindow()
+{
+    eventBus.unsubscribe<GameStateChangedEvent>(subscriptionId);
 }
 
 void GameWindow::update(const GameSnapshot& snapshot)

@@ -3,6 +3,7 @@
 #include "img.hpp"
 #include "IGameController.h"
 //#include "GameSnapshot.h"
+#include "Events/EventBus.h"
 #include "GameWindow.h"
 #include "PrinterAdapter.h"
 #include <iostream>
@@ -39,15 +40,20 @@ int main()
     try {
         auto app = CoreFactory::createGameController();
 
+        // The sole notification channel between Core and any consumer
+        // (GameWindow today; a future WebSocket relay, logger, etc. could
+        // subscribe alongside it without App or Game changing at all).
+        EventBus bus;
+
         // Uniquely identifies this session's display window. In a
         // multi-session server this would be the session/game ID handed to
         // each per-connection setup instead of a fixed literal, so that
         // concurrent sessions never collide on the same OpenCV window name.
         const std::string windowName = "GameWindow_Session1";
 
-        GameWindow gameWindow(*app, windowName);
+        GameWindow gameWindow(*app, windowName, bus);
         InputHandler inputHandler(*app, gameWindow.getLayout(), gameWindow.getWindowName(), gameWindow.getMoveIntentHint());
-        PrinterAdapter printer(gameWindow);
+        PrinterAdapter printer(bus);
         app->setOutputDevice(&printer);
         app->parseLoad(buildStartingBoardText());
 
