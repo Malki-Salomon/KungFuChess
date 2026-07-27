@@ -13,10 +13,57 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{a1b2c3d4-0001-4a1a-9a1a-000000000001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{a1b2c3d4-0002-4a1a-9a1a-000000000002}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KungFuChessServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Server.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\SessionManager.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\GameSession.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\GameFactory.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\WebSocketServer.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SnapshotBroadcaster.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application\Server.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\SessionManager.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\GameSession.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\GameFactory.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\WebSocketServer.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\CommandInbox.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SnapshotBroadcaster.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

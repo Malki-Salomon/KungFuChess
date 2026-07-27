@@ -14,7 +14,6 @@ void Controller::executeClick(int x, int y, Game& game, RealTimeArbiter& arbiter
     if (!game.getBoard().isInside(place))
         return;
 
-    // ��� ��� ����� - ������ ���
     if (!game.gethasSelection())
     {
         if (!game.getBoard().isEmpty(place) &&

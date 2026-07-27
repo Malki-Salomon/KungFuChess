@@ -14,12 +14,18 @@ Game::Game()
     selectedPiece = Position(-1, -1);
     gameStatus = GameStatus::Playing;
 	printer = nullptr;
+    boardReady = false;
 }
 
 void Game::setupBoard(IBoardConvert& converter)
 {
     if (!converter.Convert(board))
+    {
         cout << board.getError() << endl;
+        return;
+    }
+    boardReady = true;
+    publishSnapshotIfReady();
 }
 
 void Game::addCommand(Command cmd) {
@@ -50,12 +56,13 @@ void Game::processNextCommand()
     {
         RuleEngine ruleEngine;
         bool someChange = this->arbiter.tick(cmd.ms, this->board, ruleEngine, *this);
-		if (someChange)
+		if (someChange && this->printer)
 			board.print(*this->printer);
         break;
     }
     case CommandType::Print:
-        board.print(*this->printer);
+        if (this->printer)
+            board.print(*this->printer);
         break;
     }
 }
@@ -106,4 +113,13 @@ void Game::setSelectedPiece(Position pos)
 void Game::setPrinter(IBoardPrinter* printer)
 {
     this->printer = printer;
+    publishSnapshotIfReady();
+}
+
+void Game::publishSnapshotIfReady()
+{
+    if (boardReady && printer != nullptr)
+    {
+        board.print(*printer);
+    }
 }

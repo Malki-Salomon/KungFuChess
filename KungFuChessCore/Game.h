@@ -36,6 +36,8 @@ public:
 	void setPrinter(IBoardPrinter* printer);
 
 private:
+    void publishSnapshotIfReady();
+
     Board board;
     bool hasSelection;
     Position selectedPiece;
@@ -44,4 +46,5 @@ private:
     RealTimeArbiter arbiter;
     std::queue<Command> commandQueue;
 	IBoardPrinter* printer;
+    bool boardReady;
 };

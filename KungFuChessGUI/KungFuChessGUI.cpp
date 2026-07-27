@@ -10,16 +10,21 @@
 #include <string>
 #include "InputHandler.h"
 #include "GameLoop.h"
+#include <opencv2/highgui.hpp>
 
 namespace
 {
     // Standard chess starting position, in the same text notation used by the
     // Core/Test board format: "<w|b><K|Q|R|B|N|P>" or "." for an empty square.
     // Row 0 is White's back rank, row 7 is Black's.
+    // NOTE: no "Commands:" / "print board" section anymore - Game now
+    // publishes the initial snapshot on its own as soon as it has both a
+    // board and a printer (see Game::publishSnapshotIfReady), so the first
+    // paint no longer depends on an explicit startup command.
     std::vector<std::string> buildStartingBoardText()
     {
         return
-        { 
+        {
             " Board:",
             "bR bN bB bQ bK bB bN bR",
             "bP bP bP bP bP bP bP bP",
@@ -28,9 +33,7 @@ namespace
             ". . . . . . . .",
             ". . . . . . . .",
             "wP wP wP wP wP wP wP wP",
-            "wR wN wB wQ wK wB wN wR",
-            "Commands:",
-            "print board" 
+            "wR wN wB wQ wK wB wN wR"
         };
     }
 }
@@ -56,6 +59,15 @@ int main()
         PrinterAdapter printer(bus);
         app->setOutputDevice(&printer);
         app->parseLoad(buildStartingBoardText());
+
+        // Game::setupBoard() just triggered the initial paint synchronously
+        // (via the printer -> EventBus -> GameWindow::update chain), but
+        // imshow() alone doesn't flush pixels to the screen - OpenCV only
+        // does that when its window message loop gets pumped, which
+        // otherwise wouldn't happen until GameLoop::run()'s first
+        // cv::waitKey() call. Pump it once here so the starting board is
+        // guaranteed to be visible before the loop even begins.
+        cv::waitKey(1);
 
         GameLoop gameLoop(*app, gameWindow);
         gameLoop.run();
