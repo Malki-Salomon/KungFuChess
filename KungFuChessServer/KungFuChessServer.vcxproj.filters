@@ -19,6 +19,9 @@
     <Filter Include="Network">
       <UniqueIdentifier>{a1b2c3d4-0002-4a1a-9a1a-000000000002}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{a1b2c3d4-0003-4a1a-9a1a-000000000003}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KungFuChessServer.cpp">
@@ -42,6 +45,15 @@
     <ClCompile Include="Network\SnapshotBroadcaster.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="Protocol\MoveNotation.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol\MiniJson.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol\MoveTranslator.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Server.h">
@@ -64,6 +76,15 @@
     </ClInclude>
     <ClInclude Include="Network\SnapshotBroadcaster.h">
       <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\MoveNotation.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\MiniJson.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\MoveTranslator.h">
+      <Filter>Protocol</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

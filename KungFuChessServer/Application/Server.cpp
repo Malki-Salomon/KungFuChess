@@ -1,6 +1,7 @@
 #include "Server.h"
 
 #include "GameSession.h"
+#include "../Protocol/MoveTranslator.h"
 
 #include <chrono>
 #include <string>
@@ -49,9 +50,12 @@ void Server::run()
 
         if (GameSession* primary = m_sessionManager.getPrimarySession())
         {
-            for (const auto& cmd : m_commandInbox.drainAll())
+            for (const auto& raw : m_commandInbox.drainAll())
             {
-                primary->dispatchCommand(cmd);
+                for (const auto& coreCmd : MoveTranslator::translateMoveMessage(raw))
+                {
+                    primary->dispatchCommand(coreCmd);
+                }
             }
 
             if (deltaMs > 0)

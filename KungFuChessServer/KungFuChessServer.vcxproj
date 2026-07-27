@@ -147,6 +147,9 @@
     <ClCompile Include="Application\GameFactory.cpp" />
     <ClCompile Include="Network\WebSocketServer.cpp" />
     <ClCompile Include="Network\SnapshotBroadcaster.cpp" />
+    <ClCompile Include="Protocol\MoveNotation.cpp" />
+    <ClCompile Include="Protocol\MiniJson.cpp" />
+    <ClCompile Include="Protocol\MoveTranslator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Server.h" />
@@ -156,6 +159,9 @@
     <ClInclude Include="Network\WebSocketServer.h" />
     <ClInclude Include="Network\CommandInbox.h" />
     <ClInclude Include="Network\SnapshotBroadcaster.h" />
+    <ClInclude Include="Protocol\MoveNotation.h" />
+    <ClInclude Include="Protocol\MiniJson.h" />
+    <ClInclude Include="Protocol\MoveTranslator.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
