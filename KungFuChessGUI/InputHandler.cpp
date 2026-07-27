@@ -31,23 +31,26 @@ void InputHandler::onMouseEvent(int event, int x, int y, int /*flags*/, void* us
 
 void InputHandler::handleMouseClick(int pixelX, int pixelY, bool isDoubleClick)
 {
-   /* auto offset = layout.getBoardOffset();
-    int cellSize = layout.getCellSize();
+    cv::Point cell = layout.pixelToCell(cv::Point(pixelX, pixelY));
+    int col = cell.x;
+    int row = cell.y;
 
-    int col = (pixelX - offset.x) / cellSize;
-    int row = (pixelY - offset.y) / cellSize;
+    if (col < 0 || col >= layout.getCols() || row < 0 || row >= layout.getRows())
+    {
+        return;
+    }
 
-    if (col >= 0 && col < layout.getCols() && row >= 0 && row < layout.getRows())
-    {*/
-        std::string command;
-        if (isDoubleClick) {
-            moveIntentHint.hintNextMoveIsJump();
-            command = "jump " + std::to_string(pixelX) + " " + std::to_string(pixelY);
-        }
-        else {
-            command = "click " + std::to_string(pixelX) + " " + std::to_string(pixelY);
-        }
+    // Core now receives board cells directly, not pixels - this is the only
+    // place that translates screen space into the "click col row" /
+    // "jump col row" protocol Core parses (see StringCommandConvert).
+    std::string command;
+    if (isDoubleClick) {
+        moveIntentHint.hintNextMoveIsJump();
+        command = "jump " + std::to_string(col) + " " + std::to_string(row);
+    }
+    else {
+        command = "click " + std::to_string(col) + " " + std::to_string(row);
+    }
 
-        gameController.dispatchCommand(command);
-    //}
+    gameController.dispatchCommand(command);
 }

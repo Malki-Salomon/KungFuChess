@@ -142,7 +142,6 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="Bishop.h" />
     <ClInclude Include="Board.h" />
-    <ClInclude Include="BoardMapper.h" />
     <ClInclude Include="ClickCommand.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandFactory.h" />
@@ -183,7 +182,6 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Bishop.cpp" />
     <ClCompile Include="Board.cpp" />
-    <ClCompile Include="BoardMapper.cpp" />
     <ClCompile Include="ClickCommand.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="CommandFactory.cpp" />

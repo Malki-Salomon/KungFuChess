@@ -102,9 +102,6 @@
     <ClInclude Include="GameStatus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BoardMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IBoardPrinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -216,9 +213,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameStatus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BoardMapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IBoardPrinter.cpp">

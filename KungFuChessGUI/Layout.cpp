@@ -27,3 +27,10 @@ cv::Rect Layout::getBoardRect() const
         cols * cellSize,
         rows * cellSize);
 }
+
+cv::Point Layout::pixelToCell(const cv::Point& pixel) const
+{
+    int col = (pixel.x - boardOffset.x) / cellSize;
+    int row = (pixel.y - boardOffset.y) / cellSize;
+    return cv::Point(col, row);
+}

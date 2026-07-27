@@ -1,15 +1,14 @@
 #include "pch.h"
 #include "Controller.h"
 #include "RuleEngine.h"
-#include "BoardMapper.h"
 #include "Game.h"
 
-void Controller::executeClick(int x, int y, Game& game, RealTimeArbiter& arbiter)
+void Controller::executeClick(int col, int row, Game& game, RealTimeArbiter& arbiter)
 {
     if (!game.isGameActive())
         return;
 
-    Position place = BoardMapper::pixelToCell(y, x);
+    Position place(row, col);
 
     if (!game.getBoard().isInside(place))
         return;
@@ -49,9 +48,9 @@ void Controller::executeClick(int x, int y, Game& game, RealTimeArbiter& arbiter
     game.setHasSelection(false);
 }
 
-void Controller::executeJump(int x, int y, Game& game, RealTimeArbiter& arbiter)
+void Controller::executeJump(int col, int row, Game& game, RealTimeArbiter& arbiter)
 {
-    Position place = BoardMapper::pixelToCell(y, x);
+    Position place(row, col);
     Piece* p = game.getBoard().getPiece(place);
 
     if (p && p->getStatus() == PieceStatus::idle) {

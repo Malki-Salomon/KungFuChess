@@ -30,6 +30,13 @@ public:
     // Drawing rectangle (in screen/window pixel space) for the whole board.
     cv::Rect getBoardRect() const;
 
+    // Converts a point in screen/window pixel space to a board cell, using
+    // this layout's cell size and board offset. Returned as (col, row) via
+    // cv::Point's (x, y) fields - the inverse of getCellRect(). Does not
+    // clamp or bounds-check; callers should validate against getCols()/
+    // getRows() before treating the result as a valid board cell.
+    cv::Point pixelToCell(const cv::Point& pixel) const;
+
 private:
     int cellSize;
     cv::Point boardOffset;
