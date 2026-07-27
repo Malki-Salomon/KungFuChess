@@ -55,3 +55,8 @@ void App::run()
 Game& App::getGame() {
     return game;
 }
+
+GameSnapshot App::getSnapshot() const
+{
+    return game.getSnapshot();
+}

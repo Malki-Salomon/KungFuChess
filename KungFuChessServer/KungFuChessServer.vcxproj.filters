@@ -45,9 +45,6 @@
     <ClCompile Include="Network\WebSocketServer.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\SnapshotBroadcaster.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="Protocol\MoveNotation.cpp">
       <Filter>Protocol</Filter>
     </ClCompile>
@@ -55,6 +52,9 @@
       <Filter>Protocol</Filter>
     </ClCompile>
     <ClCompile Include="Protocol\MoveTranslator.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol\SnapshotBroadcaster.cpp">
       <Filter>Protocol</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,9 +80,6 @@
     <ClInclude Include="Network\CommandInbox.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\SnapshotBroadcaster.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="Network\SessionId.h">
       <Filter>Network</Filter>
     </ClInclude>
@@ -93,6 +90,9 @@
       <Filter>Protocol</Filter>
     </ClInclude>
     <ClInclude Include="Protocol\MoveTranslator.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\SnapshotBroadcaster.h">
       <Filter>Protocol</Filter>
     </ClInclude>
   </ItemGroup>

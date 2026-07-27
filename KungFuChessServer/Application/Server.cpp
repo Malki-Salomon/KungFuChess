@@ -10,6 +10,20 @@ namespace
 {
     constexpr unsigned short kListenPort = 9000; // placeholder - move to config later
 
+    // The only place that decides what a seat *means* in this specific
+    // game. PlayerAssignment itself knows nothing about chess/colors - see
+    // its header - so that mapping lives here instead, in a file that
+    // already legitimately depends on Core.
+    PieceColor colorForSeat(Seat seat)
+    {
+        switch (seat)
+        {
+            case Seat::First:  return PieceColor::White;
+            case Seat::Second: return PieceColor::Black;
+            default:           return PieceColor::None; // spectator
+        }
+    }
+
     std::string colorName(PieceColor color)
     {
         switch (color)
@@ -30,7 +44,7 @@ Server::Server()
     // spectator. Tell the new connection what it got.
     m_webSocketServer.setConnectHandler([this](SessionId id)
     {
-        PieceColor assigned = m_playerAssignment.assign(id);
+        PieceColor assigned = colorForSeat(m_playerAssignment.assign(id));
         m_webSocketServer.sendTo(id, "{\"type\":\"assigned\",\"color\":\"" + colorName(assigned) + "\"}");
     });
 
@@ -82,9 +96,20 @@ void Server::run()
 
                 // No turns in this game (real-time "kung fu chess"), but a
                 // connection may only ever move pieces of its own assigned
-                // color. Spectators (PieceColor::None) can't move anything.
-                PieceColor senderColor = m_playerAssignment.colorOf(inbound.sender);
-                PieceColor pieceColorAtFrom = m_snapshotBroadcaster.colorAt(move.fromRow, move.fromCol);
+                // color. Spectators can't move anything. Queried straight
+                // from Core (via GameSession) rather than from a cache -
+                // SnapshotBroadcaster's job is only to broadcast, not to
+                // answer questions about board state.
+                //
+                // Direct indexing is safe here without a bounds check:
+                // MoveNotation::squareToPosition only ever produces 0..7 for
+                // a valid square (file a-h, rank 1-8), and move.valid is
+                // already checked above - it's the earlier guard that
+                // guarantees this invariant, not anything about the
+                // snapshot itself.
+                PieceColor senderColor = colorForSeat(m_playerAssignment.seatOf(inbound.sender));
+                GameSnapshot snapshot = primary->getSnapshot();
+                PieceColor pieceColorAtFrom = snapshot.cells[move.fromRow][move.fromCol].color;
 
                 if (senderColor == PieceColor::None || senderColor != pieceColorAtFrom)
                     continue; // silently ignored, same as Core's own illegal-move handling

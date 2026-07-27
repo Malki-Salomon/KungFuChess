@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "GameSnapshot.h"
 
 class IBoardPrinter;
 
@@ -12,6 +13,7 @@ public:
     virtual void setOutputDevice(IBoardPrinter* printer) = 0;
     virtual void parseLoad(const std::vector<std::string>& inputLines) = 0;
     virtual void run() = 0;
+    virtual GameSnapshot getSnapshot() const = 0;
 };
 
 namespace CoreFactory

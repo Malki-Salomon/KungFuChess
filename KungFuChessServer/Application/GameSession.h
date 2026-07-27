@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include "GameSnapshot.h"
 
 class IGameController;
 class IBoardPrinter;
@@ -26,6 +27,11 @@ public:
     // Attaches an IBoardPrinter that will receive a callback every time the
     // board changes (see Game::publishSnapshotIfReady / processNextCommand).
     void attachPrinter(IBoardPrinter* printer);
+
+    // On-demand read of the current board state, straight from Core - the
+    // only other channel besides the printer callback, and the one to use
+    // when you need an answer *right now* rather than reacting to a push.
+    GameSnapshot getSnapshot() const;
 
 private:
     std::unique_ptr<IGameController> m_controller;

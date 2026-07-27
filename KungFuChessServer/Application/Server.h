@@ -4,7 +4,7 @@
 #include "PlayerAssignment.h"
 #include "../Network/WebSocketServer.h"
 #include "../Network/CommandInbox.h"
-#include "../Network/SnapshotBroadcaster.h"
+#include "../Protocol/SnapshotBroadcaster.h"
 
 class Server
 {

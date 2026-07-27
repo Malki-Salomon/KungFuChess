@@ -17,6 +17,7 @@ public:
     Game& getGame();
 
     void dispatchCommand(const std::string& cmd) override;
+    GameSnapshot getSnapshot() const override;
 
 private:
     Game game;

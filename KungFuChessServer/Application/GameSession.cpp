@@ -26,3 +26,8 @@ void GameSession::attachPrinter(IBoardPrinter* printer)
 {
     m_controller->setOutputDevice(printer);
 }
+
+GameSnapshot GameSession::getSnapshot() const
+{
+    return m_controller->getSnapshot();
+}
