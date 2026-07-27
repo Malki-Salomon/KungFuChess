@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SessionManager.h"
+#include "PlayerAssignment.h"
 #include "../Network/WebSocketServer.h"
 #include "../Network/CommandInbox.h"
 #include "../Network/SnapshotBroadcaster.h"
@@ -17,10 +18,12 @@ private:
     WebSocketServer m_webSocketServer;
     CommandInbox m_commandInbox;
     SnapshotBroadcaster m_snapshotBroadcaster;
+    PlayerAssignment m_playerAssignment;
 
     bool m_running;
 
-    // TODO (Network/Protocol layer): per-connection session routing (right
-    // now every client shares the single primary session), and a real
-    // wire protocol instead of plain text passthrough.
+    // TODO (Protocol layer): per-connection session routing once multiple
+    // concurrent games exist (right now every client shares the single
+    // primary session - PlayerAssignment only decides *whose pieces* they
+    // may move within that one game, not which game they're in).
 };

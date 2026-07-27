@@ -5,6 +5,7 @@
 #include <boost/beast/websocket.hpp>
 
 #include <algorithm>
+#include <atomic>
 #include <deque>
 #include <iostream>
 #include <memory>
@@ -44,24 +45,28 @@ namespace
     };
 
     // One accepted connection. Does the WS handshake, then reads text
-    // messages (handed to WebSocketServer's MessageHandler) and can be told
-    // to send text out (queued so only one async_write is ever in flight,
-    // as Beast requires).
+    // messages (handed to WebSocketServer's MessageHandler, tagged with
+    // this session's id) and can be told to send text out (queued so only
+    // one async_write is ever in flight, as Beast requires).
     //
     // The whole io_context this runs on has concurrency hint 1 and only
     // ever one thread calls run() on it (see WebSocketServer::start()), so
-    // every handler below - reads, writes, and posted broadcasts alike -
-    // executes serially on that single thread. No additional locking is
-    // needed inside Session itself for that reason.
+    // every handler below - reads, writes, and posted broadcasts/sendTo
+    // alike - executes serially on that single thread. No additional
+    // locking is needed inside Session itself for that reason.
     class Session : public std::enable_shared_from_this<Session>
     {
     public:
-        Session(tcp::socket socket, WebSocketServer::MessageHandler messageHandler, LastSnapshotStore& lastSnapshotStore)
+        Session(tcp::socket socket, SessionId id, WebSocketServer::MessageHandler messageHandler,
+                LastSnapshotStore& lastSnapshotStore)
             : m_ws(std::move(socket))
+            , m_id(id)
             , m_messageHandler(std::move(messageHandler))
             , m_lastSnapshotStore(lastSnapshotStore)
         {
         }
+
+        SessionId id() const { return m_id; }
 
         void run()
         {
@@ -73,7 +78,10 @@ namespace
                         std::cerr << "[WebSocketServer] handshake failed: " << ec.message() << "\n";
                         return;
                     }
-                    std::cout << "[WebSocketServer] client connected\n";
+                    std::cout << "[WebSocketServer] client connected (session " << self->m_id << ")\n";
+
+                    if (self->m_onConnected)
+                        self->m_onConnected();
 
                     // Catch this client up on whatever the board already
                     // looks like - it joined after the last broadcast, so
@@ -88,8 +96,8 @@ namespace
         }
 
         // Queues text for sending; safe to call from the I/O thread only
-        // (WebSocketServer::broadcast() gets onto this thread via asio::post
-        // before calling this).
+        // (WebSocketServer::broadcast()/sendTo() get onto this thread via
+        // asio::post before calling this).
         void enqueueSend(const std::string& text)
         {
             bool writeInProgress = !m_writeQueue.empty();
@@ -98,6 +106,11 @@ namespace
             {
                 doWrite();
             }
+        }
+
+        void setOnConnected(std::function<void()> callback)
+        {
+            m_onConnected = std::move(callback);
         }
 
         void setOnDisconnected(std::function<void()> callback)
@@ -114,7 +127,7 @@ namespace
                 {
                     if (ec)
                     {
-                        std::cout << "[WebSocketServer] client disconnected\n";
+                        std::cout << "[WebSocketServer] client disconnected (session " << self->m_id << ")\n";
                         if (self->m_onDisconnected)
                             self->m_onDisconnected();
                         return;
@@ -126,7 +139,7 @@ namespace
                     std::cout << "[WebSocketServer] received: " << text << "\n";
 
                     if (self->m_messageHandler)
-                        self->m_messageHandler(text);
+                        self->m_messageHandler(self->m_id, text);
 
                     self->readLoop();
                 });
@@ -151,16 +164,19 @@ namespace
         }
 
         websocket::stream<tcp::socket> m_ws;
+        SessionId m_id;
         beast::flat_buffer m_buffer;
         WebSocketServer::MessageHandler m_messageHandler;
+        std::function<void()> m_onConnected;
         std::function<void()> m_onDisconnected;
         std::deque<std::string> m_writeQueue;
         LastSnapshotStore& m_lastSnapshotStore;
     };
 
-    // Tracks currently-connected sessions so broadcast() has something to
-    // send to. Guarded by a mutex because broadcast() is called from the
-    // game thread while accept/disconnect run on the I/O thread.
+    // Tracks currently-connected sessions so broadcast()/sendTo() have
+    // something to send to. Guarded by a mutex because broadcast()/sendTo()
+    // are called from the game thread while accept/disconnect run on the
+    // I/O thread.
     class SessionRegistry
     {
     public:
@@ -191,21 +207,38 @@ namespace
             return alive;
         }
 
+        std::shared_ptr<Session> find(SessionId id)
+        {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            for (const auto& weak : m_sessions)
+            {
+                if (auto locked = weak.lock())
+                {
+                    if (locked->id() == id)
+                        return locked;
+                }
+            }
+            return nullptr;
+        }
+
     private:
         std::mutex m_mutex;
         std::vector<std::weak_ptr<Session>> m_sessions;
     };
-
 
     // Accepts incoming TCP connections and hands each one off as a Session.
     class Listener : public std::enable_shared_from_this<Listener>
     {
     public:
         Listener(asio::io_context& ioContext, const tcp::endpoint& endpoint,
-                 WebSocketServer::MessageHandler messageHandler, SessionRegistry& registry,
-                 LastSnapshotStore& lastSnapshotStore)
+                 WebSocketServer::ConnectHandler connectHandler,
+                 WebSocketServer::MessageHandler messageHandler,
+                 WebSocketServer::DisconnectHandler disconnectHandler,
+                 SessionRegistry& registry, LastSnapshotStore& lastSnapshotStore)
             : m_acceptor(ioContext)
+            , m_connectHandler(std::move(connectHandler))
             , m_messageHandler(std::move(messageHandler))
+            , m_disconnectHandler(std::move(disconnectHandler))
             , m_registry(registry)
             , m_lastSnapshotStore(lastSnapshotStore)
         {
@@ -236,12 +269,24 @@ namespace
                 {
                     if (!ec)
                     {
-                        auto session = std::make_shared<Session>(std::move(socket), self->m_messageHandler, self->m_lastSnapshotStore);
+                        SessionId id = self->m_nextId.fetch_add(1);
+                        auto session = std::make_shared<Session>(std::move(socket), id, self->m_messageHandler, self->m_lastSnapshotStore);
                         self->m_registry.add(session);
-                        session->setOnDisconnected([self, session]
+
+                        if (self->m_connectHandler)
+                        {
+                            auto handler = self->m_connectHandler;
+                            session->setOnConnected([handler, id] { handler(id); });
+                        }
+
+                        auto disconnectHandler = self->m_disconnectHandler;
+                        session->setOnDisconnected([self, session, id, disconnectHandler]
                         {
                             self->m_registry.remove(session);
+                            if (disconnectHandler)
+                                disconnectHandler(id);
                         });
+
                         session->run();
                     }
                     // Keep accepting further connections regardless of this one's outcome.
@@ -250,9 +295,12 @@ namespace
         }
 
         tcp::acceptor m_acceptor;
+        WebSocketServer::ConnectHandler m_connectHandler;
         WebSocketServer::MessageHandler m_messageHandler;
+        WebSocketServer::DisconnectHandler m_disconnectHandler;
         SessionRegistry& m_registry;
         LastSnapshotStore& m_lastSnapshotStore;
+        std::atomic<SessionId> m_nextId{ 1 };
     };
 }
 
@@ -261,7 +309,9 @@ struct WebSocketServer::Impl
     asio::io_context ioContext{ 1 };
     SessionRegistry registry;
     LastSnapshotStore lastSnapshot;
+    ConnectHandler connectHandler;
     MessageHandler messageHandler;
+    DisconnectHandler disconnectHandler;
 };
 
 WebSocketServer::WebSocketServer(unsigned short port)
@@ -275,15 +325,27 @@ WebSocketServer::~WebSocketServer()
     stop();
 }
 
+void WebSocketServer::setConnectHandler(ConnectHandler handler)
+{
+    m_impl->connectHandler = std::move(handler);
+}
+
 void WebSocketServer::setMessageHandler(MessageHandler handler)
 {
     m_impl->messageHandler = std::move(handler);
 }
 
+void WebSocketServer::setDisconnectHandler(DisconnectHandler handler)
+{
+    m_impl->disconnectHandler = std::move(handler);
+}
+
 void WebSocketServer::start()
 {
     auto endpoint = tcp::endpoint(asio::ip::make_address("0.0.0.0"), m_port);
-    std::make_shared<Listener>(m_impl->ioContext, endpoint, m_impl->messageHandler, m_impl->registry, m_impl->lastSnapshot)->run();
+    std::make_shared<Listener>(m_impl->ioContext, endpoint,
+        m_impl->connectHandler, m_impl->messageHandler, m_impl->disconnectHandler,
+        m_impl->registry, m_impl->lastSnapshot)->run();
 
     m_ioThread = std::thread([this]
     {
@@ -319,5 +381,17 @@ void WebSocketServer::broadcast(const std::string& text)
         {
             session->enqueueSend(text);
         }
+    });
+}
+
+void WebSocketServer::sendTo(SessionId id, const std::string& text)
+{
+    asio::post(m_impl->ioContext, [this, id, text]
+    {
+        if (auto session = m_impl->registry.find(id))
+        {
+            session->enqueueSend(text);
+        }
+        // If not found, the session already disconnected - nothing to do.
     });
 }

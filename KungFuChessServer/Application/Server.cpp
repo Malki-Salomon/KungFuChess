@@ -9,6 +9,16 @@
 namespace
 {
     constexpr unsigned short kListenPort = 9000; // placeholder - move to config later
+
+    std::string colorName(PieceColor color)
+    {
+        switch (color)
+        {
+            case PieceColor::White: return "white";
+            case PieceColor::Black: return "black";
+            default:                return "spectator";
+        }
+    }
 }
 
 Server::Server()
@@ -16,11 +26,25 @@ Server::Server()
     , m_snapshotBroadcaster(m_webSocketServer)
     , m_running(true)
 {
+    // First connection -> white, second -> black, everyone else ->
+    // spectator. Tell the new connection what it got.
+    m_webSocketServer.setConnectHandler([this](SessionId id)
+    {
+        PieceColor assigned = m_playerAssignment.assign(id);
+        m_webSocketServer.sendTo(id, "{\"type\":\"assigned\",\"color\":\"" + colorName(assigned) + "\"}");
+    });
+
     // Network thread -> just queues raw text; never touches Game/App
     // directly (see CommandInbox for why).
-    m_webSocketServer.setMessageHandler([this](const std::string& text)
+    m_webSocketServer.setMessageHandler([this](SessionId id, const std::string& text)
     {
-        m_commandInbox.push(text);
+        m_commandInbox.push(id, text);
+    });
+
+    // Free the seat so a later connection can take it.
+    m_webSocketServer.setDisconnectHandler([this](SessionId id)
+    {
+        m_playerAssignment.release(id);
     });
 
     // POC: every connected client's messages go to the one session that
@@ -50,9 +74,22 @@ void Server::run()
 
         if (GameSession* primary = m_sessionManager.getPrimarySession())
         {
-            for (const auto& raw : m_commandInbox.drainAll())
+            for (const auto& inbound : m_commandInbox.drainAll())
             {
-                for (const auto& coreCmd : MoveTranslator::translateMoveMessage(raw))
+                ParsedMove move = MoveTranslator::parseMove(inbound.text);
+                if (!move.valid)
+                    continue;
+
+                // No turns in this game (real-time "kung fu chess"), but a
+                // connection may only ever move pieces of its own assigned
+                // color. Spectators (PieceColor::None) can't move anything.
+                PieceColor senderColor = m_playerAssignment.colorOf(inbound.sender);
+                PieceColor pieceColorAtFrom = m_snapshotBroadcaster.colorAt(move.fromRow, move.fromCol);
+
+                if (senderColor == PieceColor::None || senderColor != pieceColorAtFrom)
+                    continue; // silently ignored, same as Core's own illegal-move handling
+
+                for (const auto& coreCmd : MoveTranslator::toClickCommands(move))
                 {
                     primary->dispatchCommand(coreCmd);
                 }

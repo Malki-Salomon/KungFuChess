@@ -39,6 +39,9 @@
     <ClCompile Include="Application\GameFactory.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Application\PlayerAssignment.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
     <ClCompile Include="Network\WebSocketServer.cpp">
       <Filter>Network</Filter>
     </ClCompile>
@@ -68,6 +71,9 @@
     <ClInclude Include="Application\GameFactory.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="Application\PlayerAssignment.h">
+      <Filter>Application</Filter>
+    </ClInclude>
     <ClInclude Include="Network\WebSocketServer.h">
       <Filter>Network</Filter>
     </ClInclude>
@@ -75,6 +81,9 @@
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Network\SnapshotBroadcaster.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SessionId.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Protocol\MoveNotation.h">
