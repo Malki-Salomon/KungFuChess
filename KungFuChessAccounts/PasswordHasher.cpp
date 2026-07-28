@@ -1,34 +1,36 @@
 #include "PasswordHasher.h"
 
-#include <functional>
-#include <sstream>
+#include <sodium.h>
 
 namespace PasswordHasher
 {
-    namespace
+    bool init()
     {
-        // Not a secret - just a fixed value mixed in so this placeholder
-        // isn't literally std::hash(password) verbatim. Provides zero real
-        // security; see the header comment.
-        const std::string kPlaceholderPepper = "kfc-stage4a-placeholder-pepper-not-secure";
+        // sodium_init() returns 0 on the first successful call, 1 if the
+        // library was already initialized (also success), -1 on failure.
+        return sodium_init() >= 0;
     }
 
     bool hash(const std::string& plainPassword, std::string& outHash)
     {
-        std::size_t hashed = std::hash<std::string>{}(plainPassword + kPlaceholderPepper);
+        char buf[crypto_pwhash_STRBYTES];
 
-        std::ostringstream out;
-        out << hashed;
-        outHash = out.str();
+        // crypto_pwhash_str() embeds a fresh random salt (and the
+        // op/mem-limit parameters used) directly into the output string,
+        // so two calls with the same password produce different output
+        // strings, both of which still verify() successfully.
+        if (crypto_pwhash_str(buf, plainPassword.c_str(), plainPassword.size(),
+                               crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE) != 0)
+        {
+            return false; // out of memory - the only documented failure mode at the INTERACTIVE preset
+        }
+
+        outHash.assign(buf);
         return true;
     }
 
     bool verify(const std::string& plainPassword, const std::string& storedHash)
     {
-        std::string recomputed;
-        if (!hash(plainPassword, recomputed))
-            return false;
-
-        return recomputed == storedHash;
+        return crypto_pwhash_str_verify(storedHash.c_str(), plainPassword.c_str(), plainPassword.size()) == 0;
     }
 }

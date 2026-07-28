@@ -2,12 +2,23 @@
 //
 
 #include "Application/Server.h"
+#include "PasswordHasher.h"
 
 #include <cstdlib>
 #include <iostream>
 
 int main()
 {
+    // Must happen before any AuthService register/login call, which is
+    // the only thing that actually invokes PasswordHasher::hash()/verify()
+    // - doing it here, before Server (and therefore the network listener)
+    // even exists, guarantees that ordering.
+    if (!PasswordHasher::init())
+    {
+        std::cerr << "Failed to initialize libsodium - cannot continue.\n";
+        return EXIT_FAILURE;
+    }
+
     try
     {
         Server server;
