@@ -133,12 +133,16 @@
   <ItemGroup>
     <ClInclude Include="MiniJson.h" />
     <ClInclude Include="LoginMessage.h" />
+    <ClInclude Include="RegisterMessage.h" />
+    <ClInclude Include="AuthResultMessage.h" />
     <ClInclude Include="MoveMessage.h" />
     <ClInclude Include="BoardMessage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MiniJson.cpp" />
     <ClCompile Include="LoginMessage.cpp" />
+    <ClCompile Include="RegisterMessage.cpp" />
+    <ClCompile Include="AuthResultMessage.cpp" />
     <ClCompile Include="MoveMessage.cpp" />
     <ClCompile Include="BoardMessage.cpp" />
   </ItemGroup>

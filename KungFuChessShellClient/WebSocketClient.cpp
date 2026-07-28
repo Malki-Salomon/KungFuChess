@@ -62,6 +62,21 @@ void WebSocketClient::send(const std::string& text)
     }
 }
 
+std::string WebSocketClient::receiveOne()
+{
+    try
+    {
+        beast::flat_buffer buffer;
+        m_impl->ws.read(buffer);
+        return beast::buffers_to_string(buffer.data());
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "[WebSocketClient] receiveOne failed: " << e.what() << "\n";
+        return std::string();
+    }
+}
+
 void WebSocketClient::startReceiveLoop(MessageHandler handler)
 {
     m_impl->receiveThread = std::thread([this, handler]
@@ -88,25 +103,25 @@ void WebSocketClient::startReceiveLoop(MessageHandler handler)
 
 void WebSocketClient::close()
 {
-    // Unblock the receive thread's pending read (if any) first. Calling
-    // cancel() on the underlying socket from a different thread than the
-    // one blocked in read() is one of the few operations Boost.Asio
-    // documents as safe to do concurrently - unlike calling websocket-level
-    // operations (like close()) while a read is in flight on the same
-    // stream, which is not guaranteed safe.
+    // startReceiveLoop()'s background thread blocks in a *synchronous*
+    // ws.read(), parked directly in the OS recv() call. cancel() (this
+    // function's previous approach) only affects Asio's *asynchronous*
+    // operation table - it does nothing to a thread blocked in a
+    // synchronous read, which is why close() used to hang here waiting on
+    // join() below.
+    //
+    // Shutting down and closing the underlying socket from this thread
+    // does unblock it: on both POSIX and Windows, closing a socket that
+    // another thread is blocked reading from causes that blocked call to
+    // return with an error. That's also why this does NOT call
+    // ws.close() (the websocket-level close handshake) concurrently with
+    // the background thread's read - Beast does not guarantee that's
+    // safe on the same stream, unlike this raw-socket shutdown/close.
     beast::error_code ec;
-    beast::get_lowest_layer(m_impl->ws).cancel(ec);
+    auto& socket = beast::get_lowest_layer(m_impl->ws);
+    socket.shutdown(asio::socket_base::shutdown_both, ec);
+    socket.close(ec);
 
     if (m_impl->receiveThread.joinable())
         m_impl->receiveThread.join();
-
-    try
-    {
-        if (m_impl->ws.is_open())
-            m_impl->ws.close(websocket::close_code::normal);
-    }
-    catch (const std::exception&)
-    {
-        // Already closed/errored - nothing more to do.
-    }
 }

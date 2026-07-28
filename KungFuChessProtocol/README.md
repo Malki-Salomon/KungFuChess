@@ -12,8 +12,20 @@ hand-written build/parse code in two different files could.
 
 Contents:
   - MiniJson: narrow, purpose-built JSON field extraction (see its header
-    for why it's not a general parser).
-  - LoginMessage: build/parse {"type":"login","username":"..."}.
+    for why it's not a general parser). Handles flat string, bool, and
+    int fields.
+  - LoginMessage: build/parse
+    {"type":"login","username":"...","password":"..."}. Sent by a client
+    that already has an account.
+  - RegisterMessage: build/parse
+    {"type":"register","username":"...","password":"..."}. Same shape as
+    LoginMessage, different "type" - sent by a client creating a new
+    account. Kept as a separate message/file: register and login are
+    separate, explicit actions, not one message with an implicit
+    auto-create.
+  - AuthResultMessage: build/parse
+    {"type":"authResult","success":true,"message":"","rating":1200}. The
+    server's one reply shape for both a "register" and a "login" attempt.
   - MoveMessage: build/parse {"type":"move","from":"e2","to":"e4"}. Used
     by the client to build a move request, and by MoveTranslator
     (server-side, in KungFuChessServer/Protocol/) to parse it - this file

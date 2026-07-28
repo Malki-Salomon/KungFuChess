@@ -6,6 +6,8 @@
 #include "../Network/WebSocketServer.h"
 #include "../Network/CommandInbox.h"
 #include "../Protocol/SnapshotBroadcaster.h"
+#include "InMemoryUserRepository.h"
+#include "AuthService.h"
 
 class Server
 {
@@ -21,6 +23,8 @@ private:
     SnapshotBroadcaster m_snapshotBroadcaster;
     PlayerAssignment m_playerAssignment;
     PlayerDirectory m_playerDirectory;
+    InMemoryUserRepository m_userRepository; // stage 4a placeholder - see KungFuChessAccounts/README.md
+    AuthService m_authService;
 
     bool m_running;
 

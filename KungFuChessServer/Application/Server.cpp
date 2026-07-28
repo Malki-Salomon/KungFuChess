@@ -3,6 +3,8 @@
 #include "GameSession.h"
 #include "../Protocol/MoveTranslator.h"
 #include "LoginMessage.h"
+#include "RegisterMessage.h"
+#include "AuthResultMessage.h"
 
 #include <chrono>
 #include <string>
@@ -39,6 +41,7 @@ namespace
 Server::Server()
     : m_webSocketServer(kListenPort)
     , m_snapshotBroadcaster(m_webSocketServer)
+    , m_authService(m_userRepository)
     , m_running(true)
 {
     // First connection -> white, second -> black, everyone else ->
@@ -49,17 +52,38 @@ Server::Server()
         m_webSocketServer.sendTo(id, "{\"type\":\"assigned\",\"color\":\"" + colorName(assigned) + "\"}");
     });
 
-    // Network thread -> for a login message, record the username directly
-    // (PlayerDirectory is mutex-protected, same precedent as
-    // PlayerAssignment's assign()/release() above, both already called
-    // straight from these I/O-thread handlers). Anything else just gets
-    // queued; never touches Game/App directly (see CommandInbox for why).
+    // Network thread -> for a register/login message, authenticate
+    // directly and reply with an authResult (AuthService and
+    // InMemoryUserRepository are both mutex-protected, same precedent as
+    // PlayerAssignment's assign()/release() and PlayerDirectory::set()
+    // above, all already called straight from these I/O-thread handlers).
+    // On a successful login, populate PlayerDirectory exactly as before -
+    // AuthService itself knows nothing about display names. Anything else
+    // just gets queued; never touches Game/App directly (see CommandInbox
+    // for why).
+    //
+    // Known limitation, not fixed in this stage: this runs on the network
+    // I/O thread. Harmless while PasswordHasher is instant and
+    // InMemoryUserRepository is in-memory (this stage); stops being
+    // harmless once a later stage adds real, deliberately-slow Argon2id
+    // hashing and real disk I/O. See KungFuChessAccounts/README.md.
     m_webSocketServer.setMessageHandler([this](SessionId id, const std::string& text)
     {
-        std::string username;
-        if (LoginMessage::parse(text, username))
+        std::string regUsername, regPassword;
+        if (RegisterMessage::parse(text, regUsername, regPassword))
         {
-            m_playerDirectory.set(id, username);
+            AuthResult result = m_authService.registerAccount(regUsername, regPassword);
+            m_webSocketServer.sendTo(id, AuthResultMessage::build(result.success, result.message, result.rating));
+            return;
+        }
+
+        std::string loginUsername, loginPassword;
+        if (LoginMessage::parse(text, loginUsername, loginPassword))
+        {
+            AuthResult result = m_authService.login(loginUsername, loginPassword);
+            m_webSocketServer.sendTo(id, AuthResultMessage::build(result.success, result.message, result.rating));
+            if (result.success)
+                m_playerDirectory.set(id, loginUsername);
             return;
         }
 

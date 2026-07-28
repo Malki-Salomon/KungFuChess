@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KungFuChessProtocol", "Kung
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KungFuChessShellClient", "KungFuChessShellClient\KungFuChessShellClient.vcxproj", "{0E4FEC85-C344-421C-ABE1-412D7692131B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KungFuChessAccounts", "KungFuChessAccounts\KungFuChessAccounts.vcxproj", "{511C75E5-23DF-4FBC-8B81-A604F235EA4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -77,6 +79,14 @@ Global
 		{0E4FEC85-C344-421C-ABE1-412D7692131B}.Release|x64.Build.0 = Release|x64
 		{0E4FEC85-C344-421C-ABE1-412D7692131B}.Release|x86.ActiveCfg = Release|Win32
 		{0E4FEC85-C344-421C-ABE1-412D7692131B}.Release|x86.Build.0 = Release|Win32
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Debug|x64.ActiveCfg = Debug|x64
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Debug|x64.Build.0 = Debug|x64
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Debug|x86.ActiveCfg = Debug|Win32
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Debug|x86.Build.0 = Debug|Win32
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Release|x64.ActiveCfg = Release|x64
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Release|x64.Build.0 = Release|x64
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Release|x86.ActiveCfg = Release|Win32
+		{511C75E5-23DF-4FBC-8B81-A604F235EA4A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

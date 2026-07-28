@@ -16,4 +16,12 @@ namespace MiniJson
 {
     // Returns false if the key isn't found or isn't a quoted string value.
     bool extractStringField(const std::string& jsonText, const std::string& key, std::string& outValue);
+
+    // Returns false if the key isn't found or isn't the bare literal
+    // `true`/`false` (not a quoted string).
+    bool extractBoolField(const std::string& jsonText, const std::string& key, bool& outValue);
+
+    // Returns false if the key isn't found or isn't a bare (unquoted)
+    // integer value.
+    bool extractIntField(const std::string& jsonText, const std::string& key, int& outValue);
 }

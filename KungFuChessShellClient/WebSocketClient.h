@@ -12,9 +12,10 @@
 // One thread reading while another writes on the same stream is a
 // supported Beast usage pattern - that's the intended shape here (main
 // thread sends user input, background thread prints incoming board
-// updates). close() safely unblocks a pending read (by cancelling the
-// underlying socket, which Asio documents as safe to do cross-thread)
-// before touching the websocket layer itself.
+// updates). close() unblocks a pending synchronous read by shutting down
+// and closing the underlying socket from this thread (see close()'s own
+// comment for why - cancel() does NOT work for this, despite looking
+// like the obvious choice).
 class WebSocketClient
 {
 public:
@@ -32,6 +33,12 @@ public:
 
     // Blocking send of one text message.
     void send(const std::string& text);
+
+    // Blocking: reads and returns exactly one text message (empty string
+    // on error). For waiting on a specific reply (e.g. authResult) before
+    // startReceiveLoop() takes over. Do not call after startReceiveLoop()
+    // has started - the background thread would race it for the same read.
+    std::string receiveOne();
 
     // Spawns a background thread that blocks on reads, calling handler
     // with each message's raw text, until the connection closes or
