@@ -1,6 +1,6 @@
 #include "MoveTranslator.h"
 
-#include "MiniJson.h"
+#include "MoveMessage.h"
 #include "MoveNotation.h"
 
 namespace MoveTranslator
@@ -9,14 +9,12 @@ namespace MoveTranslator
     {
         ParsedMove result;
 
-        std::string type;
-        if (!MiniJson::extractStringField(rawMessage, "type", type) || type != "move")
-            return result;
-
+        // MoveMessage owns the message *shape* (the one place both a
+        // client's build() and this parse are defined together, so they
+        // can't silently drift apart) - this function only owns turning
+        // already-extracted squares into board coordinates.
         std::string from, to;
-        if (!MiniJson::extractStringField(rawMessage, "from", from))
-            return result;
-        if (!MiniJson::extractStringField(rawMessage, "to", to))
+        if (!MoveMessage::parse(rawMessage, from, to))
             return result;
 
         if (!MoveNotation::squareToPosition(from, result.fromRow, result.fromCol))

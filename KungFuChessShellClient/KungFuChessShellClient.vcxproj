@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{9aa5d63b-0bc6-46ca-8987-c2b68ae25b21}</ProjectGuid>
-    <RootNamespace>KungFuChessServer</RootNamespace>
+    <ProjectGuid>{0e4fec85-c344-421c-abe1-412d7692131b}</ProjectGuid>
+    <RootNamespace>KungFuChessShellClient</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
@@ -81,7 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;Application;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -98,7 +98,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;Application;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;Application;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;Application;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -140,40 +140,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="KungFuChessServer.cpp" />
-    <ClCompile Include="Application\Server.cpp" />
-    <ClCompile Include="Application\SessionManager.cpp" />
-    <ClCompile Include="Application\GameSession.cpp" />
-    <ClCompile Include="Application\GameFactory.cpp" />
-    <ClCompile Include="Application\PlayerAssignment.cpp" />
-    <ClCompile Include="Application\PlayerDirectory.cpp" />
-    <ClCompile Include="Network\WebSocketServer.cpp" />
-    <ClCompile Include="Protocol\SnapshotBroadcaster.cpp" />
-    <ClCompile Include="Protocol\MoveTranslator.cpp" />
-    <ClCompile Include="Protocol\MoveNotation.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="WebSocketClient.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application\Server.h" />
-    <ClInclude Include="Application\SessionManager.h" />
-    <ClInclude Include="Application\GameSession.h" />
-    <ClInclude Include="Application\GameFactory.h" />
-    <ClInclude Include="Application\PlayerAssignment.h" />
-    <ClInclude Include="Application\PlayerDirectory.h" />
-    <ClInclude Include="Network\WebSocketServer.h" />
-    <ClInclude Include="Network\CommandInbox.h" />
-    <ClInclude Include="Network\SessionId.h" />
-    <ClInclude Include="Protocol\SnapshotBroadcaster.h" />
-    <ClInclude Include="Protocol\MoveTranslator.h" />
-    <ClInclude Include="Protocol\MoveNotation.h" />
+    <ClInclude Include="WebSocketClient.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessProtocol\KungFuChessProtocol.vcxproj">
       <Project>{0aae5065-5faf-4507-9bae-50387db49d3b}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
-      <Project>{9a233c1f-6476-4998-a4e3-4d27d5eda164}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

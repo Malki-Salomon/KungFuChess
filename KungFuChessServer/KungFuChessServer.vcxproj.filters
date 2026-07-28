@@ -42,19 +42,19 @@
     <ClCompile Include="Application\PlayerAssignment.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Application\PlayerDirectory.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
     <ClCompile Include="Network\WebSocketServer.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Protocol\MoveNotation.cpp">
-      <Filter>Protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="Protocol\MiniJson.cpp">
+        <ClCompile Include="Protocol\SnapshotBroadcaster.cpp">
       <Filter>Protocol</Filter>
     </ClCompile>
     <ClCompile Include="Protocol\MoveTranslator.cpp">
       <Filter>Protocol</Filter>
     </ClCompile>
-    <ClCompile Include="Protocol\SnapshotBroadcaster.cpp">
+    <ClCompile Include="Protocol\MoveNotation.cpp">
       <Filter>Protocol</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,6 +74,9 @@
     <ClInclude Include="Application\PlayerAssignment.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="Application\PlayerDirectory.h">
+      <Filter>Application</Filter>
+    </ClInclude>
     <ClInclude Include="Network\WebSocketServer.h">
       <Filter>Network</Filter>
     </ClInclude>
@@ -83,16 +86,13 @@
     <ClInclude Include="Network\SessionId.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Protocol\MoveNotation.h">
-      <Filter>Protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="Protocol\MiniJson.h">
+        <ClInclude Include="Protocol\SnapshotBroadcaster.h">
       <Filter>Protocol</Filter>
     </ClInclude>
     <ClInclude Include="Protocol\MoveTranslator.h">
       <Filter>Protocol</Filter>
     </ClInclude>
-    <ClInclude Include="Protocol\SnapshotBroadcaster.h">
+    <ClInclude Include="Protocol\MoveNotation.h">
       <Filter>Protocol</Filter>
     </ClInclude>
   </ItemGroup>

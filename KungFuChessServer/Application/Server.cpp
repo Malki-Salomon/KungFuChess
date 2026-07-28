@@ -2,6 +2,7 @@
 
 #include "GameSession.h"
 #include "../Protocol/MoveTranslator.h"
+#include "LoginMessage.h"
 
 #include <chrono>
 #include <string>
@@ -48,10 +49,20 @@ Server::Server()
         m_webSocketServer.sendTo(id, "{\"type\":\"assigned\",\"color\":\"" + colorName(assigned) + "\"}");
     });
 
-    // Network thread -> just queues raw text; never touches Game/App
-    // directly (see CommandInbox for why).
+    // Network thread -> for a login message, record the username directly
+    // (PlayerDirectory is mutex-protected, same precedent as
+    // PlayerAssignment's assign()/release() above, both already called
+    // straight from these I/O-thread handlers). Anything else just gets
+    // queued; never touches Game/App directly (see CommandInbox for why).
     m_webSocketServer.setMessageHandler([this](SessionId id, const std::string& text)
     {
+        std::string username;
+        if (LoginMessage::parse(text, username))
+        {
+            m_playerDirectory.set(id, username);
+            return;
+        }
+
         m_commandInbox.push(id, text);
     });
 
@@ -59,6 +70,7 @@ Server::Server()
     m_webSocketServer.setDisconnectHandler([this](SessionId id)
     {
         m_playerAssignment.release(id);
+        m_playerDirectory.release(id);
     });
 
     // POC: every connected client's messages go to the one session that

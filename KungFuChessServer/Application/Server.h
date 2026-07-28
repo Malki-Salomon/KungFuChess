@@ -2,6 +2,7 @@
 
 #include "SessionManager.h"
 #include "PlayerAssignment.h"
+#include "PlayerDirectory.h"
 #include "../Network/WebSocketServer.h"
 #include "../Network/CommandInbox.h"
 #include "../Protocol/SnapshotBroadcaster.h"
@@ -19,6 +20,7 @@ private:
     CommandInbox m_commandInbox;
     SnapshotBroadcaster m_snapshotBroadcaster;
     PlayerAssignment m_playerAssignment;
+    PlayerDirectory m_playerDirectory;
 
     bool m_running;
 
