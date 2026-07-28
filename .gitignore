@@ -26,3 +26,16 @@ x86/
 *.exp
 
 TestResults/
+
+# Runtime/test SQLite databases (KungFuChessAccounts/SqliteUserRepository) -
+# kungfuchess.db is the server's own data file; test_*.db are temp files
+# created by AuthServiceSqliteTests.cpp, normally cleaned up but left
+# behind if a test run crashes mid-way.
+kungfuchess.db
+kungfuchess.db-journal
+kungfuchess.db-wal
+kungfuchess.db-shm
+test_*.db
+test_*.db-journal
+test_*.db-wal
+test_*.db-shm

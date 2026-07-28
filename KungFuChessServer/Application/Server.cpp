@@ -13,6 +13,11 @@ namespace
 {
     constexpr unsigned short kListenPort = 9000; // placeholder - move to config later
 
+    // Fixed relative path next to the executable - no config system
+    // exists yet (see KungFuChessServer/Infrastructure/README.md), same
+    // "placeholder constant" status as kListenPort above.
+    constexpr const char* kUserDbPath = "kungfuchess.db";
+
     // The only place that decides what a seat *means* in this specific
     // game. PlayerAssignment itself knows nothing about chess/colors - see
     // its header - so that mapping lives here instead, in a file that
@@ -41,6 +46,7 @@ namespace
 Server::Server()
     : m_webSocketServer(kListenPort)
     , m_snapshotBroadcaster(m_webSocketServer)
+    , m_userRepository(kUserDbPath)
     , m_authService(m_userRepository)
     , m_running(true)
 {
@@ -54,7 +60,7 @@ Server::Server()
 
     // Network thread -> for a register/login message, authenticate
     // directly and reply with an authResult (AuthService and
-    // InMemoryUserRepository are both mutex-protected, same precedent as
+    // SqliteUserRepository are both mutex-protected, same precedent as
     // PlayerAssignment's assign()/release() and PlayerDirectory::set()
     // above, all already called straight from these I/O-thread handlers).
     // On a successful login, populate PlayerDirectory exactly as before -
@@ -62,11 +68,13 @@ Server::Server()
     // just gets queued; never touches Game/App directly (see CommandInbox
     // for why).
     //
-    // Known limitation, not fixed in this stage: this runs on the network
-    // I/O thread. Harmless while PasswordHasher is instant and
-    // InMemoryUserRepository is in-memory (this stage); stops being
-    // harmless once a later stage adds real, deliberately-slow Argon2id
-    // hashing and real disk I/O. See KungFuChessAccounts/README.md.
+    // Known limitation, NOT fixed in this stage: this runs on the network
+    // I/O thread, and as of this stage that means every register/login now
+    // does real (synchronous, blocking) disk I/O right here - no longer
+    // "harmless", just not yet fixed. Gets worse once a later stage adds
+    // real, deliberately-slow Argon2id hashing on top. Addressed in a
+    // later stage (moving this off the I/O thread), not here. See
+    // KungFuChessAccounts/README.md.
     m_webSocketServer.setMessageHandler([this](SessionId id, const std::string& text)
     {
         std::string regUsername, regPassword;
