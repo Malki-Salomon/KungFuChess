@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "GameSnapshot.h"
+#include "GameStatus.h"
 
 class IBoardPrinter;
 
@@ -14,6 +15,7 @@ public:
     virtual void parseLoad(const std::vector<std::string>& inputLines) = 0;
     virtual void run() = 0;
     virtual GameSnapshot getSnapshot() const = 0;
+    virtual GameStatus getStatus() const = 0;
 };
 
 namespace CoreFactory

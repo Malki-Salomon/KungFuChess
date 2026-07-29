@@ -80,6 +80,11 @@ bool Game::isGameActive() const
     return gameStatus == GameStatus::Playing;
 }
 
+GameStatus Game::getStatus() const
+{
+    return gameStatus;
+}
+
 const Board& Game::getBoard() const
 {
     return board;

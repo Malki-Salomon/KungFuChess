@@ -18,6 +18,7 @@ public:
 
     void dispatchCommand(const std::string& cmd) override;
     GameSnapshot getSnapshot() const override;
+    GameStatus getStatus() const override;
 
 private:
     Game game;

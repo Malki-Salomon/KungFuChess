@@ -39,13 +39,13 @@
     <ClCompile Include="Application\GameFactory.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Application\PlayerAssignment.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
     <ClCompile Include="Application\PlayerDirectory.cpp">
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="Application\AuthWorker.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\GameEndCoordinator.cpp">
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="Network\WebSocketServer.cpp">
@@ -74,13 +74,13 @@
     <ClInclude Include="Application\GameFactory.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="Application\PlayerAssignment.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="Application\PlayerDirectory.h">
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Application\AuthWorker.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\GameEndCoordinator.h">
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Network\WebSocketServer.h">

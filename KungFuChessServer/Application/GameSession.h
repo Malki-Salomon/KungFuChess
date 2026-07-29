@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include "GameSnapshot.h"
+#include "GameStatus.h"
 
 class IGameController;
 class IBoardPrinter;
@@ -32,6 +33,11 @@ public:
     // only other channel besides the printer callback, and the one to use
     // when you need an answer *right now* rather than reacting to a push.
     GameSnapshot getSnapshot() const;
+
+    // On-demand read of Core's game-over status - same "ask, don't get
+    // pushed" shape as getSnapshot() above. See GameEndCoordinator for the
+    // one place that actually polls this once per tick.
+    GameStatus getStatus() const;
 
 private:
     std::unique_ptr<IGameController> m_controller;

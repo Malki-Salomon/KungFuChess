@@ -146,6 +146,7 @@
     <ClInclude Include="PasswordHasher.h" />
     <ClInclude Include="EloCalculator.h" />
     <ClInclude Include="AuthService.h" />
+    <ClInclude Include="MatchResultService.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InMemoryUserRepository.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="PasswordHasher.cpp" />
     <ClCompile Include="EloCalculator.cpp" />
     <ClCompile Include="AuthService.cpp" />
+    <ClCompile Include="MatchResultService.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

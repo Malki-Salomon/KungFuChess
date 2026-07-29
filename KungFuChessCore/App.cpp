@@ -60,3 +60,8 @@ GameSnapshot App::getSnapshot() const
 {
     return game.getSnapshot();
 }
+
+GameStatus App::getStatus() const
+{
+    return game.getStatus();
+}

@@ -48,3 +48,15 @@ Seat PlayerAssignment::seatOf(SessionId id) const
 
     return it->second;
 }
+
+SessionId PlayerAssignment::sessionIdForSeat(Seat seat) const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    switch (seat)
+    {
+        case Seat::First:  return m_first.has_value() ? m_first.value() : kInvalidSessionId;
+        case Seat::Second: return m_second.has_value() ? m_second.value() : kInvalidSessionId;
+        default:           return kInvalidSessionId;
+    }
+}

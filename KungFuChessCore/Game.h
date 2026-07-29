@@ -26,6 +26,7 @@ public:
     void gameOver(Board& board, Position place);
 
     bool isGameActive() const;
+    GameStatus getStatus() const;
     const Board& getBoard() const;
     GameSnapshot getSnapshot() const;
 

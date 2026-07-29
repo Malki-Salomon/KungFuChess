@@ -1,6 +1,10 @@
 #pragma once
 
-#include "../Network/SessionId.h"
+// SessionId.h stays put in KungFuChessServer/Network (it's the network
+// layer's connection-identity type) - this project just adds it to its
+// include path, same as KungFuChessAccounts pulling in Core-independent
+// headers from wherever they legitimately live.
+#include "SessionId.h"
 
 #include <mutex>
 #include <optional>
@@ -37,6 +41,12 @@ public:
     // Seat::Spectator if it was a spectator or isn't tracked (e.g. already
     // released).
     Seat seatOf(SessionId id) const;
+
+    // The reverse of seatOf(): which SessionId (if any) currently holds
+    // this seat. Returns kInvalidSessionId for Seat::Spectator (many
+    // connections can hold that "seat" at once, so there's no single
+    // answer) or for an empty First/Second seat.
+    SessionId sessionIdForSeat(Seat seat) const;
 
 private:
     mutable std::mutex m_mutex;

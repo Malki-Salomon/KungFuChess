@@ -81,7 +81,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -97,7 +98,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +113,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +130,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,6 +159,8 @@
     <ClCompile Include="PasswordHasherTests.cpp" />
     <ClCompile Include="AuthServiceTests.cpp" />
     <ClCompile Include="AuthServiceSqliteTests.cpp" />
+    <ClCompile Include="MatchResultServiceTests.cpp" />
+    <ClCompile Include="PlayerAssignmentTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppTest.h" />
@@ -177,6 +183,8 @@
     <ClInclude Include="PasswordHasherTests.h" />
     <ClInclude Include="AuthServiceTests.h" />
     <ClInclude Include="AuthServiceSqliteTests.h" />
+    <ClInclude Include="MatchResultServiceTests.h" />
+    <ClInclude Include="PlayerAssignmentTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
@@ -187,6 +195,9 @@
     </ProjectReference>
     <ProjectReference Include="..\KungFuChessAccounts\KungFuChessAccounts.vcxproj">
       <Project>{511c75e5-23df-4fbc-8b81-a604f235ea4a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\KungFuChessSessionState\KungFuChessSessionState.vcxproj">
+      <Project>{cfdc080d-ff50-49bd-998d-47f4c5965851}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

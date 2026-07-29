@@ -64,6 +64,8 @@ Server::Server()
     , m_userRepository(kUserDbPath)
     , m_authService(m_userRepository)
     , m_authWorker(m_authService, m_webSocketServer, m_playerDirectory)
+    , m_matchResultService(m_userRepository)
+    , m_gameEndCoordinator(*m_sessionManager.getPrimarySession(), m_playerAssignment, m_playerDirectory, m_matchResultService, m_webSocketServer)
     , m_running(true)
 {
     // Ctrl+C (or an equivalent SIGINT) is the only way this process ever
@@ -191,6 +193,7 @@ void Server::run()
         }
 
         m_sessionManager.tickAllSessions();
+        m_gameEndCoordinator.checkAndHandle();
     }
 
     // Shutdown requested. Deliberately does NOT call m_webSocketServer.

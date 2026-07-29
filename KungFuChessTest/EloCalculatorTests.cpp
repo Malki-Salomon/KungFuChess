@@ -1,8 +1,6 @@
 #include "doctest.h"
 #include "EloCalculator.h"
 
-// No structured bindings here - KungFuChessTest doesn't set /std:c++17,
-// unlike KungFuChessAccounts itself.
 TEST_SUITE("EloCalculator")
 {
     TEST_CASE("Upset win gains more rating than the same win would for the favorite")

@@ -31,3 +31,8 @@ GameSnapshot GameSession::getSnapshot() const
 {
     return m_controller->getSnapshot();
 }
+
+GameStatus GameSession::getStatus() const
+{
+    return m_controller->getStatus();
+}
