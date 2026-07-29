@@ -19,11 +19,12 @@ using tcp = asio::ip::tcp;
 
 namespace
 {
-    // Remembers the most recent broadcast text so a client that connects
-    // *after* a broadcast already happened (the common case - the initial
-    // board is broadcast once, immediately, likely before anyone is
-    // connected yet) can still be caught up on connect instead of only
-    // seeing whatever changes happen after it joins.
+    // Remembers the most recent broadcast text so a connection that logs
+    // in *after* a broadcast already happened (the common case - the
+    // initial board is broadcast once, immediately, likely before anyone
+    // is even connected yet) can still be caught up right at login,
+    // instead of only seeing whatever changes happen after. Read back via
+    // WebSocketServer::getLastSnapshot() - see AuthWorker, the one caller.
     class LastSnapshotStore
     {
     public:
@@ -54,15 +55,19 @@ namespace
     // every handler below - reads, writes, and posted broadcasts/sendTo
     // alike - executes serially on that single thread. No additional
     // locking is needed inside Session itself for that reason.
+    //
+    // Deliberately does NOT catch a freshly-connected client up on the
+    // last broadcast anymore - a connection gets nothing at all until it
+    // logs in (see WebSocketServer::setAuthenticationCheck()); the catch-up
+    // now happens explicitly, from AuthWorker, at the moment login
+    // succeeds (via WebSocketServer::getLastSnapshot() + sendTo()).
     class Session : public std::enable_shared_from_this<Session>
     {
     public:
-        Session(tcp::socket socket, SessionId id, WebSocketServer::MessageHandler messageHandler,
-                LastSnapshotStore& lastSnapshotStore)
+        Session(tcp::socket socket, SessionId id, WebSocketServer::MessageHandler messageHandler)
             : m_ws(std::move(socket))
             , m_id(id)
             , m_messageHandler(std::move(messageHandler))
-            , m_lastSnapshotStore(lastSnapshotStore)
         {
         }
 
@@ -82,14 +87,6 @@ namespace
 
                     if (self->m_onConnected)
                         self->m_onConnected();
-
-                    // Catch this client up on whatever the board already
-                    // looks like - it joined after the last broadcast, so
-                    // without this it would see nothing until the next
-                    // change happens.
-                    std::string current = self->m_lastSnapshotStore.get();
-                    if (!current.empty())
-                        self->enqueueSend(current);
 
                     self->readLoop();
                 });
@@ -170,7 +167,6 @@ namespace
         std::function<void()> m_onConnected;
         std::function<void()> m_onDisconnected;
         std::deque<std::string> m_writeQueue;
-        LastSnapshotStore& m_lastSnapshotStore;
     };
 
     // Tracks currently-connected sessions so broadcast()/sendTo() have
@@ -234,13 +230,12 @@ namespace
                  WebSocketServer::ConnectHandler connectHandler,
                  WebSocketServer::MessageHandler messageHandler,
                  WebSocketServer::DisconnectHandler disconnectHandler,
-                 SessionRegistry& registry, LastSnapshotStore& lastSnapshotStore)
+                 SessionRegistry& registry)
             : m_acceptor(ioContext)
             , m_connectHandler(std::move(connectHandler))
             , m_messageHandler(std::move(messageHandler))
             , m_disconnectHandler(std::move(disconnectHandler))
             , m_registry(registry)
-            , m_lastSnapshotStore(lastSnapshotStore)
         {
             beast::error_code ec;
 
@@ -270,7 +265,7 @@ namespace
                     if (!ec)
                     {
                         SessionId id = self->m_nextId.fetch_add(1);
-                        auto session = std::make_shared<Session>(std::move(socket), id, self->m_messageHandler, self->m_lastSnapshotStore);
+                        auto session = std::make_shared<Session>(std::move(socket), id, self->m_messageHandler);
                         self->m_registry.add(session);
 
                         if (self->m_connectHandler)
@@ -299,7 +294,6 @@ namespace
         WebSocketServer::MessageHandler m_messageHandler;
         WebSocketServer::DisconnectHandler m_disconnectHandler;
         SessionRegistry& m_registry;
-        LastSnapshotStore& m_lastSnapshotStore;
         std::atomic<SessionId> m_nextId{ 1 };
     };
 }
@@ -312,6 +306,7 @@ struct WebSocketServer::Impl
     ConnectHandler connectHandler;
     MessageHandler messageHandler;
     DisconnectHandler disconnectHandler;
+    AuthenticationCheck authenticationCheck;
 };
 
 WebSocketServer::WebSocketServer(unsigned short port)
@@ -340,12 +335,17 @@ void WebSocketServer::setDisconnectHandler(DisconnectHandler handler)
     m_impl->disconnectHandler = std::move(handler);
 }
 
+void WebSocketServer::setAuthenticationCheck(AuthenticationCheck check)
+{
+    m_impl->authenticationCheck = std::move(check);
+}
+
 void WebSocketServer::start()
 {
     auto endpoint = tcp::endpoint(asio::ip::make_address("0.0.0.0"), m_port);
     std::make_shared<Listener>(m_impl->ioContext, endpoint,
         m_impl->connectHandler, m_impl->messageHandler, m_impl->disconnectHandler,
-        m_impl->registry, m_impl->lastSnapshot)->run();
+        m_impl->registry)->run();
 
     m_ioThread = std::thread([this]
     {
@@ -368,8 +368,8 @@ void WebSocketServer::stop()
 void WebSocketServer::broadcast(const std::string& text)
 {
     // Remember it regardless of whether anyone is connected right now, so
-    // the next client to connect can be caught up immediately (see Session
-    // ::run()'s handshake callback).
+    // a connection that logs in later can be caught up immediately (see
+    // AuthWorker, which reads it back via getLastSnapshot()).
     m_impl->lastSnapshot.set(text);
 
     // Called from the game thread - marshal onto the I/O thread before
@@ -379,6 +379,9 @@ void WebSocketServer::broadcast(const std::string& text)
     {
         for (const auto& session : m_impl->registry.snapshot())
         {
+            if (m_impl->authenticationCheck && !m_impl->authenticationCheck(session->id()))
+                continue; // not logged in - as far as broadcasts go, this connection doesn't exist yet
+
             session->enqueueSend(text);
         }
     });
@@ -394,4 +397,9 @@ void WebSocketServer::sendTo(SessionId id, const std::string& text)
         }
         // If not found, the session already disconnected - nothing to do.
     });
+}
+
+std::string WebSocketServer::getLastSnapshot() const
+{
+    return m_impl->lastSnapshot.get();
 }

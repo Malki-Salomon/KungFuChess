@@ -49,4 +49,20 @@ TEST_SUITE("PlayerAssignment")
 
         CHECK(assignment.sessionIdForSeat(Seat::Spectator) == kInvalidSessionId);
     }
+
+    TEST_CASE("assign() is idempotent: calling it again for the same id returns the same seat unchanged")
+    {
+        PlayerAssignment assignment;
+        SessionId first = 11;
+        SessionId second = 22;
+
+        Seat firstSeat = assignment.assign(first);
+        assignment.assign(second);
+
+        Seat firstSeatAgain = assignment.assign(first);
+
+        CHECK(firstSeatAgain == firstSeat);
+        CHECK(assignment.sessionIdForSeat(Seat::First) == first);
+        CHECK(assignment.sessionIdForSeat(Seat::Second) == second); // untouched by the repeat assign()
+    }
 }

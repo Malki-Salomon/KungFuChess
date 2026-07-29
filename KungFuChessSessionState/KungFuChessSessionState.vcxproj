@@ -136,9 +136,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="PlayerAssignment.h" />
+    <ClInclude Include="PlayerDirectory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PlayerAssignment.cpp" />
+    <ClCompile Include="PlayerDirectory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

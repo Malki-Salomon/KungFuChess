@@ -138,6 +138,7 @@
     <ClInclude Include="MoveMessage.h" />
     <ClInclude Include="BoardMessage.h" />
     <ClInclude Include="GameOverMessage.h" />
+    <ClInclude Include="AssignedMessage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MiniJson.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="MoveMessage.cpp" />
     <ClCompile Include="BoardMessage.cpp" />
     <ClCompile Include="GameOverMessage.cpp" />
+    <ClCompile Include="AssignedMessage.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

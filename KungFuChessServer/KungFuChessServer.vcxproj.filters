@@ -39,7 +39,7 @@
     <ClCompile Include="Application\GameFactory.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Application\PlayerDirectory.cpp">
+    <ClCompile Include="Application\SeatColorNaming.cpp">
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="Application\AuthWorker.cpp">
@@ -74,7 +74,7 @@
     <ClInclude Include="Application\GameFactory.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="Application\PlayerDirectory.h">
+    <ClInclude Include="Application\SeatColorNaming.h">
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Application\AuthWorker.h">

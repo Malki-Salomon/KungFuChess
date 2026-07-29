@@ -13,6 +13,12 @@ std::string PlayerDirectory::usernameOf(SessionId id) const
     return it == m_usernames.end() ? std::string() : it->second;
 }
 
+bool PlayerDirectory::isLoggedIn(SessionId id) const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_usernames.find(id) != m_usernames.end();
+}
+
 void PlayerDirectory::release(SessionId id)
 {
     std::lock_guard<std::mutex> lock(m_mutex);

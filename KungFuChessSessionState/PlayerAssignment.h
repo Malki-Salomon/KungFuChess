@@ -31,6 +31,9 @@ public:
     PlayerAssignment();
 
     // Called once per new connection. Returns the seat assigned.
+    // Idempotent: calling this again for a session that already holds a
+    // seat just returns that same seat, unchanged - safe to call on every
+    // successful login rather than only the first.
     Seat assign(SessionId id);
 
     // Called on disconnect. Frees the seat if this session held one, so a

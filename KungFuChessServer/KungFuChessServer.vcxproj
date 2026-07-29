@@ -145,7 +145,7 @@
     <ClCompile Include="Application\SessionManager.cpp" />
     <ClCompile Include="Application\GameSession.cpp" />
     <ClCompile Include="Application\GameFactory.cpp" />
-    <ClCompile Include="Application\PlayerDirectory.cpp" />
+    <ClCompile Include="Application\SeatColorNaming.cpp" />
     <ClCompile Include="Application\AuthWorker.cpp" />
     <ClCompile Include="Application\GameEndCoordinator.cpp" />
     <ClCompile Include="Network\WebSocketServer.cpp" />
@@ -158,7 +158,7 @@
     <ClInclude Include="Application\SessionManager.h" />
     <ClInclude Include="Application\GameSession.h" />
     <ClInclude Include="Application\GameFactory.h" />
-    <ClInclude Include="Application\PlayerDirectory.h" />
+    <ClInclude Include="Application\SeatColorNaming.h" />
     <ClInclude Include="Application\AuthWorker.h" />
     <ClInclude Include="Application\GameEndCoordinator.h" />
     <ClInclude Include="Network\WebSocketServer.h" />

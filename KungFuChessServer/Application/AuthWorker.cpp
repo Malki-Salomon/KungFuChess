@@ -1,11 +1,15 @@
 #include "AuthWorker.h"
 
 #include "AuthResultMessage.h"
+#include "AssignedMessage.h"
+#include "SeatColorNaming.h"
 
-AuthWorker::AuthWorker(AuthService& authService, WebSocketServer& webSocketServer, PlayerDirectory& playerDirectory)
+AuthWorker::AuthWorker(AuthService& authService, WebSocketServer& webSocketServer,
+                       PlayerDirectory& playerDirectory, PlayerAssignment& playerAssignment)
     : m_authService(authService)
     , m_webSocketServer(webSocketServer)
     , m_playerDirectory(playerDirectory)
+    , m_playerAssignment(playerAssignment)
 {
     m_thread = std::thread(&AuthWorker::run, this);
 }
@@ -56,6 +60,21 @@ void AuthWorker::run()
         m_webSocketServer.sendTo(request.sender, AuthResultMessage::build(result.success, result.message, result.rating));
 
         if (request.type == AuthRequestType::Login && result.success)
+        {
             m_playerDirectory.set(request.sender, request.username);
+
+            Seat seat = m_playerAssignment.assign(request.sender);
+            PieceColor color = SeatColorNaming::colorForSeat(seat);
+            m_webSocketServer.sendTo(request.sender, AssignedMessage::build(SeatColorNaming::colorName(color)));
+
+            // The explicit, login-time replacement for the automatic
+            // connect-time catch-up removed from WebSocketServer::Session
+            // ::run() - this connection received nothing before now, so
+            // without this it would see a blank/frozen board until the
+            // next unrelated broadcast happens to fire.
+            std::string snapshot = m_webSocketServer.getLastSnapshot();
+            if (!snapshot.empty())
+                m_webSocketServer.sendTo(request.sender, snapshot);
+        }
     }
 }

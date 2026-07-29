@@ -1,6 +1,7 @@
 #include "Server.h"
 
 #include "GameSession.h"
+#include "SeatColorNaming.h"
 #include "../Protocol/MoveTranslator.h"
 #include "LoginMessage.h"
 #include "RegisterMessage.h"
@@ -8,6 +9,7 @@
 #include <atomic>
 #include <chrono>
 #include <csignal>
+#include <iostream>
 #include <string>
 
 namespace
@@ -32,30 +34,6 @@ namespace
     {
         g_shutdownRequested.store(true);
     }
-
-    // The only place that decides what a seat *means* in this specific
-    // game. PlayerAssignment itself knows nothing about chess/colors - see
-    // its header - so that mapping lives here instead, in a file that
-    // already legitimately depends on Core.
-    PieceColor colorForSeat(Seat seat)
-    {
-        switch (seat)
-        {
-            case Seat::First:  return PieceColor::White;
-            case Seat::Second: return PieceColor::Black;
-            default:           return PieceColor::None; // spectator
-        }
-    }
-
-    std::string colorName(PieceColor color)
-    {
-        switch (color)
-        {
-            case PieceColor::White: return "white";
-            case PieceColor::Black: return "black";
-            default:                return "spectator";
-        }
-    }
 }
 
 Server::Server()
@@ -63,7 +41,7 @@ Server::Server()
     , m_snapshotBroadcaster(m_webSocketServer)
     , m_userRepository(kUserDbPath)
     , m_authService(m_userRepository)
-    , m_authWorker(m_authService, m_webSocketServer, m_playerDirectory)
+    , m_authWorker(m_authService, m_webSocketServer, m_playerDirectory, m_playerAssignment)
     , m_matchResultService(m_userRepository)
     , m_gameEndCoordinator(*m_sessionManager.getPrimarySession(), m_playerAssignment, m_playerDirectory, m_matchResultService, m_webSocketServer)
     , m_running(true)
@@ -72,12 +50,26 @@ Server::Server()
     // stops today - see run()'s loop condition and its closing comment.
     std::signal(SIGINT, handleShutdownSignal);
 
-    // First connection -> white, second -> black, everyone else ->
-    // spectator. Tell the new connection what it got.
-    m_webSocketServer.setConnectHandler([this](SessionId id)
+    // Strict rule: a connection that hasn't successfully logged in is, to
+    // the rest of the system, as if it doesn't exist. broadcast() is the
+    // one place that gets enforced centrally (see WebSocketServer.h) so
+    // every current and future broadcaster (SnapshotBroadcaster,
+    // GameEndCoordinator, ...) gets this correctly without having to
+    // remember to filter itself.
+    m_webSocketServer.setAuthenticationCheck([this](SessionId id)
     {
-        PieceColor assigned = colorForSeat(m_playerAssignment.assign(id));
-        m_webSocketServer.sendTo(id, "{\"type\":\"assigned\",\"color\":\"" + colorName(assigned) + "\"}");
+        return m_playerDirectory.isLoggedIn(id);
+    });
+
+    // No seat assignment or messages here anymore - a connection is
+    // "nobody" until it logs in (AuthWorker does the seat assignment +
+    // "assigned" message + board catch-up, all three, at that point -
+    // see AuthWorker.cpp). Kept as a no-op hook only for connect-time
+    // visibility; WebSocketServer's own Session::run() already logs the
+    // raw handshake to stdout.
+    m_webSocketServer.setConnectHandler([](SessionId id)
+    {
+        std::cout << "[Server] connection " << id << " established (not yet authenticated)\n";
     });
 
     // Network thread -> for a register/login message, do the absolute
@@ -89,11 +81,13 @@ Server::Server()
     // callback, which stalled every other connected client's reads/
     // writes for as long as one hash/disk call took - see
     // KungFuChessAccounts/README.md and AuthWorker.h for the full story.
-    // AuthWorker sends the authResult itself and populates PlayerDirectory
-    // on a successful login, so neither happens here anymore either.
-    // Anything that isn't register/login just gets queued for the game
-    // thread instead; never touches Game/App directly (see CommandInbox
-    // for why).
+    // AuthWorker does everything a successful login triggers itself (see
+    // its own comment), so none of that happens here either.
+    // Anything else - if the sender isn't logged in yet - is ignored
+    // outright: not queued, not processed, not even reaching the
+    // ownership check in run() below. This is the crux of "gets nothing
+    // until login": only a logged-in sender's non-auth messages ever
+    // reach CommandInbox.
     m_webSocketServer.setMessageHandler([this](SessionId id, const std::string& text)
     {
         std::string regUsername, regPassword;
@@ -109,6 +103,9 @@ Server::Server()
             m_authWorker.push({ id, AuthRequestType::Login, loginUsername, loginPassword });
             return;
         }
+
+        if (!m_playerDirectory.isLoggedIn(id))
+            return;
 
         m_commandInbox.push(id, text);
     });
@@ -166,7 +163,7 @@ void Server::run()
                 // already checked above - it's the earlier guard that
                 // guarantees this invariant, not anything about the
                 // snapshot itself.
-                PieceColor senderColor = colorForSeat(m_playerAssignment.seatOf(inbound.sender));
+                PieceColor senderColor = SeatColorNaming::colorForSeat(m_playerAssignment.seatOf(inbound.sender));
                 GameSnapshot snapshot = primary->getSnapshot();
                 PieceColor pieceColorAtFrom = snapshot.cells[move.fromRow][move.fromCol].color;
 

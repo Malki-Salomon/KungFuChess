@@ -28,6 +28,14 @@ public:
     using ConnectHandler = std::function<void(SessionId)>;
     using DisconnectHandler = std::function<void(SessionId)>;
 
+    // Consulted by broadcast() (only broadcast() - sendTo() is always a
+    // deliberate, explicit reply to one specific connection, e.g. an
+    // authResult or the login catch-up snapshot, and must never be
+    // gated). Returning false for a session means it is skipped for that
+    // broadcast, as if it weren't connected at all. Left unset, every
+    // connected session receives every broadcast (today's behavior).
+    using AuthenticationCheck = std::function<bool(SessionId)>;
+
     explicit WebSocketServer(unsigned short port);
     ~WebSocketServer();
 
@@ -43,12 +51,26 @@ public:
     void setMessageHandler(MessageHandler handler);
     void setDisconnectHandler(DisconnectHandler handler);
 
-    // Thread-safe: safe to call from the game tick thread.
+    // Same "set before start()" precondition as the three handlers above.
+    // This is the ONE place broadcast()'s recipient list gets filtered -
+    // see the typedef comment above for why that's deliberate.
+    void setAuthenticationCheck(AuthenticationCheck check);
+
+    // Thread-safe: safe to call from the game tick thread. Skips any
+    // session the authentication check (if set) rejects.
     void broadcast(const std::string& text);
 
     // Thread-safe. No-op if the session no longer exists (already
-    // disconnected) - callers don't need to check first.
+    // disconnected) - callers don't need to check first. Never gated by
+    // the authentication check - see its comment above.
     void sendTo(SessionId id, const std::string& text);
+
+    // The text of the most recent broadcast() call, or an empty string if
+    // nothing has been broadcast yet. Never gated by the authentication
+    // check - it's a plain on-demand read, same precedent as
+    // GameSession::getSnapshot() reading Core directly rather than
+    // reacting to a push.
+    std::string getLastSnapshot() const;
 
 private:
     struct Impl;

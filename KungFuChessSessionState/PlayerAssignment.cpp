@@ -6,6 +6,13 @@ Seat PlayerAssignment::assign(SessionId id)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
+    // Idempotent: a second assign() for a session that already holds a
+    // seat (e.g. a connection that logs in more than once) must return
+    // that same seat unchanged, not potentially reassign/demote it.
+    auto existing = m_assignments.find(id);
+    if (existing != m_assignments.end())
+        return existing->second;
+
     Seat seat;
     if (!m_first.has_value())
     {

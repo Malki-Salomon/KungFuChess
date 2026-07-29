@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PlayerDirectory.h"
+#include "PlayerAssignment.h"
 #include "AuthService.h"
 #include "../Network/SessionId.h"
 #include "../Network/WebSocketServer.h"
@@ -43,10 +44,21 @@ struct AuthRequest
 // register/login is left without a reply. WebSocketServer::sendTo()
 // already no-ops safely if they've since disconnected, so this is never
 // unsafe, just occasionally slightly slower to shut down.
+//
+// On a successful LOGIN specifically (register alone still grants
+// nothing - see the "strict: nothing happens until login" rule this
+// implements), this is also the one place that closes the loop for a
+// newly-authenticated connection: populates PlayerDirectory, assigns its
+// seat and tells it via AssignedMessage, and sends it the current board
+// state via WebSocketServer::getLastSnapshot() - the explicit,
+// login-time replacement for the automatic connect-time catch-up that
+// used to live in WebSocketServer::Session::run() (removed - see
+// WebSocketServer.cpp - because it violated "gets nothing until login").
 class AuthWorker
 {
 public:
-    AuthWorker(AuthService& authService, WebSocketServer& webSocketServer, PlayerDirectory& playerDirectory);
+    AuthWorker(AuthService& authService, WebSocketServer& webSocketServer,
+               PlayerDirectory& playerDirectory, PlayerAssignment& playerAssignment);
     ~AuthWorker();
 
     AuthWorker(const AuthWorker&) = delete;
@@ -61,6 +73,7 @@ private:
     AuthService& m_authService;
     WebSocketServer& m_webSocketServer;
     PlayerDirectory& m_playerDirectory;
+    PlayerAssignment& m_playerAssignment;
 
     std::mutex m_mutex;
     std::condition_variable m_cv;
