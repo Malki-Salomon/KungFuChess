@@ -4,9 +4,10 @@
 #include "../Protocol/MoveTranslator.h"
 #include "LoginMessage.h"
 #include "RegisterMessage.h"
-#include "AuthResultMessage.h"
 
+#include <atomic>
 #include <chrono>
+#include <csignal>
 #include <string>
 
 namespace
@@ -17,6 +18,20 @@ namespace
     // exists yet (see KungFuChessServer/Infrastructure/README.md), same
     // "placeholder constant" status as kListenPort above.
     constexpr const char* kUserDbPath = "kungfuchess.db";
+
+    // Set by handleShutdownSignal() - a real OS signal handler, which per
+    // the C++ standard may only touch a very restricted set of things
+    // (lock-free std::atomic access is explicitly one of them). Anything
+    // heavier - calling WebSocketServer::stop(), joining AuthWorker's
+    // thread, etc. - is NOT safe to do directly from signal context, so
+    // it happens in Server::run() instead, which just polls this flag on
+    // an ordinary thread.
+    std::atomic<bool> g_shutdownRequested{ false };
+
+    void handleShutdownSignal(int)
+    {
+        g_shutdownRequested.store(true);
+    }
 
     // The only place that decides what a seat *means* in this specific
     // game. PlayerAssignment itself knows nothing about chess/colors - see
@@ -48,8 +63,13 @@ Server::Server()
     , m_snapshotBroadcaster(m_webSocketServer)
     , m_userRepository(kUserDbPath)
     , m_authService(m_userRepository)
+    , m_authWorker(m_authService, m_webSocketServer, m_playerDirectory)
     , m_running(true)
 {
+    // Ctrl+C (or an equivalent SIGINT) is the only way this process ever
+    // stops today - see run()'s loop condition and its closing comment.
+    std::signal(SIGINT, handleShutdownSignal);
+
     // First connection -> white, second -> black, everyone else ->
     // spectator. Tell the new connection what it got.
     m_webSocketServer.setConnectHandler([this](SessionId id)
@@ -58,40 +78,33 @@ Server::Server()
         m_webSocketServer.sendTo(id, "{\"type\":\"assigned\",\"color\":\"" + colorName(assigned) + "\"}");
     });
 
-    // Network thread -> for a register/login message, authenticate
-    // directly and reply with an authResult (AuthService and
-    // SqliteUserRepository are both mutex-protected, same precedent as
-    // PlayerAssignment's assign()/release() and PlayerDirectory::set()
-    // above, all already called straight from these I/O-thread handlers).
-    // On a successful login, populate PlayerDirectory exactly as before -
-    // AuthService itself knows nothing about display names. Anything else
-    // just gets queued; never touches Game/App directly (see CommandInbox
+    // Network thread -> for a register/login message, do the absolute
+    // minimum here (recognize the type, parse the fields, hand off) and
+    // return immediately. The actual work - AuthService, meaning real
+    // Argon2id hashing (stage 4c) and real SQLite disk I/O (stage 4b) -
+    // happens on AuthWorker's own dedicated thread, not here. Before
+    // stage 4d, this ran AuthService synchronously right in this
+    // callback, which stalled every other connected client's reads/
+    // writes for as long as one hash/disk call took - see
+    // KungFuChessAccounts/README.md and AuthWorker.h for the full story.
+    // AuthWorker sends the authResult itself and populates PlayerDirectory
+    // on a successful login, so neither happens here anymore either.
+    // Anything that isn't register/login just gets queued for the game
+    // thread instead; never touches Game/App directly (see CommandInbox
     // for why).
-    //
-    // Known limitation, NOT fixed in this stage: this runs on the network
-    // I/O thread, and as of this stage that means every register/login now
-    // does real (synchronous, blocking) disk I/O right here - no longer
-    // "harmless", just not yet fixed. Gets worse once a later stage adds
-    // real, deliberately-slow Argon2id hashing on top. Addressed in a
-    // later stage (moving this off the I/O thread), not here. See
-    // KungFuChessAccounts/README.md.
     m_webSocketServer.setMessageHandler([this](SessionId id, const std::string& text)
     {
         std::string regUsername, regPassword;
         if (RegisterMessage::parse(text, regUsername, regPassword))
         {
-            AuthResult result = m_authService.registerAccount(regUsername, regPassword);
-            m_webSocketServer.sendTo(id, AuthResultMessage::build(result.success, result.message, result.rating));
+            m_authWorker.push({ id, AuthRequestType::Register, regUsername, regPassword });
             return;
         }
 
         std::string loginUsername, loginPassword;
         if (LoginMessage::parse(text, loginUsername, loginPassword))
         {
-            AuthResult result = m_authService.login(loginUsername, loginPassword);
-            m_webSocketServer.sendTo(id, AuthResultMessage::build(result.success, result.message, result.rating));
-            if (result.success)
-                m_playerDirectory.set(id, loginUsername);
+            m_authWorker.push({ id, AuthRequestType::Login, loginUsername, loginPassword });
             return;
         }
 
@@ -125,7 +138,7 @@ void Server::run()
     // matter what commands a client sends.
     auto prevTime = std::chrono::steady_clock::now();
 
-    while (m_running)
+    while (m_running && !g_shutdownRequested.load())
     {
         auto currentTime = std::chrono::steady_clock::now();
         auto deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - prevTime).count();
@@ -179,4 +192,16 @@ void Server::run()
 
         m_sessionManager.tickAllSessions();
     }
+
+    // Shutdown requested. Deliberately does NOT call m_webSocketServer.
+    // stop() here: AuthWorker (declared after m_webSocketServer in
+    // Server.h, so it destructs *first*, in reverse declaration order,
+    // once this function returns and `Server server;` goes out of scope
+    // in main()) needs WebSocketServer's I/O thread still running while
+    // it drains its queue and delivers final authResult replies via
+    // sendTo() - stopping WebSocketServer before that would make those
+    // final sendTo() calls silently no-op (posting onto an io_context
+    // whose thread has already stopped just never runs the posted work).
+    // ~WebSocketServer() already calls stop() itself, so it's handled
+    // once AuthWorker has actually finished, not before.
 }

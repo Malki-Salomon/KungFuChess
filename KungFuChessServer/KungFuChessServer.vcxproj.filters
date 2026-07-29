@@ -45,6 +45,9 @@
     <ClCompile Include="Application\PlayerDirectory.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Application\AuthWorker.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
     <ClCompile Include="Network\WebSocketServer.cpp">
       <Filter>Network</Filter>
     </ClCompile>
@@ -75,6 +78,9 @@
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Application\PlayerDirectory.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\AuthWorker.h">
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Network\WebSocketServer.h">

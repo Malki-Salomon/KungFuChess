@@ -147,6 +147,7 @@
     <ClCompile Include="Application\GameFactory.cpp" />
     <ClCompile Include="Application\PlayerAssignment.cpp" />
     <ClCompile Include="Application\PlayerDirectory.cpp" />
+    <ClCompile Include="Application\AuthWorker.cpp" />
     <ClCompile Include="Network\WebSocketServer.cpp" />
     <ClCompile Include="Protocol\SnapshotBroadcaster.cpp" />
     <ClCompile Include="Protocol\MoveTranslator.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Application\GameFactory.h" />
     <ClInclude Include="Application\PlayerAssignment.h" />
     <ClInclude Include="Application\PlayerDirectory.h" />
+    <ClInclude Include="Application\AuthWorker.h" />
     <ClInclude Include="Network\WebSocketServer.h" />
     <ClInclude Include="Network\CommandInbox.h" />
     <ClInclude Include="Network\SessionId.h" />

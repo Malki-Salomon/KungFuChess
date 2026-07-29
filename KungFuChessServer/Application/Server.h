@@ -8,6 +8,7 @@
 #include "../Protocol/SnapshotBroadcaster.h"
 #include "SqliteUserRepository.h"
 #include "AuthService.h"
+#include "AuthWorker.h"
 
 class Server
 {
@@ -25,6 +26,7 @@ private:
     PlayerDirectory m_playerDirectory;
     SqliteUserRepository m_userRepository; // real, file-backed persistence (stage 4b) - see KungFuChessAccounts/README.md
     AuthService m_authService;
+    AuthWorker m_authWorker; // runs register/login off the network I/O thread (stage 4d) - depends on m_webSocketServer/m_authService/m_playerDirectory above, so must stay declared after all three
 
     bool m_running;
 

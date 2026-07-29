@@ -43,6 +43,18 @@ Stages so far:
     not a bug (old placeholder hashes and real Argon2id hashes are not
     compatible; delete stale test .db files rather than trying to migrate
     them).
+  - 4d ("Move auth work off the network I/O thread", closes out this
+    feature): added AuthWorker (KungFuChessServer/Application), a
+    dedicated single background thread that now runs every
+    register/login. Server.cpp's network-thread message handler does the
+    minimum possible (recognize register/login, parse the fields, hand
+    off) and returns immediately - it no longer calls AuthService
+    directly. AuthService itself needed zero changes, exactly as
+    designed - it never knew or cared which thread called it. Also added
+    Server's first real shutdown path (SIGINT/Ctrl+C), since none existed
+    before this stage - needed to make AuthWorker's "finish the queue
+    before stopping" shutdown behavior actually observable rather than
+    just correct in theory.
 
 Contents:
   - IUserRepository: storage interface (username exists / create account /
@@ -75,9 +87,10 @@ library itself has no link step, so it can't resolve those symbols on its
 own; that only happens once something actually links KungFuChessAccounts
 into an executable.
 
-Known limitation, NOT fixed yet, and now the most pressing thing left in
-this feature: Server.cpp calls AuthService directly from the network I/O
-thread (same place PlayerDirectory handling already runs). Every
-register/login now does both real (deliberately slow) Argon2id hashing
-AND real synchronous disk I/O right there on the I/O thread. Addressed in
-stage 4d (moving this off the I/O thread), not here.
+Fixed in stage 4d: Server.cpp used to call AuthService directly from the
+network I/O thread (same place PlayerDirectory handling still runs),
+meaning every register/login's real Argon2id hashing and real SQLite
+disk I/O stalled every other connected client's reads/writes for as long
+as that one call took. AuthWorker (KungFuChessServer/Application) now
+runs that work on its own dedicated thread instead - see its header for
+the full story, including shutdown semantics.
