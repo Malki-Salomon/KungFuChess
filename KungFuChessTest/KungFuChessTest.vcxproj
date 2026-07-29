@@ -81,7 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -98,7 +98,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -167,6 +167,7 @@
     <ClCompile Include="RoomMessagesTests.cpp" />
     <ClCompile Include="PendingDisconnectTrackerTests.cpp" />
     <ClCompile Include="DisconnectMessagesTests.cpp" />
+    <ClCompile Include="LoggerTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppTest.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="RoomMessagesTests.h" />
     <ClInclude Include="PendingDisconnectTrackerTests.h" />
     <ClInclude Include="DisconnectMessagesTests.h" />
+    <ClInclude Include="LoggerTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
@@ -213,6 +215,9 @@
     </ProjectReference>
     <ProjectReference Include="..\KungFuChessProtocol\KungFuChessProtocol.vcxproj">
       <Project>{0aae5065-5faf-4507-9bae-50387db49d3b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\KungFuChessLogging\KungFuChessLogging.vcxproj">
+      <Project>{f3145515-c4f1-408d-be49-2041b9562505}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

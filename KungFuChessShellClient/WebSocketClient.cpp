@@ -1,10 +1,10 @@
 #include "WebSocketClient.h"
+#include "Logger.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 
-#include <iostream>
 #include <thread>
 
 namespace beast = boost::beast;
@@ -31,6 +31,7 @@ WebSocketClient::~WebSocketClient()
 
 bool WebSocketClient::connect(const std::string& host, unsigned short port)
 {
+    Logger::info("[WebSocketClient] connecting to " + host + ":" + std::to_string(port) + "...");
     try
     {
         tcp::resolver resolver(m_impl->ioContext);
@@ -40,11 +41,12 @@ bool WebSocketClient::connect(const std::string& host, unsigned short port)
         socket.connect(*endpoints.begin());
 
         m_impl->ws.handshake(host, "/");
+        Logger::info("[WebSocketClient] connected to " + host + ":" + std::to_string(port));
         return true;
     }
     catch (const std::exception& e)
     {
-        std::cerr << "[WebSocketClient] connect failed: " << e.what() << "\n";
+        Logger::error(std::string("[WebSocketClient] connect failed: ") + e.what());
         return false;
     }
 }
@@ -58,7 +60,7 @@ void WebSocketClient::send(const std::string& text)
     }
     catch (const std::exception& e)
     {
-        std::cerr << "[WebSocketClient] send failed: " << e.what() << "\n";
+        Logger::error(std::string("[WebSocketClient] send failed: ") + e.what());
     }
 }
 
@@ -72,7 +74,7 @@ std::string WebSocketClient::receiveOne()
     }
     catch (const std::exception& e)
     {
-        std::cerr << "[WebSocketClient] receiveOne failed: " << e.what() << "\n";
+        Logger::error(std::string("[WebSocketClient] receiveOne failed: ") + e.what());
         return std::string();
     }
 }

@@ -16,11 +16,11 @@
 #include "AssignedMessage.h"
 #include "OpponentDisconnectedMessage.h"
 #include "OpponentReconnectedMessage.h"
+#include "Logger.h"
 
 #include <atomic>
 #include <chrono>
 #include <csignal>
-#include <iostream>
 #include <string>
 
 namespace
@@ -73,7 +73,7 @@ Server::Server()
     // already logs the raw handshake to stdout.
     m_webSocketServer.setConnectHandler([](SessionId id)
     {
-        std::cout << "[Server] connection " << id << " established (not yet authenticated)\n";
+        Logger::info("[Server] connection " + std::to_string(id) + " established (not yet authenticated)");
     });
 
     // Network thread -> for a register/login message, do the absolute
@@ -132,10 +132,13 @@ Server::Server()
                     std::chrono::steady_clock::now() + std::chrono::seconds(kReconnectGraceSeconds));
                 room->removeMember(id);
                 m_webSocketServer.sendToMany(room->members(), OpponentDisconnectedMessage::build(kReconnectGraceSeconds));
+                Logger::info("[Server] player \"" + username + "\" disconnected mid-game in room " + room->id()
+                    + " - " + std::to_string(kReconnectGraceSeconds) + "s to reconnect before resignation");
                 return;
             }
         }
 
+        Logger::info("[Server] connection " + std::to_string(id) + " disconnected");
         leaveCurrentRoom(id);
         m_playerDirectory.release(id);
     });
@@ -173,6 +176,7 @@ void Server::run()
             {
                 std::string code = m_roomManager.createRoom();
                 m_webSocketServer.sendTo(inbound.sender, RoomCreatedMessage::build(code));
+                Logger::info("[Server] room " + code + " created by connection " + std::to_string(inbound.sender));
                 continue;
             }
 
@@ -216,6 +220,7 @@ void Server::run()
                     m_webSocketServer.sendTo(inbound.sender, AssignedMessage::build(SeatColorNaming::colorName(reclaimedColor)));
 
                     m_webSocketServer.sendTo(inbound.sender, SnapshotBroadcaster::buildBoardMessage(room->session().getSnapshot()));
+                    Logger::info("[Server] \"" + username + "\" reconnected to room " + joinCode);
                     continue;
                 }
 
@@ -235,6 +240,7 @@ void Server::run()
                 // blank/frozen board until the next unrelated move in
                 // this room happens to broadcast one.
                 m_webSocketServer.sendTo(inbound.sender, SnapshotBroadcaster::buildBoardMessage(room->session().getSnapshot()));
+                Logger::info("[Server] connection " + std::to_string(inbound.sender) + " joined room " + joinCode + " as " + role);
                 continue;
             }
 
@@ -311,6 +317,8 @@ void Server::run()
                     PieceColor loserColor = SeatColorNaming::colorForSeat(pending.seat);
                     PieceColor winnerColor = (loserColor == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 
+                    Logger::info("[Server] room " + room->id() + ": \"" + pending.username
+                        + "\" did not reconnect in time - resigning, opponent wins");
                     room->gameEndCoordinator().forceResign(winnerColor);
                     room->clearPendingDisconnect();
 

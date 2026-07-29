@@ -1,6 +1,7 @@
 #include "AuthWorker.h"
 
 #include "AuthResultMessage.h"
+#include "Logger.h"
 
 AuthWorker::AuthWorker(AuthService& authService, WebSocketServer& webSocketServer, PlayerDirectory& playerDirectory)
     : m_authService(authService)
@@ -54,6 +55,12 @@ void AuthWorker::run()
             : m_authService.login(request.username, request.password);
 
         m_webSocketServer.sendTo(request.sender, AuthResultMessage::build(result.success, result.message, result.rating));
+
+        const char* verb = request.type == AuthRequestType::Register ? "register" : "login";
+        if (result.success)
+            Logger::info(std::string("[AuthWorker] ") + verb + " succeeded for \"" + request.username + "\"");
+        else
+            Logger::warn(std::string("[AuthWorker] ") + verb + " failed for \"" + request.username + "\": " + result.message);
 
         if (request.type == AuthRequestType::Login && result.success)
             m_playerDirectory.set(request.sender, request.username);

@@ -1,4 +1,5 @@
 #include "WebSocketServer.h"
+#include "Logger.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
@@ -7,7 +8,6 @@
 #include <algorithm>
 #include <atomic>
 #include <deque>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -53,10 +53,10 @@ namespace
                 {
                     if (ec)
                     {
-                        std::cerr << "[WebSocketServer] handshake failed: " << ec.message() << "\n";
+                        Logger::warn("[WebSocketServer] handshake failed: " + ec.message());
                         return;
                     }
-                    std::cout << "[WebSocketServer] client connected (session " << self->m_id << ")\n";
+                    Logger::info("[WebSocketServer] client connected (session " + std::to_string(self->m_id) + ")");
 
                     if (self->m_onConnected)
                         self->m_onConnected();
@@ -97,7 +97,7 @@ namespace
                 {
                     if (ec)
                     {
-                        std::cout << "[WebSocketServer] client disconnected (session " << self->m_id << ")\n";
+                        Logger::info("[WebSocketServer] client disconnected (session " + std::to_string(self->m_id) + ")");
                         if (self->m_onDisconnected)
                             self->m_onDisconnected();
                         return;
@@ -106,7 +106,7 @@ namespace
                     std::string text = beast::buffers_to_string(self->m_buffer.data());
                     self->m_buffer.consume(bytesRead);
 
-                    std::cout << "[WebSocketServer] received: " << text << "\n";
+                    Logger::info("[WebSocketServer] received: " + text);
 
                     if (self->m_messageHandler)
                         self->m_messageHandler(self->m_id, text);
@@ -124,7 +124,7 @@ namespace
                 {
                     if (ec)
                     {
-                        std::cerr << "[WebSocketServer] write failed: " << ec.message() << "\n";
+                        Logger::error("[WebSocketServer] write failed: " + ec.message());
                         return;
                     }
                     self->m_writeQueue.pop_front();
@@ -200,15 +200,15 @@ namespace
             beast::error_code ec;
 
             m_acceptor.open(endpoint.protocol(), ec);
-            if (ec) { std::cerr << "[WebSocketServer] open failed: " << ec.message() << "\n"; return; }
+            if (ec) { Logger::error("[WebSocketServer] open failed: " + ec.message()); return; }
 
             m_acceptor.set_option(asio::socket_base::reuse_address(true), ec);
 
             m_acceptor.bind(endpoint, ec);
-            if (ec) { std::cerr << "[WebSocketServer] bind failed: " << ec.message() << "\n"; return; }
+            if (ec) { Logger::error("[WebSocketServer] bind failed: " + ec.message()); return; }
 
             m_acceptor.listen(asio::socket_base::max_listen_connections, ec);
-            if (ec) { std::cerr << "[WebSocketServer] listen failed: " << ec.message() << "\n"; return; }
+            if (ec) { Logger::error("[WebSocketServer] listen failed: " + ec.message()); return; }
         }
 
         void run()
@@ -305,7 +305,7 @@ void WebSocketServer::start()
         m_impl->ioContext.run();
     });
 
-    std::cout << "[WebSocketServer] listening on port " << m_port << "\n";
+    Logger::info("[WebSocketServer] listening on port " + std::to_string(m_port));
 }
 
 void WebSocketServer::stop()

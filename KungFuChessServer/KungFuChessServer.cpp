@@ -3,19 +3,23 @@
 
 #include "Application/Server.h"
 #include "PasswordHasher.h"
+#include "Logger.h"
 
 #include <cstdlib>
-#include <iostream>
 
 int main()
 {
+    // Absolute first thing - so any failure in anything below (including
+    // PasswordHasher::init() itself) is still captured in server.log.
+    Logger::init("server.log");
+
     // Must happen before any AuthService register/login call, which is
     // the only thing that actually invokes PasswordHasher::hash()/verify()
     // - doing it here, before Server (and therefore the network listener)
     // even exists, guarantees that ordering.
     if (!PasswordHasher::init())
     {
-        std::cerr << "Failed to initialize libsodium - cannot continue.\n";
+        Logger::error("Failed to initialize libsodium - cannot continue.");
         return EXIT_FAILURE;
     }
 
@@ -26,7 +30,7 @@ int main()
     }
     catch (const std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        Logger::error(std::string("Unhandled exception: ") + e.what());
         return EXIT_FAILURE;
     }
 

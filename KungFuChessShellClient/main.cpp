@@ -10,6 +10,8 @@
 #include "RoomCreatedMessage.h"
 #include "RoomJoinedMessage.h"
 #include "RoomJoinFailedMessage.h"
+#include "GameOverMessage.h"
+#include "Logger.h"
 
 #include <iostream>
 #include <mutex>
@@ -51,6 +53,7 @@ namespace
             if (raw.empty())
             {
                 std::cerr << "Connection closed while waiting for a reply from the server.\n";
+                Logger::error("[Client] connection closed while waiting for an authResult reply");
                 return false;
             }
 
@@ -61,9 +64,15 @@ namespace
                 continue;
 
             if (success)
+            {
                 std::cout << "Success. Rating: " << rating << "\n";
+                Logger::info("[Client] auth succeeded, rating " + std::to_string(rating));
+            }
             else
+            {
                 std::cout << "Failed: " << message << "\n";
+                Logger::warn("[Client] auth failed: " + message);
+            }
 
             return success;
         }
@@ -79,11 +88,15 @@ namespace
             if (raw.empty())
             {
                 std::cerr << "Connection closed while waiting for a reply from the server.\n";
+                Logger::error("[Client] connection closed while waiting for a roomCreated reply");
                 return false;
             }
 
             if (RoomCreatedMessage::parse(raw, outCode))
+            {
+                Logger::info("[Client] room " + outCode + " created");
                 return true;
+            }
         }
     }
 
@@ -97,17 +110,22 @@ namespace
             if (raw.empty())
             {
                 std::cerr << "Connection closed while waiting for a reply from the server.\n";
+                Logger::error("[Client] connection closed while waiting for a roomJoined reply");
                 return false;
             }
 
             std::string code;
             if (RoomJoinedMessage::parse(raw, code, outRole))
+            {
+                Logger::info("[Client] joined room " + code + " as " + outRole);
                 return true;
+            }
 
             std::string reason;
             if (RoomJoinFailedMessage::parse(raw, reason))
             {
                 std::cerr << "Failed to join room: " << reason << "\n";
+                Logger::warn("[Client] failed to join room: " + reason);
                 return false;
             }
         }
@@ -116,6 +134,8 @@ namespace
 
 int main()
 {
+    Logger::init("client.log");
+
     std::cout << "Register a new account or log in to an existing one? [r/l]: ";
     std::string choice;
     std::getline(std::cin, choice);
@@ -133,6 +153,7 @@ int main()
     if (!client.connect("localhost", kServerPort))
     {
         std::cerr << "Could not connect to the server. Is KungFuChessServer.exe running?\n";
+        // WebSocketClient::connect() already logged the specific failure.
         return 1;
     }
 
@@ -200,11 +221,28 @@ int main()
         std::vector<std::vector<std::string>> rows;
         if (BoardMessage::parse(text, rows))
         {
+            // Deliberately not logged - board updates arrive frequently
+            // during an active game, and logging every one would make
+            // the log file noisy without adding real debugging value.
             printBoard(rows);
+            return;
         }
-        // Non-board messages (e.g. "assigned" or "gameOver") are silently
-        // ignored here for now - this client only understands board
-        // updates at this stage.
+
+        std::string result;
+        bool hasRatings = false;
+        int whiteNewRating = 0;
+        int blackNewRating = 0;
+        if (GameOverMessage::parse(text, result, hasRatings, whiteNewRating, blackNewRating))
+        {
+            Logger::info("[Client] game over: " + result + " wins" +
+                (hasRatings
+                    ? (" (white -> " + std::to_string(whiteNewRating) + ", black -> " + std::to_string(blackNewRating) + ")")
+                    : std::string(" (no rating update)")));
+            return;
+        }
+
+        // Anything else (e.g. "assigned") is silently ignored here for
+        // now - this client only acts on board updates and game-over.
     });
 
     std::cout << "Logged in as \"" << username << "\".\n";

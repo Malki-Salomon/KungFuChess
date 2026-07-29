@@ -81,7 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;..\KungFuChessLogging;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -98,7 +98,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;..\KungFuChessLogging;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;..\KungFuChessLogging;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessCore;..\KungFuChessProtocol;..\KungFuChessAccounts;..\KungFuChessSessionState;..\KungFuChessLogging;Application;Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -188,6 +188,11 @@
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessSessionState\KungFuChessSessionState.vcxproj">
       <Project>{cfdc080d-ff50-49bd-998d-47f4c5965851}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KungFuChessLogging\KungFuChessLogging.vcxproj">
+      <Project>{f3145515-c4f1-408d-be49-2041b9562505}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

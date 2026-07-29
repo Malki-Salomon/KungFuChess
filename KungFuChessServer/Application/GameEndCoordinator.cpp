@@ -6,6 +6,7 @@
 #include "MatchResultService.h"
 #include "../Network/WebSocketServer.h"
 #include "GameOverMessage.h"
+#include "Logger.h"
 
 namespace
 {
@@ -94,4 +95,15 @@ void GameEndCoordinator::finishGame(const std::string& resultName, MatchOutcome 
     }
 
     m_webSocketServer.sendToMany(m_roomMembers, GameOverMessage::build(resultName, haveRatings, whiteNewRating, blackNewRating));
+
+    if (haveRatings)
+    {
+        Logger::info("[GameEndCoordinator] game over: " + resultName + " wins - "
+            + whiteUsername + " -> " + std::to_string(whiteNewRating) + ", "
+            + blackUsername + " -> " + std::to_string(blackNewRating));
+    }
+    else
+    {
+        Logger::info("[GameEndCoordinator] game over: " + resultName + " wins (no rating update - not both players identified)");
+    }
 }
