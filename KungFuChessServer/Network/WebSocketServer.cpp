@@ -19,32 +19,6 @@ using tcp = asio::ip::tcp;
 
 namespace
 {
-    // Remembers the most recent broadcast text so a connection that logs
-    // in *after* a broadcast already happened (the common case - the
-    // initial board is broadcast once, immediately, likely before anyone
-    // is even connected yet) can still be caught up right at login,
-    // instead of only seeing whatever changes happen after. Read back via
-    // WebSocketServer::getLastSnapshot() - see AuthWorker, the one caller.
-    class LastSnapshotStore
-    {
-    public:
-        void set(const std::string& text)
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            m_text = text;
-        }
-
-        std::string get()
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            return m_text;
-        }
-
-    private:
-        std::mutex m_mutex;
-        std::string m_text;
-    };
-
     // One accepted connection. Does the WS handshake, then reads text
     // messages (handed to WebSocketServer's MessageHandler, tagged with
     // this session's id) and can be told to send text out (queued so only
@@ -52,15 +26,14 @@ namespace
     //
     // The whole io_context this runs on has concurrency hint 1 and only
     // ever one thread calls run() on it (see WebSocketServer::start()), so
-    // every handler below - reads, writes, and posted broadcasts/sendTo
+    // every handler below - reads, writes, and posted sendTo/sendToMany
     // alike - executes serially on that single thread. No additional
     // locking is needed inside Session itself for that reason.
     //
-    // Deliberately does NOT catch a freshly-connected client up on the
-    // last broadcast anymore - a connection gets nothing at all until it
-    // logs in (see WebSocketServer::setAuthenticationCheck()); the catch-up
-    // now happens explicitly, from AuthWorker, at the moment login
-    // succeeds (via WebSocketServer::getLastSnapshot() + sendTo()).
+    // Deliberately does NOT catch a freshly-connected client up on
+    // anything - a connection gets nothing at all until it logs in AND
+    // joins a room; that catch-up happens explicitly, scoped to one room,
+    // from Server's joinRoom handling (see Server.cpp).
     class Session : public std::enable_shared_from_this<Session>
     {
     public:
@@ -93,8 +66,8 @@ namespace
         }
 
         // Queues text for sending; safe to call from the I/O thread only
-        // (WebSocketServer::broadcast()/sendTo() get onto this thread via
-        // asio::post before calling this).
+        // (WebSocketServer::sendTo() gets onto this thread via asio::post
+        // before calling this).
         void enqueueSend(const std::string& text)
         {
             bool writeInProgress = !m_writeQueue.empty();
@@ -169,10 +142,9 @@ namespace
         std::deque<std::string> m_writeQueue;
     };
 
-    // Tracks currently-connected sessions so broadcast()/sendTo() have
-    // something to send to. Guarded by a mutex because broadcast()/sendTo()
-    // are called from the game thread while accept/disconnect run on the
-    // I/O thread.
+    // Tracks currently-connected sessions so sendTo()/sendToMany() have
+    // something to send to. Guarded by a mutex because they are called
+    // from the game thread while accept/disconnect run on the I/O thread.
     class SessionRegistry
     {
     public:
@@ -189,18 +161,6 @@ namespace
                 std::remove_if(m_sessions.begin(), m_sessions.end(),
                     [&](const std::weak_ptr<Session>& weak) { return weak.lock() == session; }),
                 m_sessions.end());
-        }
-
-        std::vector<std::shared_ptr<Session>> snapshot()
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            std::vector<std::shared_ptr<Session>> alive;
-            for (const auto& weak : m_sessions)
-            {
-                if (auto locked = weak.lock())
-                    alive.push_back(locked);
-            }
-            return alive;
         }
 
         std::shared_ptr<Session> find(SessionId id)
@@ -302,11 +262,9 @@ struct WebSocketServer::Impl
 {
     asio::io_context ioContext{ 1 };
     SessionRegistry registry;
-    LastSnapshotStore lastSnapshot;
     ConnectHandler connectHandler;
     MessageHandler messageHandler;
     DisconnectHandler disconnectHandler;
-    AuthenticationCheck authenticationCheck;
 };
 
 WebSocketServer::WebSocketServer(unsigned short port)
@@ -335,11 +293,6 @@ void WebSocketServer::setDisconnectHandler(DisconnectHandler handler)
     m_impl->disconnectHandler = std::move(handler);
 }
 
-void WebSocketServer::setAuthenticationCheck(AuthenticationCheck check)
-{
-    m_impl->authenticationCheck = std::move(check);
-}
-
 void WebSocketServer::start()
 {
     auto endpoint = tcp::endpoint(asio::ip::make_address("0.0.0.0"), m_port);
@@ -365,28 +318,6 @@ void WebSocketServer::stop()
         m_ioThread.join();
 }
 
-void WebSocketServer::broadcast(const std::string& text)
-{
-    // Remember it regardless of whether anyone is connected right now, so
-    // a connection that logs in later can be caught up immediately (see
-    // AuthWorker, which reads it back via getLastSnapshot()).
-    m_impl->lastSnapshot.set(text);
-
-    // Called from the game thread - marshal onto the I/O thread before
-    // touching any Session, since Session::enqueueSend() assumes it's only
-    // ever called there.
-    asio::post(m_impl->ioContext, [this, text]
-    {
-        for (const auto& session : m_impl->registry.snapshot())
-        {
-            if (m_impl->authenticationCheck && !m_impl->authenticationCheck(session->id()))
-                continue; // not logged in - as far as broadcasts go, this connection doesn't exist yet
-
-            session->enqueueSend(text);
-        }
-    });
-}
-
 void WebSocketServer::sendTo(SessionId id, const std::string& text)
 {
     asio::post(m_impl->ioContext, [this, id, text]
@@ -399,7 +330,10 @@ void WebSocketServer::sendTo(SessionId id, const std::string& text)
     });
 }
 
-std::string WebSocketServer::getLastSnapshot() const
+void WebSocketServer::sendToMany(const std::vector<SessionId>& ids, const std::string& text)
 {
-    return m_impl->lastSnapshot.get();
+    for (SessionId id : ids)
+    {
+        sendTo(id, text);
+    }
 }

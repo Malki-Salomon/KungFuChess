@@ -1,10 +1,19 @@
 #include "Server.h"
 
+#include "Room.h"
 #include "GameSession.h"
+#include "PlayerAssignment.h"
 #include "SeatColorNaming.h"
 #include "../Protocol/MoveTranslator.h"
+#include "../Protocol/SnapshotBroadcaster.h"
 #include "LoginMessage.h"
 #include "RegisterMessage.h"
+#include "CreateRoomMessage.h"
+#include "JoinRoomMessage.h"
+#include "RoomCreatedMessage.h"
+#include "RoomJoinedMessage.h"
+#include "RoomJoinFailedMessage.h"
+#include "AssignedMessage.h"
 
 #include <atomic>
 #include <chrono>
@@ -38,35 +47,22 @@ namespace
 
 Server::Server()
     : m_webSocketServer(kListenPort)
-    , m_snapshotBroadcaster(m_webSocketServer)
     , m_userRepository(kUserDbPath)
     , m_authService(m_userRepository)
-    , m_authWorker(m_authService, m_webSocketServer, m_playerDirectory, m_playerAssignment)
+    , m_authWorker(m_authService, m_webSocketServer, m_playerDirectory)
     , m_matchResultService(m_userRepository)
-    , m_gameEndCoordinator(*m_sessionManager.getPrimarySession(), m_playerAssignment, m_playerDirectory, m_matchResultService, m_webSocketServer)
+    , m_roomManager(m_playerDirectory, m_matchResultService, m_webSocketServer)
     , m_running(true)
 {
     // Ctrl+C (or an equivalent SIGINT) is the only way this process ever
     // stops today - see run()'s loop condition and its closing comment.
     std::signal(SIGINT, handleShutdownSignal);
 
-    // Strict rule: a connection that hasn't successfully logged in is, to
-    // the rest of the system, as if it doesn't exist. broadcast() is the
-    // one place that gets enforced centrally (see WebSocketServer.h) so
-    // every current and future broadcaster (SnapshotBroadcaster,
-    // GameEndCoordinator, ...) gets this correctly without having to
-    // remember to filter itself.
-    m_webSocketServer.setAuthenticationCheck([this](SessionId id)
-    {
-        return m_playerDirectory.isLoggedIn(id);
-    });
-
-    // No seat assignment or messages here anymore - a connection is
-    // "nobody" until it logs in (AuthWorker does the seat assignment +
-    // "assigned" message + board catch-up, all three, at that point -
-    // see AuthWorker.cpp). Kept as a no-op hook only for connect-time
-    // visibility; WebSocketServer's own Session::run() already logs the
-    // raw handshake to stdout.
+    // No seat/room assignment here - a connection is "nobody" until it
+    // logs in AND joins a room (see the message handler below and
+    // run()'s createRoom/joinRoom handling). Kept as a no-op hook only
+    // for connect-time visibility; WebSocketServer's own Session::run()
+    // already logs the raw handshake to stdout.
     m_webSocketServer.setConnectHandler([](SessionId id)
     {
         std::cout << "[Server] connection " << id << " established (not yet authenticated)\n";
@@ -76,18 +72,15 @@ Server::Server()
     // minimum here (recognize the type, parse the fields, hand off) and
     // return immediately. The actual work - AuthService, meaning real
     // Argon2id hashing (stage 4c) and real SQLite disk I/O (stage 4b) -
-    // happens on AuthWorker's own dedicated thread, not here. Before
-    // stage 4d, this ran AuthService synchronously right in this
-    // callback, which stalled every other connected client's reads/
-    // writes for as long as one hash/disk call took - see
-    // KungFuChessAccounts/README.md and AuthWorker.h for the full story.
-    // AuthWorker does everything a successful login triggers itself (see
-    // its own comment), so none of that happens here either.
+    // happens on AuthWorker's own dedicated thread, not here.
+    // AuthWorker sends the authResult itself and populates PlayerDirectory
+    // on a successful login, so neither happens here either.
     // Anything else - if the sender isn't logged in yet - is ignored
-    // outright: not queued, not processed, not even reaching the
-    // ownership check in run() below. This is the crux of "gets nothing
-    // until login": only a logged-in sender's non-auth messages ever
-    // reach CommandInbox.
+    // outright: not queued, not processed. This is the crux of "gets
+    // nothing until login": only a logged-in sender's non-auth messages
+    // (createRoom/joinRoom/move alike) ever reach CommandInbox, to be
+    // routed by run() on the game thread - creating/joining/touching a
+    // Room must only ever happen there, same existing rule as moves.
     m_webSocketServer.setMessageHandler([this](SessionId id, const std::string& text)
     {
         std::string regUsername, regPassword;
@@ -110,20 +103,24 @@ Server::Server()
         m_commandInbox.push(id, text);
     });
 
-    // Free the seat so a later connection can take it.
+    // Minimal hygiene only (not the reconnect/countdown feature, which is
+    // separate, later work): free this connection's seat and membership
+    // in whatever room it was in, so nothing leaks or goes stale.
     m_webSocketServer.setDisconnectHandler([this](SessionId id)
     {
-        m_playerAssignment.release(id);
+        leaveCurrentRoom(id);
         m_playerDirectory.release(id);
     });
+}
 
-    // POC: every connected client's messages go to the one session that
-    // exists today, and that session's board changes get broadcast back to
-    // every connected client. Revisit once sessions map to connections.
-    if (GameSession* primary = m_sessionManager.getPrimarySession())
+void Server::leaveCurrentRoom(SessionId id)
+{
+    if (Room* room = m_roomManager.roomForSession(id))
     {
-        primary->attachPrinter(&m_snapshotBroadcaster);
+        room->removeMember(id);
+        room->playerAssignment().release(id);
     }
+    m_roomManager.clearSessionRoom(id);
 }
 
 void Server::run()
@@ -142,55 +139,121 @@ void Server::run()
         auto currentTime = std::chrono::steady_clock::now();
         auto deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - prevTime).count();
 
-        if (GameSession* primary = m_sessionManager.getPrimarySession())
+        for (const auto& inbound : m_commandInbox.drainAll())
         {
-            for (const auto& inbound : m_commandInbox.drainAll())
+            if (CreateRoomMessage::parse(inbound.text))
             {
-                ParsedMove move = MoveTranslator::parseMove(inbound.text);
-                if (!move.valid)
-                    continue;
-
-                // No turns in this game (real-time "kung fu chess"), but a
-                // connection may only ever move pieces of its own assigned
-                // color. Spectators can't move anything. Queried straight
-                // from Core (via GameSession) rather than from a cache -
-                // SnapshotBroadcaster's job is only to broadcast, not to
-                // answer questions about board state.
-                //
-                // Direct indexing is safe here without a bounds check:
-                // MoveNotation::squareToPosition only ever produces 0..7 for
-                // a valid square (file a-h, rank 1-8), and move.valid is
-                // already checked above - it's the earlier guard that
-                // guarantees this invariant, not anything about the
-                // snapshot itself.
-                PieceColor senderColor = SeatColorNaming::colorForSeat(m_playerAssignment.seatOf(inbound.sender));
-                GameSnapshot snapshot = primary->getSnapshot();
-                PieceColor pieceColorAtFrom = snapshot.cells[move.fromRow][move.fromCol].color;
-
-                if (senderColor == PieceColor::None || senderColor != pieceColorAtFrom)
-                    continue; // silently ignored, same as Core's own illegal-move handling
-
-                for (const auto& coreCmd : MoveTranslator::toClickCommands(move))
-                {
-                    primary->dispatchCommand(coreCmd);
-                }
+                std::string code = m_roomManager.createRoom();
+                m_webSocketServer.sendTo(inbound.sender, RoomCreatedMessage::build(code));
+                continue;
             }
 
-            if (deltaMs > 0)
+            std::string joinCode;
+            if (JoinRoomMessage::parse(inbound.text, joinCode))
             {
-                primary->dispatchCommand("wait " + std::to_string(deltaMs));
-                // Only advance the baseline by what we actually reported -
-                // this loop runs with no sleep, so most individual passes
-                // take far under 1ms. Resetting prevTime every iteration
-                // (the previous bug) discarded almost all elapsed time
-                // instead of letting those sub-millisecond gaps accumulate
-                // into real "wait" ticks.
-                prevTime = currentTime;
+                Room* room = m_roomManager.findRoom(joinCode);
+                if (!room)
+                {
+                    m_webSocketServer.sendTo(inbound.sender, RoomJoinFailedMessage::build("room not found"));
+                    continue;
+                }
+
+                // A connection switching rooms must not leave stale
+                // membership behind in whatever room it was in before -
+                // same "minimal hygiene" reasoning as disconnect cleanup.
+                leaveCurrentRoom(inbound.sender);
+
+                Seat seat = room->playerAssignment().assign(inbound.sender);
+                room->addMember(inbound.sender);
+                m_roomManager.setSessionRoom(inbound.sender, joinCode);
+
+                std::string role = (seat == Seat::Spectator) ? "spectator" : "player";
+                m_webSocketServer.sendTo(inbound.sender, RoomJoinedMessage::build(joinCode, role));
+
+                PieceColor color = SeatColorNaming::colorForSeat(seat);
+                m_webSocketServer.sendTo(inbound.sender, AssignedMessage::build(SeatColorNaming::colorName(color)));
+
+                // Immediate catch-up on this room's current board - this
+                // connection received nothing before now (see the strict
+                // login-gating stage), so without this it would see a
+                // blank/frozen board until the next unrelated move in
+                // this room happens to broadcast one.
+                m_webSocketServer.sendTo(inbound.sender, SnapshotBroadcaster::buildBoardMessage(room->session().getSnapshot()));
+                continue;
+            }
+
+            // Not a room-management message - try it as a move, routed
+            // to the sender's current room (if any). A sender with no
+            // room is a no-op, same as an unassigned/spectator sender
+            // always was.
+            Room* room = m_roomManager.roomForSession(inbound.sender);
+            if (!room)
+                continue;
+
+            // A room isn't playable until it actually has two players -
+            // the sole occupant of a fresh room has no opponent yet, so
+            // moves are a no-op (same silent-ignore pattern as every
+            // other rejected-move case below) until a second player
+            // joins. Doesn't affect this room's wait/tick dispatch below
+            // - RealTimeArbiter is harmless to keep ticking with nothing
+            // queued while waiting for that second player.
+            if (!room->playerAssignment().bothSeatsFilled())
+                continue;
+
+            ParsedMove move = MoveTranslator::parseMove(inbound.text);
+            if (!move.valid)
+                continue;
+
+            // No turns in this game (real-time "kung fu chess"), but a
+            // connection may only ever move pieces of its own assigned
+            // color, within its own room. Spectators can't move
+            // anything. Queried straight from Core (via GameSession)
+            // rather than from a cache - SnapshotBroadcaster's job is
+            // only to broadcast, not to answer questions about board
+            // state.
+            //
+            // Direct indexing is safe here without a bounds check:
+            // MoveNotation::squareToPosition only ever produces 0..7 for
+            // a valid square (file a-h, rank 1-8), and move.valid is
+            // already checked above - it's the earlier guard that
+            // guarantees this invariant, not anything about the
+            // snapshot itself.
+            PieceColor senderColor = SeatColorNaming::colorForSeat(room->playerAssignment().seatOf(inbound.sender));
+            GameSnapshot snapshot = room->session().getSnapshot();
+            PieceColor pieceColorAtFrom = snapshot.cells[move.fromRow][move.fromCol].color;
+
+            if (senderColor == PieceColor::None || senderColor != pieceColorAtFrom)
+                continue; // silently ignored, same as Core's own illegal-move handling
+
+            for (const auto& coreCmd : MoveTranslator::toClickCommands(move))
+            {
+                room->session().dispatchCommand(coreCmd);
             }
         }
 
-        m_sessionManager.tickAllSessions();
-        m_gameEndCoordinator.checkAndHandle();
+        // Every active room gets its own real-time tick and its own
+        // game-end check - replaces the single "primary session" this
+        // loop used to operate on before rooms existed.
+        for (const auto& room : m_roomManager.allRooms())
+        {
+            if (deltaMs > 0)
+            {
+                room->session().dispatchCommand("wait " + std::to_string(deltaMs));
+            }
+            room->session().tick();
+            room->gameEndCoordinator().checkAndHandle();
+        }
+
+        if (deltaMs > 0)
+        {
+            // Only advance the baseline by what we actually reported -
+            // this loop runs with no sleep, so most individual passes
+            // take far under 1ms. Resetting prevTime every iteration
+            // (the previous bug) discarded almost all elapsed time
+            // instead of letting those sub-millisecond gaps accumulate
+            // into real "wait" ticks.
+            prevTime = currentTime;
+        }
     }
 
     // Shutdown requested. Deliberately does NOT call m_webSocketServer.

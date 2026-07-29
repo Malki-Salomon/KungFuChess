@@ -30,9 +30,6 @@
     <ClCompile Include="Application\Server.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Application\SessionManager.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
     <ClCompile Include="Application\GameSession.cpp">
       <Filter>Application</Filter>
     </ClCompile>
@@ -46,6 +43,12 @@
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="Application\GameEndCoordinator.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Room.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\RoomManager.cpp">
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="Network\WebSocketServer.cpp">
@@ -65,9 +68,6 @@
     <ClInclude Include="Application\Server.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="Application\SessionManager.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="Application\GameSession.h">
       <Filter>Application</Filter>
     </ClInclude>
@@ -81,6 +81,12 @@
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Application\GameEndCoordinator.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Room.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\RoomManager.h">
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Network\WebSocketServer.h">

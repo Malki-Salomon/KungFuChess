@@ -67,3 +67,10 @@ SessionId PlayerAssignment::sessionIdForSeat(Seat seat) const
         default:           return kInvalidSessionId;
     }
 }
+
+bool PlayerAssignment::bothSeatsFilled() const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    return m_first.has_value() && m_second.has_value();
+}

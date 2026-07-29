@@ -163,6 +163,8 @@
     <ClCompile Include="PlayerAssignmentTests.cpp" />
     <ClCompile Include="PlayerDirectoryTests.cpp" />
     <ClCompile Include="AssignedMessageTests.cpp" />
+    <ClCompile Include="RoomRegistryTests.cpp" />
+    <ClCompile Include="RoomMessagesTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppTest.h" />
@@ -189,6 +191,8 @@
     <ClInclude Include="PlayerAssignmentTests.h" />
     <ClInclude Include="PlayerDirectoryTests.h" />
     <ClInclude Include="AssignedMessageTests.h" />
+    <ClInclude Include="RoomRegistryTests.h" />
+    <ClInclude Include="RoomMessagesTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">

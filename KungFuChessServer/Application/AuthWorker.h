@@ -1,7 +1,6 @@
 #pragma once
 
 #include "PlayerDirectory.h"
-#include "PlayerAssignment.h"
 #include "AuthService.h"
 #include "../Network/SessionId.h"
 #include "../Network/WebSocketServer.h"
@@ -45,20 +44,18 @@ struct AuthRequest
 // already no-ops safely if they've since disconnected, so this is never
 // unsafe, just occasionally slightly slower to shut down.
 //
-// On a successful LOGIN specifically (register alone still grants
-// nothing - see the "strict: nothing happens until login" rule this
-// implements), this is also the one place that closes the loop for a
-// newly-authenticated connection: populates PlayerDirectory, assigns its
-// seat and tells it via AssignedMessage, and sends it the current board
-// state via WebSocketServer::getLastSnapshot() - the explicit,
-// login-time replacement for the automatic connect-time catch-up that
-// used to live in WebSocketServer::Session::run() (removed - see
-// WebSocketServer.cpp - because it violated "gets nothing until login").
+// Deliberately does nothing beyond populating PlayerDirectory on a
+// successful login - seats/rooms are per-Room state now (see Room/
+// RoomManager), and a connection isn't in any room yet just by virtue of
+// having logged in. Room membership (seat assignment, the "assigned"
+// message, the board catch-up) happens later, when that connection sends
+// createRoom/joinRoom - routed through CommandInbox to the game thread
+// like moves are, since touching a Room must only ever happen there (see
+// Server.cpp).
 class AuthWorker
 {
 public:
-    AuthWorker(AuthService& authService, WebSocketServer& webSocketServer,
-               PlayerDirectory& playerDirectory, PlayerAssignment& playerAssignment);
+    AuthWorker(AuthService& authService, WebSocketServer& webSocketServer, PlayerDirectory& playerDirectory);
     ~AuthWorker();
 
     AuthWorker(const AuthWorker&) = delete;
@@ -73,7 +70,6 @@ private:
     AuthService& m_authService;
     WebSocketServer& m_webSocketServer;
     PlayerDirectory& m_playerDirectory;
-    PlayerAssignment& m_playerAssignment;
 
     std::mutex m_mutex;
     std::condition_variable m_cv;

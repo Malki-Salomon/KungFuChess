@@ -51,6 +51,13 @@ public:
     // answer) or for an empty First/Second seat.
     SessionId sessionIdForSeat(Seat seat) const;
 
+    // True only once both Seat::First and Seat::Second are held by
+    // someone. The one place a caller checks "does this room actually
+    // have two players yet" - e.g. Server.cpp gates move acceptance on
+    // this, since a solo occupant otherwise has no opponent to play
+    // against.
+    bool bothSeatsFilled() const;
+
 private:
     mutable std::mutex m_mutex;
     std::optional<SessionId> m_first;

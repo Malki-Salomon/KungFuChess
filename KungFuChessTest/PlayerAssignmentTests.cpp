@@ -65,4 +65,46 @@ TEST_SUITE("PlayerAssignment")
         CHECK(assignment.sessionIdForSeat(Seat::First) == first);
         CHECK(assignment.sessionIdForSeat(Seat::Second) == second); // untouched by the repeat assign()
     }
+
+    TEST_CASE("Two independent instances never affect each other - the per-room isolation Room relies on")
+    {
+        PlayerAssignment roomA;
+        PlayerAssignment roomB;
+        SessionId sessionInA = 11;
+        SessionId sessionInB = 22;
+
+        roomA.assign(sessionInA);
+
+        // A seat in roomA must not exist, in any form, in roomB - not as
+        // that same connection's seat, and not by shifting who holds
+        // roomB's First/Second seats.
+        CHECK(roomB.seatOf(sessionInA) == Seat::Spectator);
+        CHECK(roomB.sessionIdForSeat(Seat::First) == kInvalidSessionId);
+        CHECK(roomB.sessionIdForSeat(Seat::Second) == kInvalidSessionId);
+
+        roomB.assign(sessionInB);
+
+        CHECK(roomA.sessionIdForSeat(Seat::First) == sessionInA);
+        CHECK(roomA.sessionIdForSeat(Seat::Second) == kInvalidSessionId);
+        CHECK(roomB.sessionIdForSeat(Seat::First) == sessionInB);
+    }
+
+    TEST_CASE("bothSeatsFilled is false with zero or one seat assigned, true only once both are, false again after a release")
+    {
+        PlayerAssignment assignment;
+        SessionId first = 11;
+        SessionId second = 22;
+
+        CHECK_FALSE(assignment.bothSeatsFilled());
+
+        assignment.assign(first);
+        CHECK_FALSE(assignment.bothSeatsFilled());
+
+        assignment.assign(second);
+        CHECK(assignment.bothSeatsFilled());
+
+        // e.g. a disconnect releasing one seat.
+        assignment.release(first);
+        CHECK_FALSE(assignment.bothSeatsFilled());
+    }
 }

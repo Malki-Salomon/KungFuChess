@@ -38,12 +38,14 @@ GameEndCoordinator::GameEndCoordinator(GameSession& gameSession,
                                         PlayerAssignment& playerAssignment,
                                         PlayerDirectory& playerDirectory,
                                         MatchResultService& matchResultService,
-                                        WebSocketServer& webSocketServer)
+                                        WebSocketServer& webSocketServer,
+                                        const std::vector<SessionId>& roomMembers)
     : m_gameSession(gameSession)
     , m_playerAssignment(playerAssignment)
     , m_playerDirectory(playerDirectory)
     , m_matchResultService(matchResultService)
     , m_webSocketServer(webSocketServer)
+    , m_roomMembers(roomMembers)
 {
 }
 
@@ -75,5 +77,5 @@ void GameEndCoordinator::checkAndHandle()
         blackNewRating = result.blackNewRating;
     }
 
-    m_webSocketServer.broadcast(GameOverMessage::build(resultNameForStatus(status), haveRatings, whiteNewRating, blackNewRating));
+    m_webSocketServer.sendToMany(m_roomMembers, GameOverMessage::build(resultNameForStatus(status), haveRatings, whiteNewRating, blackNewRating));
 }

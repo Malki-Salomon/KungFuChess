@@ -142,12 +142,13 @@
   <ItemGroup>
     <ClCompile Include="KungFuChessServer.cpp" />
     <ClCompile Include="Application\Server.cpp" />
-    <ClCompile Include="Application\SessionManager.cpp" />
     <ClCompile Include="Application\GameSession.cpp" />
     <ClCompile Include="Application\GameFactory.cpp" />
     <ClCompile Include="Application\SeatColorNaming.cpp" />
     <ClCompile Include="Application\AuthWorker.cpp" />
     <ClCompile Include="Application\GameEndCoordinator.cpp" />
+    <ClCompile Include="Application\Room.cpp" />
+    <ClCompile Include="Application\RoomManager.cpp" />
     <ClCompile Include="Network\WebSocketServer.cpp" />
     <ClCompile Include="Protocol\SnapshotBroadcaster.cpp" />
     <ClCompile Include="Protocol\MoveTranslator.cpp" />
@@ -155,12 +156,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Server.h" />
-    <ClInclude Include="Application\SessionManager.h" />
     <ClInclude Include="Application\GameSession.h" />
     <ClInclude Include="Application\GameFactory.h" />
     <ClInclude Include="Application\SeatColorNaming.h" />
     <ClInclude Include="Application\AuthWorker.h" />
     <ClInclude Include="Application\GameEndCoordinator.h" />
+    <ClInclude Include="Application\Room.h" />
+    <ClInclude Include="Application\RoomManager.h" />
     <ClInclude Include="Network\WebSocketServer.h" />
     <ClInclude Include="Network\CommandInbox.h" />
     <ClInclude Include="Network\SessionId.h" />

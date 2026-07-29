@@ -6,12 +6,18 @@
 #include "GameSnapshot.h"
 #include "PieceRegistry.h"
 
-SnapshotBroadcaster::SnapshotBroadcaster(WebSocketServer& webSocketServer)
+SnapshotBroadcaster::SnapshotBroadcaster(WebSocketServer& webSocketServer, const std::vector<SessionId>& members)
     : m_webSocketServer(webSocketServer)
+    , m_members(members)
 {
 }
 
 void SnapshotBroadcaster::Convert(const GameSnapshot& snapshot)
+{
+    m_webSocketServer.sendToMany(m_members, buildBoardMessage(snapshot));
+}
+
+std::string SnapshotBroadcaster::buildBoardMessage(const GameSnapshot& snapshot)
 {
     // This function's only job is turning Core's snapshot into the plain
     // symbol-string grid BoardMessage's shape expects - the actual JSON
@@ -39,5 +45,5 @@ void SnapshotBroadcaster::Convert(const GameSnapshot& snapshot)
         }
     }
 
-    m_webSocketServer.broadcast(BoardMessage::build(cells));
+    return BoardMessage::build(cells);
 }

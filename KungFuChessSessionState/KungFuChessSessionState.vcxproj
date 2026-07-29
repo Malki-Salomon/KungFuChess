@@ -137,10 +137,12 @@
   <ItemGroup>
     <ClInclude Include="PlayerAssignment.h" />
     <ClInclude Include="PlayerDirectory.h" />
+    <ClInclude Include="RoomRegistry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PlayerAssignment.cpp" />
     <ClCompile Include="PlayerDirectory.cpp" />
+    <ClCompile Include="RoomRegistry.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
