@@ -52,3 +52,28 @@ const std::vector<SessionId>& Room::members() const
 {
     return m_members;
 }
+
+void Room::beginPendingDisconnect(Seat seat, const std::string& username, std::chrono::steady_clock::time_point deadline)
+{
+    m_pendingDisconnectTracker.begin(seat, username, deadline);
+}
+
+bool Room::hasPendingDisconnect() const
+{
+    return m_pendingDisconnectTracker.hasPending();
+}
+
+PendingDisconnect Room::pendingDisconnect() const
+{
+    return m_pendingDisconnectTracker.pending();
+}
+
+void Room::clearPendingDisconnect()
+{
+    m_pendingDisconnectTracker.clear();
+}
+
+std::optional<Seat> Room::tryReclaim(const std::string& username)
+{
+    return m_pendingDisconnectTracker.tryReclaim(username);
+}

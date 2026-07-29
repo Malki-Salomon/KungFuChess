@@ -58,6 +58,13 @@ public:
     // against.
     bool bothSeatsFilled() const;
 
+    // Directly places id into the given seat, bypassing the normal
+    // "first empty seat wins" logic in assign(). For restoring a
+    // reconnecting player to the exact seat they held before - NOT a
+    // general-purpose reassignment tool. Only valid for Seat::First/
+    // Seat::Second; a Seat::Spectator argument is a no-op.
+    void reoccupySeat(Seat seat, SessionId id);
+
 private:
     mutable std::mutex m_mutex;
     std::optional<SessionId> m_first;

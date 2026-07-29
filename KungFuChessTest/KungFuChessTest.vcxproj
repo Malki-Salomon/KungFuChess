@@ -165,6 +165,8 @@
     <ClCompile Include="AssignedMessageTests.cpp" />
     <ClCompile Include="RoomRegistryTests.cpp" />
     <ClCompile Include="RoomMessagesTests.cpp" />
+    <ClCompile Include="PendingDisconnectTrackerTests.cpp" />
+    <ClCompile Include="DisconnectMessagesTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppTest.h" />
@@ -193,6 +195,8 @@
     <ClInclude Include="AssignedMessageTests.h" />
     <ClInclude Include="RoomRegistryTests.h" />
     <ClInclude Include="RoomMessagesTests.h" />
+    <ClInclude Include="PendingDisconnectTrackerTests.h" />
+    <ClInclude Include="DisconnectMessagesTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">

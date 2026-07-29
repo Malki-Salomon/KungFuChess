@@ -107,4 +107,17 @@ TEST_SUITE("PlayerAssignment")
         assignment.release(first);
         CHECK_FALSE(assignment.bothSeatsFilled());
     }
+
+    TEST_CASE("reoccupySeat replaces whoever currently holds that seat - for restoring a reconnecting player")
+    {
+        PlayerAssignment assignment;
+        SessionId original = 11;
+        SessionId reconnected = 33;
+
+        assignment.assign(original);
+        assignment.reoccupySeat(Seat::First, reconnected);
+
+        CHECK(assignment.seatOf(original) == Seat::Spectator); // old id no longer holds any seat
+        CHECK(assignment.sessionIdForSeat(Seat::First) == reconnected);
+    }
 }

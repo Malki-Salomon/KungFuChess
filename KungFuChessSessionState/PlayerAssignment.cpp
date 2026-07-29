@@ -74,3 +74,23 @@ bool PlayerAssignment::bothSeatsFilled() const
 
     return m_first.has_value() && m_second.has_value();
 }
+
+void PlayerAssignment::reoccupySeat(Seat seat, SessionId id)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    // Whichever id previously held this seat (if any) no longer does.
+    if (seat == Seat::First && m_first.has_value())
+        m_assignments.erase(m_first.value());
+    else if (seat == Seat::Second && m_second.has_value())
+        m_assignments.erase(m_second.value());
+
+    if (seat == Seat::First)
+        m_first = id;
+    else if (seat == Seat::Second)
+        m_second = id;
+    else
+        return; // Seat::Spectator isn't a valid reoccupy target - no-op
+
+    m_assignments[id] = seat;
+}

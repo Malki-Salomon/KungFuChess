@@ -144,6 +144,8 @@
     <ClInclude Include="RoomCreatedMessage.h" />
     <ClInclude Include="RoomJoinedMessage.h" />
     <ClInclude Include="RoomJoinFailedMessage.h" />
+    <ClInclude Include="OpponentDisconnectedMessage.h" />
+    <ClInclude Include="OpponentReconnectedMessage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MiniJson.cpp" />
@@ -159,6 +161,8 @@
     <ClCompile Include="RoomCreatedMessage.cpp" />
     <ClCompile Include="RoomJoinedMessage.cpp" />
     <ClCompile Include="RoomJoinFailedMessage.cpp" />
+    <ClCompile Include="OpponentDisconnectedMessage.cpp" />
+    <ClCompile Include="OpponentReconnectedMessage.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

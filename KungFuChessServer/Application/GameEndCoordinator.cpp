@@ -59,7 +59,23 @@ void GameEndCoordinator::checkAndHandle()
         return;
 
     m_alreadyHandled = true;
+    finishGame(resultNameForStatus(status), outcomeForStatus(status));
+}
 
+void GameEndCoordinator::forceResign(PieceColor winner)
+{
+    if (m_alreadyHandled)
+        return;
+
+    m_alreadyHandled = true;
+
+    std::string resultName = winner == PieceColor::White ? "white" : "black";
+    MatchOutcome outcome = winner == PieceColor::White ? MatchOutcome::WhiteWon : MatchOutcome::BlackWon;
+    finishGame(resultName, outcome);
+}
+
+void GameEndCoordinator::finishGame(const std::string& resultName, MatchOutcome outcome)
+{
     SessionId whiteSession = m_playerAssignment.sessionIdForSeat(Seat::First);
     SessionId blackSession = m_playerAssignment.sessionIdForSeat(Seat::Second);
 
@@ -72,10 +88,10 @@ void GameEndCoordinator::checkAndHandle()
 
     if (haveRatings)
     {
-        MatchResult result = m_matchResultService.recordResult(whiteUsername, blackUsername, outcomeForStatus(status));
+        MatchResult result = m_matchResultService.recordResult(whiteUsername, blackUsername, outcome);
         whiteNewRating = result.whiteNewRating;
         blackNewRating = result.blackNewRating;
     }
 
-    m_webSocketServer.sendToMany(m_roomMembers, GameOverMessage::build(resultNameForStatus(status), haveRatings, whiteNewRating, blackNewRating));
+    m_webSocketServer.sendToMany(m_roomMembers, GameOverMessage::build(resultName, haveRatings, whiteNewRating, blackNewRating));
 }

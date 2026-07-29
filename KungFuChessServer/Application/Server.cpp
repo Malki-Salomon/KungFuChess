@@ -14,6 +14,8 @@
 #include "RoomJoinedMessage.h"
 #include "RoomJoinFailedMessage.h"
 #include "AssignedMessage.h"
+#include "OpponentDisconnectedMessage.h"
+#include "OpponentReconnectedMessage.h"
 
 #include <atomic>
 #include <chrono>
@@ -29,6 +31,12 @@ namespace
     // exists yet (see KungFuChessServer/Infrastructure/README.md), same
     // "placeholder constant" status as kListenPort above.
     constexpr const char* kUserDbPath = "kungfuchess.db";
+
+    // How long a disconnected player's seat is held in reserve before
+    // the room's other player wins by resignation. Shared by the
+    // deadline computed in the disconnect handler and the
+    // "secondsRemaining" told to the opponent, so the two can't drift.
+    constexpr int kReconnectGraceSeconds = 20;
 
     // Set by handleShutdownSignal() - a real OS signal handler, which per
     // the C++ standard may only touch a very restricted set of things
@@ -103,11 +111,31 @@ Server::Server()
         m_commandInbox.push(id, text);
     });
 
-    // Minimal hygiene only (not the reconnect/countdown feature, which is
-    // separate, later work): free this connection's seat and membership
-    // in whatever room it was in, so nothing leaks or goes stale.
+    // A disconnecting SPECTATOR, or a player whose room's game has
+    // already ended, gets today's immediate cleanup - nothing left to
+    // hold open for. A player-seat disconnect mid-game is different:
+    // their seat is held in reserve for a grace period instead of being
+    // released immediately, so a real network hiccup doesn't
+    // automatically forfeit the game - see beginPendingDisconnect(),
+    // the joinRoom reclaim check below, and run()'s timeout finalization.
     m_webSocketServer.setDisconnectHandler([this](SessionId id)
     {
+        if (Room* room = m_roomManager.roomForSession(id))
+        {
+            Seat seat = room->playerAssignment().seatOf(id);
+            bool gameInProgress = room->session().getStatus() == GameStatus::Playing;
+
+            if (seat != Seat::Spectator && gameInProgress)
+            {
+                std::string username = m_playerDirectory.usernameOf(id);
+                room->beginPendingDisconnect(seat, username,
+                    std::chrono::steady_clock::now() + std::chrono::seconds(kReconnectGraceSeconds));
+                room->removeMember(id);
+                m_webSocketServer.sendToMany(room->members(), OpponentDisconnectedMessage::build(kReconnectGraceSeconds));
+                return;
+            }
+        }
+
         leaveCurrentRoom(id);
         m_playerDirectory.release(id);
     });
@@ -162,6 +190,34 @@ void Server::run()
                 // membership behind in whatever room it was in before -
                 // same "minimal hygiene" reasoning as disconnect cleanup.
                 leaveCurrentRoom(inbound.sender);
+
+                // A reconnecting player - same username, same room code,
+                // within the grace period - gets restored to their exact
+                // old seat instead of a fresh assignment. No new client
+                // behavior needed: this is recognized purely from the
+                // server side of an ordinary login -> joinRoom sequence.
+                std::string username = m_playerDirectory.usernameOf(inbound.sender);
+                if (auto reclaimedSeat = room->tryReclaim(username))
+                {
+                    // Tell the room's OTHER member(s) before adding the
+                    // reconnecting player back into members() - they
+                    // must not be included in their own "you're back"
+                    // notice.
+                    m_webSocketServer.sendToMany(room->members(), OpponentReconnectedMessage::build());
+
+                    room->playerAssignment().reoccupySeat(*reclaimedSeat, inbound.sender);
+                    room->addMember(inbound.sender);
+                    m_roomManager.setSessionRoom(inbound.sender, joinCode);
+
+                    std::string reclaimedRole = (*reclaimedSeat == Seat::Spectator) ? "spectator" : "player";
+                    m_webSocketServer.sendTo(inbound.sender, RoomJoinedMessage::build(joinCode, reclaimedRole));
+
+                    PieceColor reclaimedColor = SeatColorNaming::colorForSeat(*reclaimedSeat);
+                    m_webSocketServer.sendTo(inbound.sender, AssignedMessage::build(SeatColorNaming::colorName(reclaimedColor)));
+
+                    m_webSocketServer.sendTo(inbound.sender, SnapshotBroadcaster::buildBoardMessage(room->session().getSnapshot()));
+                    continue;
+                }
 
                 Seat seat = room->playerAssignment().assign(inbound.sender);
                 room->addMember(inbound.sender);
@@ -242,6 +298,27 @@ void Server::run()
             }
             room->session().tick();
             room->gameEndCoordinator().checkAndHandle();
+
+            // A pending disconnect whose grace period has expired with
+            // no reconnection: the other player wins by resignation -
+            // same ratings-update + gameOver flow a real checkmate would
+            // produce (see GameEndCoordinator::forceResign()).
+            if (room->hasPendingDisconnect())
+            {
+                PendingDisconnect pending = room->pendingDisconnect();
+                if (std::chrono::steady_clock::now() >= pending.deadline)
+                {
+                    PieceColor loserColor = SeatColorNaming::colorForSeat(pending.seat);
+                    PieceColor winnerColor = (loserColor == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+
+                    room->gameEndCoordinator().forceResign(winnerColor);
+                    room->clearPendingDisconnect();
+
+                    SessionId staleId = room->playerAssignment().sessionIdForSeat(pending.seat);
+                    if (staleId != kInvalidSessionId)
+                        room->playerAssignment().release(staleId);
+                }
+            }
         }
 
         if (deltaMs > 0)
