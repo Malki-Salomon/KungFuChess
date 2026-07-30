@@ -24,7 +24,7 @@
     <ClCompile Include="GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PrinterAdapter.cpp">
+    <ClCompile Include="NetworkSnapshotAdapter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
@@ -65,7 +65,7 @@
     <ClInclude Include="GameWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PrinterAdapter.h">
+    <ClInclude Include="NetworkSnapshotAdapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">

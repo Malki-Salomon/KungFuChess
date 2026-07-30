@@ -81,7 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;$(ProjectDir)..\KungFuChessClientCommon;$(ProjectDir)..\KungFuChessGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -98,7 +98,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;$(ProjectDir)..\KungFuChessClientCommon;$(ProjectDir)..\KungFuChessGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;$(ProjectDir)..\KungFuChessClientCommon;$(ProjectDir)..\KungFuChessGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\KungFuChessCore;$(ProjectDir)..\KungFuChessAccounts;$(ProjectDir)..\KungFuChessSessionState;$(ProjectDir)..\KungFuChessServer\Network;$(ProjectDir)..\KungFuChessProtocol;$(ProjectDir)..\KungFuChessLogging;$(ProjectDir)..\KungFuChessClientCommon;$(ProjectDir)..\KungFuChessGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -168,6 +168,15 @@
     <ClCompile Include="PendingDisconnectTrackerTests.cpp" />
     <ClCompile Include="DisconnectMessagesTests.cpp" />
     <ClCompile Include="LoggerTests.cpp" />
+    <ClCompile Include="PieceRegistryTests.cpp" />
+    <ClCompile Include="JumpMessageTests.cpp" />
+    <ClCompile Include="NetworkSnapshotAdapterTests.cpp" />
+    <ClCompile Include="SquareNotationTests.cpp" />
+    <!-- KungFuChessGUI is an Application, so it produces no .lib to link
+         against - the one class under test here is compiled directly into
+         the test binary instead. It pulls in no OpenCV, which is exactly
+         what makes testing it this way possible. -->
+    <ClCompile Include="..\KungFuChessGUI\NetworkSnapshotAdapter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppTest.h" />
@@ -199,6 +208,10 @@
     <ClInclude Include="PendingDisconnectTrackerTests.h" />
     <ClInclude Include="DisconnectMessagesTests.h" />
     <ClInclude Include="LoggerTests.h" />
+    <ClInclude Include="PieceRegistryTests.h" />
+    <ClInclude Include="JumpMessageTests.h" />
+    <ClInclude Include="NetworkSnapshotAdapterTests.h" />
+    <ClInclude Include="SquareNotationTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
@@ -218,6 +231,9 @@
     </ProjectReference>
     <ProjectReference Include="..\KungFuChessLogging\KungFuChessLogging.vcxproj">
       <Project>{f3145515-c4f1-408d-be49-2041b9562505}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\KungFuChessClientCommon\KungFuChessClientCommon.vcxproj">
+      <Project>{3e7032c7-06f9-4ccc-b1bf-57b6cd8794b3}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

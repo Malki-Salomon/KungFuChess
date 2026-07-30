@@ -132,10 +132,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="MiniJson.h" />
+    <ClInclude Include="SquareNotation.h" />
     <ClInclude Include="LoginMessage.h" />
     <ClInclude Include="RegisterMessage.h" />
     <ClInclude Include="AuthResultMessage.h" />
     <ClInclude Include="MoveMessage.h" />
+    <ClInclude Include="JumpMessage.h" />
     <ClInclude Include="BoardMessage.h" />
     <ClInclude Include="GameOverMessage.h" />
     <ClInclude Include="AssignedMessage.h" />
@@ -149,10 +151,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MiniJson.cpp" />
+    <ClCompile Include="SquareNotation.cpp" />
     <ClCompile Include="LoginMessage.cpp" />
     <ClCompile Include="RegisterMessage.cpp" />
     <ClCompile Include="AuthResultMessage.cpp" />
     <ClCompile Include="MoveMessage.cpp" />
+    <ClCompile Include="JumpMessage.cpp" />
     <ClCompile Include="BoardMessage.cpp" />
     <ClCompile Include="GameOverMessage.cpp" />
     <ClCompile Include="AssignedMessage.cpp" />

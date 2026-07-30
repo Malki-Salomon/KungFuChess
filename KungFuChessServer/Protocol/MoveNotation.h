@@ -2,18 +2,16 @@
 
 #include <string>
 
-// Converts between standard algebraic squares ("e2") and the board
-// row/col + pixel-click representation Core actually understands.
+// Builds the command strings Core's StringCommandConvert parses, from
+// board coordinates.
 //
-// Board orientation matches the starting-position text used throughout
-// this project: row 0 = black's back rank (rank 8), row 7 = white's back
-// rank (rank 1). So rank r -> row = 8 - r, file 'a'..'h' -> col 0..7.
+// Deliberately does NOT convert between algebraic squares ("e2") and board
+// coordinates - that convention is shared with every client, so it lives
+// in the protocol library (see Protocol::SquareNotation) rather than being
+// re-implemented on the server side. This file's only responsibility is
+// the server-specific half: turning coordinates into Core commands.
 namespace MoveNotation
 {
-    // Parses e.g. "e2" into board row/col. Returns false (leaving
-    // outRow/outCol unchanged) if the text isn't a valid square.
-    bool squareToPosition(const std::string& square, int& outRow, int& outCol);
-
     // Builds the "click X Y" command Core's StringCommandConvert expects.
     // As of the current Controller::executeClick(int col, int row, ...),
     // Core takes DIRECT board col/row here - NOT pixel coordinates. (This
@@ -21,4 +19,9 @@ namespace MoveNotation
     // BoardMapper::pixelToCell() to convert pixels down to a cell, but that
     // conversion was removed from Core.)
     std::string toClickCommand(int row, int col);
+
+    // Builds the "jump X Y" command Core's StringCommandConvert expects.
+    // Same col/row-not-pixels convention as toClickCommand above; a jump
+    // names one square only, since the piece lands back where it started.
+    std::string toJumpCommand(int row, int col);
 }

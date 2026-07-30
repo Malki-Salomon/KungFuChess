@@ -262,30 +262,46 @@ void Server::run()
             if (!room->playerAssignment().bothSeatsFilled())
                 continue;
 
+            // A message carries a "type", so it can never be both a valid
+            // move and a valid jump - checking jump first is a precedence
+            // that never actually has to arbitrate between the two.
+            ParsedJump jump = MoveTranslator::parseJump(inbound.text);
             ParsedMove move = MoveTranslator::parseMove(inbound.text);
-            if (!move.valid)
+            if (!jump.valid && !move.valid)
                 continue;
 
             // No turns in this game (real-time "kung fu chess"), but a
-            // connection may only ever move pieces of its own assigned
-            // color, within its own room. Spectators can't move
+            // connection may only ever act on pieces of its own assigned
+            // color, within its own room. Spectators can't touch
             // anything. Queried straight from Core (via GameSession)
             // rather than from a cache - SnapshotBroadcaster's job is
             // only to broadcast, not to answer questions about board
             // state.
             //
+            // Ownership asks the same question of a move's "from" square
+            // and of a jump's single square - does the piece standing
+            // there belong to the sender? - so both paths share this one
+            // check rather than each carrying its own copy to drift.
+            //
             // Direct indexing is safe here without a bounds check:
-            // MoveNotation::squareToPosition only ever produces 0..7 for
-            // a valid square (file a-h, rank 1-8), and move.valid is
+            // Protocol::SquareNotation::tryParse only ever produces 0..7
+            // for a valid square (file a-h, rank 1-8), and validity is
             // already checked above - it's the earlier guard that
             // guarantees this invariant, not anything about the
             // snapshot itself.
             PieceColor senderColor = SeatColorNaming::colorForSeat(room->playerAssignment().seatOf(inbound.sender));
             GameSnapshot snapshot = room->session().getSnapshot();
-            PieceColor pieceColorAtFrom = snapshot.cells[move.fromRow][move.fromCol].color;
+            int originRow = jump.valid ? jump.row : move.fromRow;
+            int originCol = jump.valid ? jump.col : move.fromCol;
 
-            if (senderColor == PieceColor::None || senderColor != pieceColorAtFrom)
+            if (senderColor == PieceColor::None || senderColor != snapshot.cells[originRow][originCol].color)
                 continue; // silently ignored, same as Core's own illegal-move handling
+
+            if (jump.valid)
+            {
+                room->session().dispatchCommand(MoveTranslator::toJumpCommand(jump));
+                continue;
+            }
 
             for (const auto& coreCmd : MoveTranslator::toClickCommands(move))
             {

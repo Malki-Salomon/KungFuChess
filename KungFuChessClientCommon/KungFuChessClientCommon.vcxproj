@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{cacbc78e-311e-41d0-a086-e66e3cda139b}</ProjectGuid>
-    <RootNamespace>KungFuChessGUI</RootNamespace>
+    <ProjectGuid>{3E7032C7-06F9-4CCC-B1BF-57B6CD8794B3}</ProjectGuid>
+    <RootNamespace>KungFuChessClientCommon</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
@@ -31,26 +31,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -79,12 +79,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -94,12 +96,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -107,15 +111,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;$(VcpkgRoot)\installed\x64-windows\include\opencv4;..\KungFuChessCore;..\KungFuChessClientCommon;..\KungFuChessProtocol;..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;mswsock.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -124,56 +128,35 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;$(VcpkgRoot)\installed\x64-windows\include\opencv4;..\KungFuChessCore;..\KungFuChessClientCommon;..\KungFuChessProtocol;..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;..\KungFuChessProtocol;..\KungFuChessLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;mswsock.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GameLoop.cpp" />
-    <ClCompile Include="img.cpp" />
-    <ClCompile Include="InputHandler.cpp" />
-    <ClCompile Include="KungFuChessGUI.cpp" />
-    <ClCompile Include="GameWindow.cpp" />
-    <ClCompile Include="NetworkSnapshotAdapter.cpp" />
-    <ClCompile Include="TextureManager.cpp" />
-    <ClCompile Include="Layout.cpp" />
-    <ClCompile Include="BoardRenderer.cpp" />
-    <ClCompile Include="BoardAnimationController.cpp" />
-    <ClCompile Include="SpriteAnimationClipLoader.cpp" />
-    <ClCompile Include="SpriteAnimationCatalog.cpp" />
-    <ClCompile Include="SpriteAnimationStateMachine.cpp" />
-    <ClCompile Include="PieceAssetPaths.cpp" />
+    <ClCompile Include="WebSocketClient.cpp" />
+    <ClCompile Include="ConsoleLoginFlow.cpp" />
+    <ClCompile Include="MoveSender.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameLoop.h" />
-    <ClInclude Include="img.hpp" />
-    <ClInclude Include="GameWindow.h" />
-    <ClInclude Include="InputHandler.h" />
-    <ClInclude Include="NetworkSnapshotAdapter.h" />
-    <ClInclude Include="TextureManager.h" />
-    <ClInclude Include="Layout.h" />
-    <ClInclude Include="BoardRenderer.h" />
-    <ClInclude Include="BoardAnimationController.h" />
-    <ClInclude Include="SpriteAnimationTypes.h" />
-    <ClInclude Include="SpriteAnimationClipLoader.h" />
-    <ClInclude Include="SpriteAnimationCatalog.h" />
-    <ClInclude Include="SpriteAnimationStateMachine.h" />
-    <ClInclude Include="PieceAssetPaths.h" />
-    <ClInclude Include="IMoveIntentHint.h" />
+    <ClInclude Include="WebSocketClient.h" />
+    <ClInclude Include="ConsoleLoginFlow.h" />
+    <ClInclude Include="MoveSender.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KungFuChessCore\KungFuChessCore.vcxproj">
-      <Project>{9a233c1f-6476-4998-a4e3-4d27d5eda164}</Project>
+    <ProjectReference Include="..\KungFuChessProtocol\KungFuChessProtocol.vcxproj">
+      <Project>{0aae5065-5faf-4507-9bae-50387db49d3b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\KungFuChessClientCommon\KungFuChessClientCommon.vcxproj">
-      <Project>{3e7032c7-06f9-4ccc-b1bf-57b6cd8794b3}</Project>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KungFuChessLogging\KungFuChessLogging.vcxproj">
+      <Project>{f3145515-c4f1-408d-be49-2041b9562505}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

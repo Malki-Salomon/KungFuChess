@@ -1,76 +1,91 @@
 // KungFuChessGUI.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+// This process runs NO game logic. It is a pure display-and-input client:
+// it renders whatever board the server sends it, and forwards clicks as
+// move/jump requests. The game engine (Core, server-side) is the sole
+// source of truth for legality, ownership, turn order and game state -
+// see the Level 5 directive.
 #include "img.hpp"
-#include "IGameController.h"
-//#include "GameSnapshot.h"
 #include "Events/EventBus.h"
 #include "GameWindow.h"
-#include "PrinterAdapter.h"
-#include <iostream>
-#include <string>
+#include "NetworkSnapshotAdapter.h"
 #include "InputHandler.h"
 #include "GameLoop.h"
+
+#include "WebSocketClient.h"
+#include "ConsoleLoginFlow.h"
+#include "MoveSender.h"
+#include "Logger.h"
+
+#include <iostream>
+#include <string>
 #include <opencv2/highgui.hpp>
 
 namespace
 {
-    // Standard chess starting position, in the same text notation used by the
-    // Core/Test board format: "<w|b><K|Q|R|B|N|P>" or "." for an empty square.
-    // Row 0 is White's back rank, row 7 is Black's.
-    // NOTE: no "Commands:" / "print board" section anymore - Game now
-    // publishes the initial snapshot on its own as soon as it has both a
-    // board and a printer (see Game::publishSnapshotIfReady), so the first
-    // paint no longer depends on an explicit startup command.
-    std::vector<std::string> buildStartingBoardText()
-    {
-        return
-        {
-            " Board:",
-            "bR bN bB bQ bK bB bN bR",
-            "bP bP bP bP bP bP bP bP",
-            ". . . . . . . .",
-            ". . . . . . . .",
-            ". . . . . . . .",
-            ". . . . . . . .",
-            "wP wP wP wP wP wP wP wP",
-            "wR wN wB wQ wK wB wN wR"
-        };
-    }
+    constexpr unsigned short kServerPort = 9000; // matches Server.cpp's kListenPort
 }
 
 int main()
 {
     try {
-        auto app = CoreFactory::createGameController();
+        Logger::init("gui-client.log");
 
-        // The sole notification channel between Core and any consumer
-        // (GameWindow today; a future WebSocket relay, logger, etc. could
-        // subscribe alongside it without App or Game changing at all).
+        WebSocketClient client;
+        if (!client.connect("localhost", kServerPort))
+        {
+            std::cerr << "Could not connect to the server. Is KungFuChessServer.exe running?\n";
+            // WebSocketClient::connect() already logged the specific failure.
+            return 1;
+        }
+
+        // Deliberately done in the console, BEFORE any graphics window
+        // opens: OpenCV cannot do text entry, and a native input dialog is
+        // significant separate work, so this reuses the already-proven
+        // console flow shared with KungFuChessShellClient. Replacing it
+        // with an in-window input box is a reasonable future enhancement.
+        std::string username, roomCode, role;
+        if (!runConsoleLoginAndRoomFlow(client, username, roomCode, role))
+        {
+            client.close();
+            return 1;
+        }
+
+        // The sole notification channel between the network layer and the
+        // display. NetworkSnapshotAdapter publishes onto it; GameWindow
+        // subscribes. Neither holds a reference to the other.
         EventBus bus;
 
         // Uniquely identifies this session's display window. In a
-        // multi-session server this would be the session/game ID handed to
-        // each per-connection setup instead of a fixed literal, so that
-        // concurrent sessions never collide on the same OpenCV window name.
+        // multi-session setup this would be the session/game ID rather
+        // than a fixed literal, so concurrent windows never collide on the
+        // same OpenCV window name.
         const std::string windowName = "GameWindow_Session1";
 
-        GameWindow gameWindow(*app, windowName, bus);
-        InputHandler inputHandler(*app, gameWindow.getLayout(), gameWindow.getWindowName(), gameWindow.getMoveIntentHint());
-        PrinterAdapter printer(bus);
-        app->setOutputDevice(&printer);
-        app->parseLoad(buildStartingBoardText());
+        GameWindow gameWindow(windowName, bus);
+        NetworkSnapshotAdapter snapshotAdapter(bus);
+        MoveSender moveSender(client);
+        InputHandler inputHandler(moveSender, gameWindow.getLayout(), gameWindow.getWindowName(),
+                                   gameWindow.getMoveIntentHint());
 
-        // Game::setupBoard() just triggered the initial paint synchronously
-        // (via the printer -> EventBus -> GameWindow::update chain), but
-        // imshow() alone doesn't flush pixels to the screen - OpenCV only
-        // does that when its window message loop gets pumped, which
-        // otherwise wouldn't happen until GameLoop::run()'s first
-        // cv::waitKey() call. Pump it once here so the starting board is
-        // guaranteed to be visible before the loop even begins.
-        cv::waitKey(1);
+        // Only now start receiving: everything a board message will touch
+        // on arrival (the bus, the window, the adapter) already exists, so
+        // the very first snapshot can't race construction.
+        client.startReceiveLoop([&snapshotAdapter](const std::string& text)
+        {
+            snapshotAdapter.onMessage(text);
+        });
 
-        GameLoop gameLoop(*app, gameWindow);
+        // The first paint happens inside GameLoop::run(), on this thread:
+        // the board arriving on the receive thread only parks a snapshot
+        // (see GameWindow's THREADING note), and the loop's first tick()
+        // is what actually draws it and pumps OpenCV's message loop.
+        GameLoop gameLoop(gameWindow);
         gameLoop.run();
+
+        // Ends the receive thread before the objects its handler captures
+        // start going out of scope.
+        client.close();
 
         return 0;
     }

@@ -1,9 +1,11 @@
 #include "InputHandler.h"
+#include "MoveSender.h"
+#include "SquareNotation.h"
 #include <opencv2/highgui.hpp> // cv::namedWindow, cv::setMouseCallback
 
-InputHandler::InputHandler(IGameController& gameController, const Layout& layout, const std::string& windowName,
+InputHandler::InputHandler(MoveSender& moveSender, const Layout& layout, const std::string& windowName,
                             IMoveIntentHint& moveIntentHint)
-    : gameController(gameController), layout(layout), moveIntentHint(moveIntentHint)
+    : moveSender(moveSender), layout(layout), moveIntentHint(moveIntentHint)
 {
     attachToWindow(windowName);
 }
@@ -40,17 +42,43 @@ void InputHandler::handleMouseClick(int pixelX, int pixelY, bool isDoubleClick)
         return;
     }
 
-    // Core now receives board cells directly, not pixels - this is the only
-    // place that translates screen space into the "click col row" /
-    // "jump col row" protocol Core parses (see StringCommandConvert).
-    std::string command;
-    if (isDoubleClick) {
-        moveIntentHint.hintNextMoveIsJump();
-        command = "jump " + std::to_string(col) + " " + std::to_string(row);
-    }
-    else {
-        command = "click " + std::to_string(col) + " " + std::to_string(row);
+    // Screen space becomes a board cell here; turning that cell into the
+    // algebraic square text belongs to the protocol, and building the
+    // actual message belongs to MoveSender - neither is this class's job.
+    std::string square = Protocol::SquareNotation::toNotation(row, col);
+    if (square.empty())
+    {
+        return;
     }
 
-    gameController.dispatchCommand(command);
+    // A jump names a single square and needs no second click, so it is
+    // dispatched immediately and never becomes a pending origin.
+    if (isDoubleClick)
+    {
+        moveIntentHint.hintNextMoveIsJump();
+        moveSender.sendJump(square);
+        pendingFromSquare.clear();
+        return;
+    }
+
+    // First click picks the origin; the second one completes the move.
+    // No check that the origin actually holds one of this player's pieces
+    // - that is the server's call to make, and it already silently
+    // rejects anything illegitimate.
+    if (pendingFromSquare.empty())
+    {
+        pendingFromSquare = square;
+        return;
+    }
+
+    // Clicking the same square twice cancels the selection rather than
+    // sending a nonsensical move onto itself.
+    if (pendingFromSquare == square)
+    {
+        pendingFromSquare.clear();
+        return;
+    }
+
+    moveSender.sendMove(pendingFromSquare, square);
+    pendingFromSquare.clear();
 }
