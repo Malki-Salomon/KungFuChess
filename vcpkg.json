@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "kungfuchess",
+  "description": "Real-time Kung Fu Chess - server, clients and shared libraries.",
+  "builtin-baseline": "5b698638c97b4610044a254347d571f823e56557",
+  "dependencies": [
+    "boost-asio",
+    "boost-beast",
+    "libsodium",
+    "sqlite3"
+  ],
+  "default-features": [
+    "gui"
+  ],
+  "features": {
+    "gui": {
+      "description": "Dependencies for the OpenCV-based graphical client (KungFuChessGUI). On by default so a plain `cmake -S . -B build` builds the same set of projects as KungFuChess.sln; switch it off with --no-default-features (see the 'headless' preset) for server-only builds.",
+      "dependencies": [
+        "opencv4"
+      ]
+    }
+  }
+}

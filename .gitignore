@@ -1,6 +1,14 @@
 .vs/
 .vscode/
 
+# CMake build trees (see CMakePresets.json) and vcpkg's manifest-mode
+# install tree. The Visual Studio build's own output dirs are listed below.
+build/
+build-*/
+out/
+CMakeUserPresets.json
+vcpkg_installed/
+
 *.user
 *.suo
 *.opensdf
